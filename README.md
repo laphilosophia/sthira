@@ -18,73 +18,108 @@ This is the philosophy behind Sthira: **enterprise-grade state infrastructure** 
 
 ---
 
+## 📦 Project Structure
+
+Sthira is a monorepo containing a modular set of packages designed to work together seamlessly.
+
+| Package                 | Purpose                                                      | Size   | Documentation                           |
+| :---------------------- | :----------------------------------------------------------- | :----- | :-------------------------------------- |
+| **`@sthira/core`**      | The infrastructure engine. Store creation, actions, plugins. | ~2KB   | [Core Concepts](docs/core-concepts.md)  |
+| **`@sthira/react`**     | Official React hooks (`useStore`).                           | ~1KB   | [API Reference](docs/packages/react.md) |
+| **`@sthira/persist`**   | Automated storage persistence (Local/Session/IndexedDB).     | ~0.5KB | [Docs](docs/ecosystem/persistence.md)   |
+| **`@sthira/cross-tab`** | Instant state synchronization between detailed tabs.         | ~0.3KB | [Docs](docs/ecosystem/sync.md)          |
+| **`@sthira/devtools`**  | Redux DevTools integration for time-travel debugging.        | ~0.4KB | [Docs](docs/ecosystem/devtools.md)      |
+| **`@sthira/fetch`**     | Managed async data fetching with loading/error states.       | ~0.8KB | [Docs](docs/ecosystem/fetch.md)         |
+| **`@sthira/perf`**      | Performance metrics and slow action logging.                 | ~0.3KB | [Docs](docs/ecosystem/perf.md)          |
+| **`@sthira/chunked`**   | Virtual pagination for managing massive arrays.              | ~0.5KB | [Docs](docs/ecosystem/chunked.md)       |
+
 ## 📚 Documentation
 
-Sthira is not just another state management library. It's a comprehensive state infrastructure designed for heavy workloads.
+Detailed guides are available in the **[docs/](docs/)** folder:
 
 - **[Introduction](docs/intro.md)**: Philosophy and Comparison.
-- **[Installation](docs/installation.md)**: Get up and running.
-- **[Quick Start](docs/quick-start.md)**: Build a reactive counter in minutes.
-- **[Core Concepts](docs/core-concepts.md)**: Store, Schema, Actions.
-- **Ecosystem**:
-  - [Persistence](docs/ecosystem/persistence.md)
-  - [Cross-Tab Sync](docs/ecosystem/sync.md)
-  - [DevTools](docs/ecosystem/devtools.md)
+- **[Installation](docs/installation.md)**: Getting started guide.
+- **[Quick Start](docs/quick-start.md)**: Build your first store.
 
-## Core Differentiators
+---
 
-| Feature                 | Sthira      | Zustand   | Jotai     | Redux      |
-| ----------------------- | ----------- | --------- | --------- | ---------- |
-| Schema Validation (Zod) | ✅          | ❌        | ❌        | ❌         |
-| Plugin Architecture     | ✅          | ❌        | ❌        | ✅         |
-| Cross-tab Sync          | ✅ Built-in | 3rd party | ❌        | 3rd party  |
-| Persistence Layer       | ✅ Built-in | 3rd party | 3rd party | 3rd party  |
-| Interceptors            | ✅          | ❌        | ❌        | Middleware |
+## 🚀 Quick Start Example: "The Enterprise Setup"
 
-## Quick Start Example
+Unlike simple counters, real-world apps need **persistence**, **debugging**, and **sync** out of the box.
 
 ```bash
-npm install @sthira/core @sthira/react zod
+npm install @sthira/core @sthira/react @sthira/persist @sthira/devtools @sthira/cross-tab zod
 ```
 
-```typescript
-import { createStore } from '@sthira/core'
-import { useStore } from '@sthira/react'
-import { z } from 'zod'
+```tsx
+import { createStore } from '@sthira/core';
+import { useStore } from '@sthira/react';
+import { createPersistPlugin } from '@sthira/persist';
+import { createDevToolsPlugin } from '@sthira/devtools';
+import { createSyncPlugin } from '@sthira/cross-tab';
+import { z } from 'zod';
 
-const counterStore = createStore({
-  name: 'counter',
-  schema: z.object({ count: z.number() }),
-  state: { count: 0 },
-  actions: {
-    increment: (state) => ({ count: state.count + 1 }),
+// 1. Define strict schema
+const userSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string().min(2),
+  preferences: z.object({
+    theme: z.enum(['light', 'dark']),
+    notifications: z.boolean(),
+  }),
+});
+
+// 2. Create reliable store
+export const userStore = createStore({
+  name: 'user-session', // ID for sync and persistence
+
+  // Initial State
+  state: {
+    id: crypto.randomUUID(),
+    name: 'Guest',
+    preferences: { theme: 'light', notifications: true },
   },
-})
 
-function Counter() {
-  const { count } = useStore(counterStore)
-  return <button onClick={() => counterStore.actions.increment()}>{count}</button>
+  // Runtime Validation
+  schema: userSchema,
+
+  // Logic
+  actions: {
+    updateTheme: (state, theme: 'light' | 'dark') => ({
+      preferences: { ...state.preferences, theme },
+    }),
+    updateName: (state, name: string) => ({ name }),
+  },
+
+  // Infrastructure Plugins
+  plugins: [
+    createPersistPlugin({ key: 'app_user_v1' }), // Saves to localStorage
+    createSyncPlugin(), // Syncs across tabs
+    createDevToolsPlugin({ name: 'User Store' }), // Inspect in Redux DevTools
+  ],
+});
+
+// 3. Consume in UI
+function UserProfile() {
+  const { name, preferences } = useStore(userStore);
+
+  return (
+    <div className={`app ${preferences.theme}`}>
+      <h1>Welcome, {name}</h1>
+      <button onClick={() => userStore.actions.updateTheme('dark')}>Switch to Dark Mode</button>
+    </div>
+  );
 }
 ```
 
-## Enterprise Configuration
+## Why Sthira?
 
-```typescript
-const store = createStore({
-  name: 'enterprise-app',
-  schema: appSchema,
-  state: initialState,
-  plugins: [
-    createPersistPlugin({ key: 'app', storage: 'indexeddb' }),
-    createDevToolsPlugin({ name: 'MyApp' }),
-    createSyncPlugin({ channel: 'app-sync' }),
-  ],
-  interceptors: {
-    beforeSet: (next, prev) => auditLog(next, prev),
-    onError: (error) => errorReporter.capture(error),
-  },
-});
-```
+| Feature          | Sthira              | Others               |
+| :--------------- | :------------------ | :------------------- |
+| **Validation**   | schema-first (Zod)  | manual               |
+| **Architecture** | plugin-based        | middleware/hooks     |
+| **Ecosystem**    | 1st party supported | fragmented 3rd party |
+| **Philosophy**   | Stability > Speed   | Speed > Stability    |
 
 ## License
 
