@@ -1,6 +1,6 @@
 {
   "name": "@sthira/react",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "React bindings for Sthira state manager",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -29,7 +29,7 @@
   },
   "peerDependencies": {
     "react": ">=18.0.0",
-    "@sthira/core": ">=0.1.0"
+    "@sthira/core": ">=0.2.0"
   },
   "devDependencies": {
     "@sthira/core": "workspace:*",
