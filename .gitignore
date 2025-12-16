@@ -27,3 +27,5 @@ pnpm-debug.log*
 # Project specific
 !packages/*/dist
 !packages/*/coverage
+
+.roadmap

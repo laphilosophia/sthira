@@ -4,8 +4,10 @@
 
 **Enterprise-grade state infrastructure for mission-critical React applications.**
 
-[![npm version](https://img.shields.io/npm/v/@sthirajs/core.svg)](https://www.npmjs.com/package/@sthirajs/core)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![npm](https://img.shields.io/npm/v/@sthirajs/core)
+![npm bundle size](https://img.shields.io/bundlephobia/minzip/@sthirajs/core)
+![GitHub license](https://img.shields.io/github/license/laphilosophia/sthira)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue)
 
 ---
 
@@ -22,8 +24,8 @@ This is the philosophy behind Sthira: **enterprise-grade state infrastructure** 
 
 Sthira is a monorepo containing a modular set of packages designed to work together seamlessly.
 
-| Package                 | Purpose                                                      | Size   | Documentation                           |
-| :---------------------- | :----------------------------------------------------------- | :----- | :-------------------------------------- |
+| Package                   | Purpose                                                      | Size   | Documentation                           |
+| :------------------------ | :----------------------------------------------------------- | :----- | :-------------------------------------- |
 | **`@sthirajs/core`**      | The infrastructure engine. Store creation, actions, plugins. | ~2KB   | [Core Concepts](docs/core-concepts.md)  |
 | **`@sthirajs/react`**     | Official React hooks (`useStore`).                           | ~1KB   | [API Reference](docs/packages/react.md) |
 | **`@sthirajs/persist`**   | Automated storage persistence (Local/Session/IndexedDB).     | ~0.5KB | [Docs](docs/ecosystem/persistence.md)   |
