@@ -255,8 +255,8 @@ var InterceptorsManager = class {
 // src/plugins/resolver.ts
 function createLazyPersistPlugin(config) {
   let hydrated = false;
-  let persisting = false;
-  let lastPersistedAt = null;
+  const persisting = false;
+  const lastPersistedAt = null;
   let realApi = null;
   const api = {
     hydrate: async () => {
