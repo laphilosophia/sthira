@@ -3,10 +3,10 @@
 // ============================================================================
 
 // Batching
-export { createBatcher, createReactBatcher, deepMerger, defaultMerger } from './batcher'
+export { createBatcher, createReactBatcher, deepMerger, defaultMerger } from './batcher';
 
 // Scheduler
-export { TaskScheduler, chunked, getScheduler, yieldToMain } from './scheduler'
+export { TaskScheduler, chunked, getScheduler, yieldToMain } from './scheduler';
 
 // Memory
 export {
@@ -17,11 +17,11 @@ export {
   getMemoryPressure,
   isMemoryPressured,
   type MemoryPressureCallback,
-} from './memory'
+} from './memory';
 
 // Utilities (shared patterns)
-export { createDebounced, createPausable } from './utils'
-export type { DebounceOptions, Debounced, PausableController } from './utils'
+export { createDebounced, createPausable } from './utils';
+export type { DebounceOptions, Debounced, PausableController } from './utils';
 
 // Types
 export type {
@@ -34,4 +34,4 @@ export type {
   TaskPriority,
   WorkerPoolOptions,
   WorkerTask,
-} from './types'
+} from './types';

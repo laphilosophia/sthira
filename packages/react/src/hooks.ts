@@ -1,37 +1,37 @@
-import type { Store } from '@sthira/core'
-import { useCallback, useMemo, useRef, useSyncExternalStore } from 'react'
-import type { EqualityFn, Selector, UseStoreReturn } from './types'
+import type { Store } from '@sthira/core';
+import { useCallback, useMemo, useRef, useSyncExternalStore } from 'react';
+import type { EqualityFn, Selector, UseStoreReturn } from './types';
 
 /**
  * Default shallow equality check
  */
 function defaultEquality<T>(a: T, b: T): boolean {
-  return Object.is(a, b)
+  return Object.is(a, b);
 }
 
 /**
  * Shallow equality for objects
  */
 export function shallowEqual<T>(a: T, b: T): boolean {
-  if (Object.is(a, b)) return true
-  if (typeof a !== 'object' || a === null) return false
-  if (typeof b !== 'object' || b === null) return false
+  if (Object.is(a, b)) return true;
+  if (typeof a !== 'object' || a === null) return false;
+  if (typeof b !== 'object' || b === null) return false;
 
-  const keysA = Object.keys(a)
-  const keysB = Object.keys(b)
+  const keysA = Object.keys(a);
+  const keysB = Object.keys(b);
 
-  if (keysA.length !== keysB.length) return false
+  if (keysA.length !== keysB.length) return false;
 
   for (const key of keysA) {
     if (
       !Object.prototype.hasOwnProperty.call(b, key) ||
       !Object.is((a as Record<string, unknown>)[key], (b as Record<string, unknown>)[key])
     ) {
-      return false
+      return false;
     }
   }
 
-  return true
+  return true;
 }
 
 /**
@@ -43,13 +43,13 @@ export function shallowEqual<T>(a: T, b: T): boolean {
  * ```
  */
 export function useStore<TState extends object, TActions extends object>(
-  store: Store<TState, TActions>
+  store: Store<TState, TActions>,
 ): UseStoreReturn<TState, TActions> {
   const state = useSyncExternalStore(
     store.subscribe,
     store.getState,
-    store.getState // SSR fallback
-  )
+    store.getState, // SSR fallback
+  );
 
   // Memoize the combined return value
   return useMemo(
@@ -59,8 +59,8 @@ export function useStore<TState extends object, TActions extends object>(
       getState: store.getState,
       subscribe: store.subscribe,
     }),
-    [state, store.actions, store.getState, store.subscribe]
-  )
+    [state, store.actions, store.getState, store.subscribe],
+  );
 }
 
 /**
@@ -75,23 +75,23 @@ export function useStore<TState extends object, TActions extends object>(
 export function useSelector<TState extends object, TActions extends object, TResult>(
   store: Store<TState, TActions>,
   selector: Selector<TState, TResult>,
-  equalityFn: EqualityFn<TResult> = defaultEquality
+  equalityFn: EqualityFn<TResult> = defaultEquality,
 ): TResult {
   // Keep refs for selector and equality function to avoid re-subscriptions
-  const selectorRef = useRef(selector)
-  const equalityFnRef = useRef(equalityFn)
+  const selectorRef = useRef(selector);
+  const equalityFnRef = useRef(equalityFn);
 
   // Update refs on each render
-  selectorRef.current = selector
-  equalityFnRef.current = equalityFn
+  selectorRef.current = selector;
+  equalityFnRef.current = equalityFn;
 
   // Keep track of the previous selected value
-  const prevSelectedRef = useRef<TResult | undefined>(undefined)
+  const prevSelectedRef = useRef<TResult | undefined>(undefined);
 
   // Create stable getSnapshot function
   const getSnapshot = useCallback((): TResult => {
-    const state = store.getState()
-    const nextSelected = selectorRef.current(state)
+    const state = store.getState();
+    const nextSelected = selectorRef.current(state);
 
     // If we have a previous value and it's equal, return the previous one
     // This maintains referential equality for React's bailout optimization
@@ -99,30 +99,30 @@ export function useSelector<TState extends object, TActions extends object, TRes
       prevSelectedRef.current !== undefined &&
       equalityFnRef.current(prevSelectedRef.current, nextSelected)
     ) {
-      return prevSelectedRef.current
+      return prevSelectedRef.current;
     }
 
-    prevSelectedRef.current = nextSelected
-    return nextSelected
-  }, [store])
+    prevSelectedRef.current = nextSelected;
+    return nextSelected;
+  }, [store]);
 
   // Subscribe with a wrapper that checks equality
   const subscribe = useCallback(
     (onStoreChange: () => void) => {
       return store.subscribe((state, prevState) => {
-        const nextSelected = selectorRef.current(state)
-        const prevSelected = selectorRef.current(prevState)
+        const nextSelected = selectorRef.current(state);
+        const prevSelected = selectorRef.current(prevState);
 
         // Only trigger re-render if selected value changed
         if (!equalityFnRef.current(nextSelected, prevSelected)) {
-          onStoreChange()
+          onStoreChange();
         }
-      })
+      });
     },
-    [store]
-  )
+    [store],
+  );
 
-  return useSyncExternalStore(subscribe, getSnapshot, getSnapshot)
+  return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 }
 
 /**
@@ -134,9 +134,9 @@ export function useSelector<TState extends object, TActions extends object, TRes
  * ```
  */
 export function useStoreState<TState extends object, TActions extends object>(
-  store: Store<TState, TActions>
+  store: Store<TState, TActions>,
 ): TState {
-  return useSyncExternalStore(store.subscribe, store.getState, store.getState)
+  return useSyncExternalStore(store.subscribe, store.getState, store.getState);
 }
 
 /**
@@ -148,10 +148,10 @@ export function useStoreState<TState extends object, TActions extends object>(
  * ```
  */
 export function useStoreActions<TState extends object, TActions extends object>(
-  store: Store<TState, TActions>
+  store: Store<TState, TActions>,
 ): TActions {
   // Actions are stable, no need for subscription
-  return store.actions
+  return store.actions;
 }
 
 /**
@@ -164,11 +164,11 @@ export function useStoreActions<TState extends object, TActions extends object>(
  * ```
  */
 export function useComputed<TState extends object, TActions extends object>(
-  store: Store<TState, TActions>
+  store: Store<TState, TActions>,
 ): Record<string, unknown> {
   // Subscribe to state changes which invalidate computed
-  useSyncExternalStore(store.subscribe, store.getState, store.getState)
+  useSyncExternalStore(store.subscribe, store.getState, store.getState);
 
   // Return computed values
-  return store.getComputed()
+  return store.getComputed();
 }

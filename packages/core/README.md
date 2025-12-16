@@ -11,8 +11,8 @@ pnpm add @sthira/core zod
 ## Quick Start
 
 ```typescript
-import { createStore } from '@sthira/core'
-import { z } from 'zod'
+import { createStore } from '@sthira/core';
+import { z } from 'zod';
 
 const store = createStore({
   name: 'counter',
@@ -21,14 +21,14 @@ const store = createStore({
   actions: (set, get) => ({
     increment: () => set({ count: get().count + 1 }),
   }),
-})
+});
 
 // Subscribe
-store.subscribe((state) => console.log(state))
+store.subscribe((state) => console.log(state));
 
 // Use
-store.actions.increment()
-console.log(store.getState()) // { count: 1 }
+store.actions.increment();
+console.log(store.getState()); // { count: 1 }
 ```
 
 ## API Reference
@@ -39,13 +39,13 @@ Creates a reactive store.
 
 ```typescript
 interface StoreConfig<T> {
-  name: string // Unique store identifier
-  schema?: ZodSchema<T> // Zod schema for validation
-  state: T // Initial state
-  actions?: ActionCreator<T> // Action definitions
-  computed?: ComputedDefinitions // Derived state
-  interceptors?: Interceptors // Lifecycle hooks
-  performance?: PerformanceConfig // Optimization settings
+  name: string; // Unique store identifier
+  schema?: ZodSchema<T>; // Zod schema for validation
+  state: T; // Initial state
+  actions?: ActionCreator<T>; // Action definitions
+  computed?: ComputedDefinitions; // Derived state
+  interceptors?: Interceptors; // Lifecycle hooks
+  performance?: PerformanceConfig; // Optimization settings
 }
 ```
 
@@ -60,9 +60,9 @@ const store = createStore({
   computed: {
     total: (state) => state.items.reduce((s, i) => s + i.price * i.qty, 0),
   },
-})
+});
 
-store.getComputed('total') // 20
+store.getComputed('total'); // 20
 ```
 
 ### FSM Async States
@@ -70,24 +70,24 @@ store.getComputed('total') // 20
 Predictable async state transitions:
 
 ```typescript
-import { createStore, createAsyncState, AsyncStateMachine } from '@sthira/core'
+import { createStore, createAsyncState, AsyncStateMachine } from '@sthira/core';
 
 const store = createStore({
   name: 'users',
   state: { users: [], async: createAsyncState() },
   actions: (set, get, { fsm }) => ({
     fetch: async () => {
-      fsm.transition('fetch') // idle → loading
+      fsm.transition('fetch'); // idle → loading
       try {
-        const users = await api.get()
-        set({ users })
-        fsm.transition('success') // loading → success
+        const users = await api.get();
+        set({ users });
+        fsm.transition('success'); // loading → success
       } catch (e) {
-        fsm.transition('error', e) // loading → error
+        fsm.transition('error', e); // loading → error
       }
     },
   }),
-})
+});
 
 // States: 'idle' | 'loading' | 'error' | 'success' | 'stale'
 ```
@@ -102,17 +102,17 @@ const store = createStore({
   state: { value: 0 },
   interceptors: {
     beforeSet: (next, prev) => {
-      if (next.value < 0) return prev // Reject
-      return next
+      if (next.value < 0) return prev; // Reject
+      return next;
     },
     afterSet: (state) => {
-      analytics.track('state_change', state)
+      analytics.track('state_change', state);
     },
     onError: (error, context) => {
-      errorReporter.capture(error, context)
+      errorReporter.capture(error, context);
     },
   },
-})
+});
 ```
 
 ### Selectors
@@ -120,12 +120,12 @@ const store = createStore({
 Optimized state selection:
 
 ```typescript
-import { createSelector } from '@sthira/core'
+import { createSelector } from '@sthira/core';
 
 const selectTotal = createSelector(
   (state) => state.items,
-  (items) => items.reduce((s, i) => s + i.price, 0)
-)
+  (items) => items.reduce((s, i) => s + i.price, 0),
+);
 ```
 
 ## Exports

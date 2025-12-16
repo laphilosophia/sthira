@@ -10,10 +10,10 @@ export {
   useStore,
   useStoreActions,
   useStoreState,
-} from './hooks'
+} from './hooks';
 
 // Context
-export { StoreProvider, useHasStoreContext, useStoreContext } from './context'
+export { StoreProvider, useHasStoreContext, useStoreContext } from './context';
 
 // Types
 export type {
@@ -23,6 +23,6 @@ export type {
   Selector,
   UseSelectorOptions,
   UseStoreReturn,
-} from './types'
+} from './types';
 
-export type { StoreProviderProps } from './context'
+export type { StoreProviderProps } from './context';

@@ -3,9 +3,9 @@
  */
 export interface DebounceOptions {
   /** Debounce delay in ms */
-  delay: number
+  delay: number;
   /** Optional max wait time */
-  maxWait?: number
+  maxWait?: number;
 }
 
 /**
@@ -13,13 +13,13 @@ export interface DebounceOptions {
  */
 export interface Debounced<T extends (...args: unknown[]) => void> {
   /** Call the debounced function */
-  (...args: Parameters<T>): void
+  (...args: Parameters<T>): void;
   /** Flush immediately */
-  flush(): void
+  flush(): void;
   /** Cancel pending execution */
-  cancel(): void
+  cancel(): void;
   /** Check if pending */
-  pending(): boolean
+  pending(): boolean;
 }
 
 /**
@@ -28,83 +28,83 @@ export interface Debounced<T extends (...args: unknown[]) => void> {
  */
 export function createDebounced<T extends (...args: unknown[]) => void>(
   fn: T,
-  options: DebounceOptions | number
+  options: DebounceOptions | number,
 ): Debounced<T> {
   const { delay, maxWait } =
-    typeof options === 'number' ? { delay: options, maxWait: undefined } : options
+    typeof options === 'number' ? { delay: options, maxWait: undefined } : options;
 
-  let debounceTimer: ReturnType<typeof setTimeout> | null = null
-  let maxWaitTimer: ReturnType<typeof setTimeout> | null = null
-  let lastArgs: Parameters<T> | null = null
-  let lastCallTime = 0
+  let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+  let maxWaitTimer: ReturnType<typeof setTimeout> | null = null;
+  let lastArgs: Parameters<T> | null = null;
+  let lastCallTime = 0;
 
   function execute(): void {
-    if (lastArgs === null) return
+    if (lastArgs === null) return;
 
-    fn(...lastArgs)
-    lastArgs = null
-    lastCallTime = 0
+    fn(...lastArgs);
+    lastArgs = null;
+    lastCallTime = 0;
 
     if (debounceTimer) {
-      clearTimeout(debounceTimer)
-      debounceTimer = null
+      clearTimeout(debounceTimer);
+      debounceTimer = null;
     }
     if (maxWaitTimer) {
-      clearTimeout(maxWaitTimer)
-      maxWaitTimer = null
+      clearTimeout(maxWaitTimer);
+      maxWaitTimer = null;
     }
   }
 
   function debounced(...args: Parameters<T>): void {
-    lastArgs = args
-    const now = Date.now()
+    lastArgs = args;
+    const now = Date.now();
 
     // Clear existing debounce timer
     if (debounceTimer) {
-      clearTimeout(debounceTimer)
+      clearTimeout(debounceTimer);
     }
 
     // Start max wait timer if configured and not already running
     if (maxWait && !maxWaitTimer && !lastCallTime) {
-      lastCallTime = now
-      maxWaitTimer = setTimeout(execute, maxWait)
+      lastCallTime = now;
+      maxWaitTimer = setTimeout(execute, maxWait);
     }
 
     // Set debounce timer
-    debounceTimer = setTimeout(execute, delay)
+    debounceTimer = setTimeout(execute, delay);
   }
 
   debounced.flush = (): void => {
-    execute()
-  }
+    execute();
+  };
 
   debounced.cancel = (): void => {
     if (debounceTimer) {
-      clearTimeout(debounceTimer)
-      debounceTimer = null
+      clearTimeout(debounceTimer);
+      debounceTimer = null;
     }
     if (maxWaitTimer) {
-      clearTimeout(maxWaitTimer)
-      maxWaitTimer = null
+      clearTimeout(maxWaitTimer);
+      maxWaitTimer = null;
     }
-    lastArgs = null
-    lastCallTime = 0
-  }
+    lastArgs = null;
+    lastCallTime = 0;
+  };
 
   debounced.pending = (): boolean => {
-    return debounceTimer !== null
-  }
+    return debounceTimer !== null;
+  };
 
-  return debounced as Debounced<T>
+  return debounced as Debounced<T>;
 }
 
 /**
  * Pausable controller
  */
 export interface PausableController {
-  pause(): void
-  resume(): void
-  isPaused(): boolean
+  pause(): void;
+  resume(): void;
+  isPaused(): boolean;
 }
 
 /**
@@ -112,15 +112,15 @@ export interface PausableController {
  * Shared utility for persist, devtools, cross-tab
  */
 export function createPausable(): PausableController {
-  let paused = false
+  let paused = false;
 
   return {
     pause: () => {
-      paused = true
+      paused = true;
     },
     resume: () => {
-      paused = false
+      paused = false;
     },
     isPaused: () => paused,
-  }
+  };
 }

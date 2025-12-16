@@ -7,42 +7,42 @@
  */
 export interface StorageAdapter {
   /** Adapter name for debugging */
-  readonly name: string
+  readonly name: string;
 
   /** Check if adapter is available */
-  isAvailable(): boolean
+  isAvailable(): boolean;
 
   /** Get item from storage */
-  getItem(key: string): Promise<Uint8Array | null>
+  getItem(key: string): Promise<Uint8Array | null>;
 
   /** Set item in storage */
-  setItem(key: string, value: Uint8Array): Promise<void>
+  setItem(key: string, value: Uint8Array): Promise<void>;
 
   /** Remove item from storage */
-  removeItem(key: string): Promise<void>
+  removeItem(key: string): Promise<void>;
 
   /** Clear all items with prefix */
-  clear(prefix?: string): Promise<void>
+  clear(prefix?: string): Promise<void>;
 
   /** Get all keys with prefix */
-  keys(prefix?: string): Promise<string[]>
+  keys(prefix?: string): Promise<string[]>;
 
   /** Get storage size in bytes */
-  getSize?(): Promise<number>
+  getSize?(): Promise<number>;
 }
 
 /**
  * Serialization format
  */
-export type SerializationFormat = 'json' | 'msgpack'
+export type SerializationFormat = 'json' | 'msgpack';
 
 /**
  * Serializer interface
  */
 export interface Serializer {
-  readonly format: SerializationFormat
-  encode<T>(data: T): Uint8Array
-  decode<T>(buffer: Uint8Array): T
+  readonly format: SerializationFormat;
+  encode<T>(data: T): Uint8Array;
+  decode<T>(buffer: Uint8Array): T;
 }
 
 /**
@@ -50,34 +50,34 @@ export interface Serializer {
  */
 export interface PersistConfig<T> {
   /** Storage key prefix */
-  key: string
+  key: string;
 
   /** Storage adapter */
-  adapter: StorageAdapter
+  adapter: StorageAdapter;
 
   /** Serializer (default: JSON) */
-  serializer?: Serializer
+  serializer?: Serializer;
 
   /** Select which parts of state to persist */
-  partialize?: (state: T) => Partial<T>
+  partialize?: (state: T) => Partial<T>;
 
   /** Merge persisted state with initial state */
-  merge?: (persisted: Partial<T>, initial: T) => T
+  merge?: (persisted: Partial<T>, initial: T) => T;
 
   /** Debounce time for writes (ms) */
-  debounceMs?: number
+  debounceMs?: number;
 
   /** Version for migrations */
-  version?: number
+  version?: number;
 
   /** Migration function */
-  migrate?: (persisted: unknown, version: number) => T
+  migrate?: (persisted: unknown, version: number) => T;
 
   /** Called when hydration is complete */
-  onHydrate?: (state: T) => void
+  onHydrate?: (state: T) => void;
 
   /** Called on persistence error */
-  onError?: (error: Error) => void
+  onError?: (error: Error) => void;
 }
 
 /**
@@ -85,13 +85,13 @@ export interface PersistConfig<T> {
  */
 export interface PersistState {
   /** Whether state has been hydrated */
-  hydrated: boolean
+  hydrated: boolean;
 
   /** Last persisted timestamp */
-  lastPersistedAt: number | null
+  lastPersistedAt: number | null;
 
   /** Pending writes count */
-  pendingWrites: number
+  pendingWrites: number;
 }
 
 /**
@@ -99,31 +99,31 @@ export interface PersistState {
  */
 export interface PersistApi {
   /** Immediately persist current state */
-  flush(): Promise<void>
+  flush(): Promise<void>;
 
   /** Clear persisted state */
-  clear(): Promise<void>
+  clear(): Promise<void>;
 
   /** Rehydrate from storage */
-  rehydrate(): Promise<void>
+  rehydrate(): Promise<void>;
 
   /** Get persist state */
-  getState(): PersistState
+  getState(): PersistState;
 
   /** Pause persistence */
-  pause(): void
+  pause(): void;
 
   /** Resume persistence */
-  resume(): void
+  resume(): void;
 }
 
 /**
  * Persisted state wrapper
  */
 export interface PersistedData<T> {
-  version: number
-  state: T
-  timestamp: number
+  version: number;
+  state: T;
+  timestamp: number;
 }
 
 /**
@@ -131,13 +131,13 @@ export interface PersistedData<T> {
  */
 export interface IndexedDBOptions {
   /** Database name */
-  dbName?: string
+  dbName?: string;
 
   /** Store name */
-  storeName?: string
+  storeName?: string;
 
   /** Database version */
-  dbVersion?: number
+  dbVersion?: number;
 }
 
 /**
@@ -145,5 +145,5 @@ export interface IndexedDBOptions {
  */
 export interface LocalStorageOptions {
   /** Key prefix */
-  prefix?: string
+  prefix?: string;
 }

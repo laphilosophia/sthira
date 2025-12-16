@@ -3,28 +3,28 @@
 // ============================================================================
 
 // Core store
-export { createSelector, createStore, shallowEqual } from './store'
+export { createSelector, createStore, shallowEqual } from './store';
 
 // Proxy utilities
-export { SubscriptionManager, createReactiveProxy, isProxy, toRaw } from './proxy'
+export { SubscriptionManager, createReactiveProxy, isProxy, toRaw } from './proxy';
 
 // Computed
-export { ComputedManager } from './computed'
+export { ComputedManager } from './computed';
 
 // Interceptors
-export { InterceptorsManager } from './interceptors'
+export { InterceptorsManager } from './interceptors';
 
 // Event bus
-export { StoreEvents, createEventBus } from './events'
+export { StoreEvents, createEventBus } from './events';
 
 // FSM
-export { AsyncStateMachine, createAsyncState, isDataStale } from './fsm'
+export { AsyncStateMachine, createAsyncState, isDataStale } from './fsm';
 
 // Schema validation
-export { SchemaValidator, createSchemaValidator } from './schema'
+export { SchemaValidator, createSchemaValidator } from './schema';
 
 // Scheduler (lazy-loaded if performance enabled)
-export { TaskScheduler, createPerformanceUtils } from './scheduler'
+export { TaskScheduler, createPerformanceUtils } from './scheduler';
 
 // Types
 export type {
@@ -75,7 +75,7 @@ export type {
   // Validation
   ValidationResult,
   WorkerConfig,
-} from './types'
+} from './types';
 
 // Re-export FSM transitions for external use
-export { ASYNC_TRANSITIONS } from './types'
+export { ASYNC_TRANSITIONS } from './types';

@@ -85,10 +85,10 @@ function Counter() {
 ## Enterprise Configuration
 
 ```typescript
-import { createStore } from '@sthira/core'
-import { createPersistPlugin } from '@sthira/persist'
-import { createDevToolsPlugin } from '@sthira/devtools'
-import { createSyncPlugin } from '@sthira/cross-tab'
+import { createStore } from '@sthira/core';
+import { createPersistPlugin } from '@sthira/persist';
+import { createDevToolsPlugin } from '@sthira/devtools';
+import { createSyncPlugin } from '@sthira/cross-tab';
 
 const store = createStore({
   name: 'enterprise-app',
@@ -103,7 +103,7 @@ const store = createStore({
     beforeSet: (next, prev) => auditLog(next, prev),
     onError: (error) => errorReporter.capture(error),
   },
-})
+});
 ```
 
 ## Performance

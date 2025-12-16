@@ -1,5 +1,5 @@
-import type { ZodError, ZodType } from 'zod'
-import type { ValidationResult } from './types'
+import type { ZodError, ZodType } from 'zod';
+import type { ValidationResult } from './types';
 
 /**
  * Schema validator using Zod
@@ -12,9 +12,9 @@ export class SchemaValidator<TState> {
    */
   validate(data: unknown): TState {
     if (!this.schema) {
-      return data as TState
+      return data as TState;
     }
-    return this.schema.parse(data)
+    return this.schema.parse(data);
   }
 
   /**
@@ -22,15 +22,15 @@ export class SchemaValidator<TState> {
    */
   safeParse(data: unknown): ValidationResult<TState> {
     if (!this.schema) {
-      return { success: true, data: data as TState }
+      return { success: true, data: data as TState };
     }
-    const result = this.schema.safeParse(data)
+    const result = this.schema.safeParse(data);
 
     if (result.success) {
-      return { success: true, data: result.data }
+      return { success: true, data: result.data };
     }
 
-    return { success: false, error: result.error }
+    return { success: false, error: result.error };
   }
 
   /**
@@ -38,16 +38,16 @@ export class SchemaValidator<TState> {
    */
   validatePartial(data: unknown): Partial<TState> {
     if (!this.schema) {
-      return data as Partial<TState>
+      return data as Partial<TState>;
     }
     // If schema is an object, use partial()
     if ('partial' in this.schema && typeof this.schema.partial === 'function') {
-      const partialSchema = (this.schema as { partial: () => ZodType<Partial<TState>> }).partial()
-      return partialSchema.parse(data)
+      const partialSchema = (this.schema as { partial: () => ZodType<Partial<TState>> }).partial();
+      return partialSchema.parse(data);
     }
 
     // Otherwise, just validate as-is
-    return data as Partial<TState>
+    return data as Partial<TState>;
   }
 
   /**
@@ -55,10 +55,10 @@ export class SchemaValidator<TState> {
    */
   safeParsePartial(data: unknown): ValidationResult<Partial<TState>> {
     try {
-      const validated = this.validatePartial(data)
-      return { success: true, data: validated }
+      const validated = this.validatePartial(data);
+      return { success: true, data: validated };
     } catch (error) {
-      return { success: false, error: error as ZodError }
+      return { success: false, error: error as ZodError };
     }
   }
 
@@ -66,7 +66,7 @@ export class SchemaValidator<TState> {
    * Get the underlying schema
    */
   getSchema(): ZodType<TState> | undefined {
-    return this.schema
+    return this.schema;
   }
 }
 
@@ -74,5 +74,5 @@ export class SchemaValidator<TState> {
  * Create a schema validator
  */
 export function createSchemaValidator<TState>(schema: ZodType<TState>): SchemaValidator<TState> {
-  return new SchemaValidator(schema)
+  return new SchemaValidator(schema);
 }

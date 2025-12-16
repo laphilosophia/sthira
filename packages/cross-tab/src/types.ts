@@ -10,44 +10,44 @@ export type SyncMessageType =
   | 'request_state'
   | 'state_response'
   | 'lock'
-  | 'unlock'
+  | 'unlock';
 
 /**
  * Sync message
  */
 export interface SyncMessage<T = unknown> {
-  type: SyncMessageType
-  storeName: string
-  tabId: string
-  timestamp: number
-  state?: T
-  version?: number
+  type: SyncMessageType;
+  storeName: string;
+  tabId: string;
+  timestamp: number;
+  state?: T;
+  version?: number;
 }
 
 /**
  * Conflict resolution strategy
  */
-export type ConflictStrategy = 'last-write-wins' | 'first-write-wins' | 'merge' | 'manual'
+export type ConflictStrategy = 'last-write-wins' | 'first-write-wins' | 'merge' | 'manual';
 
 /**
  * Conflict resolver function
  */
-export type ConflictResolver<T> = (local: T, remote: T, timestamp: number) => T
+export type ConflictResolver<T> = (local: T, remote: T, timestamp: number) => T;
 
 /**
  * Channel adapter interface
  */
 export interface ChannelAdapter {
-  readonly name: string
+  readonly name: string;
 
   /** Post message to other tabs */
-  postMessage<T>(message: SyncMessage<T>): void
+  postMessage<T>(message: SyncMessage<T>): void;
 
   /** Subscribe to messages */
-  subscribe<T>(callback: (message: SyncMessage<T>) => void): () => void
+  subscribe<T>(callback: (message: SyncMessage<T>) => void): () => void;
 
   /** Close the channel */
-  close(): void
+  close(): void;
 }
 
 /**
@@ -55,22 +55,22 @@ export interface ChannelAdapter {
  */
 export interface CrossTabConfig<T> {
   /** Channel name (default: store name) */
-  channelName?: string
+  channelName?: string;
 
   /** Conflict resolution strategy */
-  strategy?: ConflictStrategy
+  strategy?: ConflictStrategy;
 
   /** Custom conflict resolver (for 'manual' strategy) */
-  resolver?: ConflictResolver<T>
+  resolver?: ConflictResolver<T>;
 
   /** Debounce time for broadcasts (ms) */
-  debounceMs?: number
+  debounceMs?: number;
 
   /** Request state from other tabs on connect */
-  syncOnConnect?: boolean
+  syncOnConnect?: boolean;
 
   /** Custom channel adapter */
-  adapter?: ChannelAdapter
+  adapter?: ChannelAdapter;
 }
 
 /**
@@ -78,16 +78,16 @@ export interface CrossTabConfig<T> {
  */
 export interface CrossTabState {
   /** Current tab ID */
-  tabId: string
+  tabId: string;
 
   /** Whether leader (first tab) */
-  isLeader: boolean
+  isLeader: boolean;
 
   /** Number of connected tabs */
-  connectedTabs: number
+  connectedTabs: number;
 
   /** Last sync timestamp */
-  lastSyncAt: number | null
+  lastSyncAt: number | null;
 }
 
 /**
@@ -95,20 +95,20 @@ export interface CrossTabState {
  */
 export interface CrossTabApi {
   /** Get sync state */
-  getState(): CrossTabState
+  getState(): CrossTabState;
 
   /** Broadcast current state to all tabs */
-  broadcast(): void
+  broadcast(): void;
 
   /** Request state from other tabs */
-  requestState(): void
+  requestState(): void;
 
   /** Pause syncing */
-  pause(): void
+  pause(): void;
 
   /** Resume syncing */
-  resume(): void
+  resume(): void;
 
   /** Disconnect and cleanup */
-  disconnect(): void
+  disconnect(): void;
 }

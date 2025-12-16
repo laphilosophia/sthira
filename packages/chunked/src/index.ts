@@ -3,10 +3,10 @@
 // ============================================================================
 
 // Store
-export { createChunkedStore } from './store'
+export { createChunkedStore } from './store';
 
 // LRU Cache
-export { LRUCache } from './lru'
+export { LRUCache } from './lru';
 
 // Types
 export type {
@@ -18,4 +18,4 @@ export type {
   ChunkState,
   LRUItem,
   TierConfig,
-} from './types'
+} from './types';

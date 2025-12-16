@@ -1,4 +1,4 @@
-import type { ChannelAdapter, SyncMessage } from './types'
+import type { ChannelAdapter, SyncMessage } from './types';
 
 /**
  * BroadcastChannel adapter
@@ -6,41 +6,41 @@ import type { ChannelAdapter, SyncMessage } from './types'
  */
 export function createBroadcastChannelAdapter(channelName: string): ChannelAdapter {
   if (typeof BroadcastChannel === 'undefined') {
-    throw new Error('[Sthira CrossTab] BroadcastChannel API not available')
+    throw new Error('[Sthira CrossTab] BroadcastChannel API not available');
   }
 
-  const channel = new BroadcastChannel(channelName)
-  const listeners = new Set<(message: SyncMessage) => void>()
+  const channel = new BroadcastChannel(channelName);
+  const listeners = new Set<(message: SyncMessage) => void>();
 
   // Listen for messages
   channel.onmessage = (event: MessageEvent<SyncMessage>) => {
     for (const listener of listeners) {
       try {
-        listener(event.data)
+        listener(event.data);
       } catch (error) {
-        console.error('[Sthira CrossTab] Listener error:', error)
+        console.error('[Sthira CrossTab] Listener error:', error);
       }
     }
-  }
+  };
 
   return {
     name: 'broadcast-channel',
 
     postMessage<T>(message: SyncMessage<T>): void {
-      channel.postMessage(message)
+      channel.postMessage(message);
     },
 
     subscribe<T>(callback: (message: SyncMessage<T>) => void): () => void {
-      const listener = callback as (message: SyncMessage) => void
-      listeners.add(listener)
-      return () => listeners.delete(listener)
+      const listener = callback as (message: SyncMessage) => void;
+      listeners.add(listener);
+      return () => listeners.delete(listener);
     },
 
     close(): void {
-      channel.close()
-      listeners.clear()
+      channel.close();
+      listeners.clear();
     },
-  }
+  };
 }
 
 /**
@@ -49,23 +49,23 @@ export function createBroadcastChannelAdapter(channelName: string): ChannelAdapt
  */
 export function createLocalStorageAdapter(channelName: string): ChannelAdapter {
   if (typeof localStorage === 'undefined' || typeof window === 'undefined') {
-    throw new Error('[Sthira CrossTab] localStorage/window not available')
+    throw new Error('[Sthira CrossTab] localStorage/window not available');
   }
 
-  const storageKey = `sthira:cross-tab:${channelName}`
-  const listeners = new Set<(message: SyncMessage) => void>()
+  const storageKey = `sthira:cross-tab:${channelName}`;
+  const listeners = new Set<(message: SyncMessage) => void>();
 
   // Listen for storage events
   function handleStorage(event: StorageEvent): void {
-    if (event.key !== storageKey || !event.newValue) return
+    if (event.key !== storageKey || !event.newValue) return;
 
     try {
-      const message = JSON.parse(event.newValue) as SyncMessage
+      const message = JSON.parse(event.newValue) as SyncMessage;
       for (const listener of listeners) {
         try {
-          listener(message)
+          listener(message);
         } catch (error) {
-          console.error('[Sthira CrossTab] Listener error:', error)
+          console.error('[Sthira CrossTab] Listener error:', error);
         }
       }
     } catch {
@@ -73,28 +73,28 @@ export function createLocalStorageAdapter(channelName: string): ChannelAdapter {
     }
   }
 
-  window.addEventListener('storage', handleStorage)
+  window.addEventListener('storage', handleStorage);
 
   return {
     name: 'localstorage',
 
     postMessage<T>(message: SyncMessage<T>): void {
-      localStorage.setItem(storageKey, JSON.stringify(message))
+      localStorage.setItem(storageKey, JSON.stringify(message));
       // Immediately remove to allow same-message re-broadcast
-      localStorage.removeItem(storageKey)
+      localStorage.removeItem(storageKey);
     },
 
     subscribe<T>(callback: (message: SyncMessage<T>) => void): () => void {
-      const listener = callback as (message: SyncMessage) => void
-      listeners.add(listener)
-      return () => listeners.delete(listener)
+      const listener = callback as (message: SyncMessage) => void;
+      listeners.add(listener);
+      return () => listeners.delete(listener);
     },
 
     close(): void {
-      window.removeEventListener('storage', handleStorage)
-      listeners.clear()
+      window.removeEventListener('storage', handleStorage);
+      listeners.clear();
     },
-  }
+  };
 }
 
 /**
@@ -103,13 +103,13 @@ export function createLocalStorageAdapter(channelName: string): ChannelAdapter {
 export function getDefaultAdapter(channelName: string): ChannelAdapter {
   // Prefer BroadcastChannel
   if (typeof BroadcastChannel !== 'undefined') {
-    return createBroadcastChannelAdapter(channelName)
+    return createBroadcastChannelAdapter(channelName);
   }
 
   // Fallback to localStorage
   if (typeof localStorage !== 'undefined' && typeof window !== 'undefined') {
-    return createLocalStorageAdapter(channelName)
+    return createLocalStorageAdapter(channelName);
   }
 
-  throw new Error('[Sthira CrossTab] No available adapter (requires browser environment)')
+  throw new Error('[Sthira CrossTab] No available adapter (requires browser environment)');
 }

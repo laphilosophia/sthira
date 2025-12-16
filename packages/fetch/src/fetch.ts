@@ -1,28 +1,28 @@
-import { getQueryCache } from './cache'
-import type { DataSource, FetchSourceConfig, MutationConfig } from './types'
+import { getQueryCache } from './cache';
+import type { DataSource, FetchSourceConfig, MutationConfig } from './types';
 
 /**
  * Build URL with query parameters
  */
 function buildUrl(
   baseUrl: string | (() => string),
-  params?: Record<string, string | number | boolean | undefined>
+  params?: Record<string, string | number | boolean | undefined>,
 ): string {
-  const url = typeof baseUrl === 'function' ? baseUrl() : baseUrl
+  const url = typeof baseUrl === 'function' ? baseUrl() : baseUrl;
 
-  if (!params) return url
+  if (!params) return url;
 
-  const searchParams = new URLSearchParams()
+  const searchParams = new URLSearchParams();
   for (const [key, value] of Object.entries(params)) {
     if (value !== undefined) {
-      searchParams.set(key, String(value))
+      searchParams.set(key, String(value));
     }
   }
 
-  const queryString = searchParams.toString()
-  if (!queryString) return url
+  const queryString = searchParams.toString();
+  if (!queryString) return url;
 
-  return url.includes('?') ? `${url}&${queryString}` : `${url}?${queryString}`
+  return url.includes('?') ? `${url}&${queryString}` : `${url}?${queryString}`;
 }
 
 /**
@@ -30,28 +30,28 @@ function buildUrl(
  */
 function generateCacheKey<T>(config: FetchSourceConfig<T>): string {
   if (config.cacheKey) {
-    return typeof config.cacheKey === 'function' ? config.cacheKey() : config.cacheKey
+    return typeof config.cacheKey === 'function' ? config.cacheKey() : config.cacheKey;
   }
 
-  const url = typeof config.url === 'function' ? config.url() : config.url
-  const method = config.method ?? 'GET'
-  const params = config.params ? JSON.stringify(config.params) : ''
+  const url = typeof config.url === 'function' ? config.url() : config.url;
+  const method = config.method ?? 'GET';
+  const params = config.params ? JSON.stringify(config.params) : '';
 
-  return `${method}:${url}${params}`
+  return `${method}:${url}${params}`;
 }
 
 /**
  * Sleep for retry delay
  */
 function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms))
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /**
  * Create a fetch-based data source for queries
  */
 export function createFetchSource<T>(
-  config: FetchSourceConfig<T>
+  config: FetchSourceConfig<T>,
 ): DataSource<T> & { refetch: () => Promise<T> } {
   const {
     url,
@@ -68,97 +68,97 @@ export function createFetchSource<T>(
     signal,
     onSuccess,
     onError,
-  } = config
+  } = config;
 
-  const cacheKey = generateCacheKey(config)
-  const cache = getQueryCache()
+  const cacheKey = generateCacheKey(config);
+  const cache = getQueryCache();
 
-  let inFlightRequest: Promise<T> | null = null
+  let inFlightRequest: Promise<T> | null = null;
 
   async function fetchData(): Promise<T> {
-    const finalUrl = buildUrl(url, params)
-    const finalHeaders = typeof headers === 'function' ? headers() : headers
-    const finalBody = typeof body === 'function' ? body() : body
+    const finalUrl = buildUrl(url, params);
+    const finalHeaders = typeof headers === 'function' ? headers() : headers;
+    const finalBody = typeof body === 'function' ? body() : body;
 
     const requestInit: RequestInit = {
       method,
       headers: finalHeaders,
       signal,
-    }
+    };
 
     if (finalBody && method !== 'GET') {
-      requestInit.body = JSON.stringify(finalBody)
+      requestInit.body = JSON.stringify(finalBody);
       requestInit.headers = {
         'Content-Type': 'application/json',
         ...(finalHeaders as Record<string, string>),
-      }
+      };
     }
 
-    let lastError: Error | null = null
-    const maxRetries = retry === false ? 0 : retry
+    let lastError: Error | null = null;
+    const maxRetries = retry === false ? 0 : retry;
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       try {
-        const response = await fetcher(finalUrl, requestInit)
+        const response = await fetcher(finalUrl, requestInit);
 
         if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
 
-        const rawData = await response.json()
-        const data = transform ? transform(rawData) : (rawData as T)
+        const rawData = await response.json();
+        const data = transform ? transform(rawData) : (rawData as T);
 
         // Cache the result
-        cache.set(cacheKey, data, { staleTime, cacheTime })
+        cache.set(cacheKey, data, { staleTime, cacheTime });
 
-        onSuccess?.(data)
-        return data
+        onSuccess?.(data);
+        return data;
       } catch (error) {
-        lastError = error as Error
+        lastError = error as Error;
 
         // Don't retry on abort
         if (signal?.aborted) {
-          throw lastError
+          throw lastError;
         }
 
         // Retry with delay
         if (attempt < maxRetries) {
-          await sleep(retryDelay * (attempt + 1))
+          await sleep(retryDelay * (attempt + 1));
         }
       }
     }
 
-    onError?.(lastError!)
-    throw lastError
+    onError?.(lastError!);
+    throw lastError;
   }
 
   async function fetchWithDedup(): Promise<T> {
     // Return in-flight request if exists (deduplication)
     if (inFlightRequest) {
-      return inFlightRequest
+      return inFlightRequest;
     }
 
     // Check cache first (stale-while-revalidate)
-    const cached = cache.get<T>(cacheKey)
+    const cached = cache.get<T>(cacheKey);
     if (cached && !cache.isStale(cacheKey)) {
-      return cached.data
+      return cached.data;
     }
 
     // Start new request
     inFlightRequest = fetchData().finally(() => {
-      inFlightRequest = null
-    })
+      inFlightRequest = null;
+    });
 
     // If we have stale data, return it while revalidating
     if (cached) {
       // Background revalidation
       inFlightRequest.catch(() => {
         // Ignore background errors
-      })
-      return cached.data
+      });
+      return cached.data;
     }
 
-    return inFlightRequest
+    return inFlightRequest;
   }
 
   return {
@@ -168,24 +168,24 @@ export function createFetchSource<T>(
     fetch: fetchWithDedup,
 
     refetch: async () => {
-      cache.invalidate(cacheKey)
-      return fetchData()
+      cache.invalidate(cacheKey);
+      return fetchData();
     },
 
     invalidate: () => {
-      cache.invalidate(cacheKey)
+      cache.invalidate(cacheKey);
     },
-  }
+  };
 }
 
 /**
  * Create a fetch-based data source for mutations
  */
 export function createMutation<T, V = void>(
-  config: MutationConfig<T, V>
+  config: MutationConfig<T, V>,
 ): {
-  mutate: (variables: V) => Promise<T>
-  reset: () => void
+  mutate: (variables: V) => Promise<T>;
+  reset: () => void;
 } {
   const {
     url,
@@ -200,17 +200,17 @@ export function createMutation<T, V = void>(
     signal,
     onSuccess,
     onError,
-  } = config
+  } = config;
 
-  let _lastData: T | undefined
-  let _lastError: Error | undefined
+  let _lastData: T | undefined;
+  let _lastError: Error | undefined;
   // Track state for potential future use (status exposure)
-  void _lastData
+  void _lastData;
 
   async function mutate(variables: V): Promise<T> {
-    const finalUrl = buildUrl(url, params)
-    const finalHeaders = typeof headers === 'function' ? headers() : headers
-    const finalBody = body ? body(variables) : variables
+    const finalUrl = buildUrl(url, params);
+    const finalHeaders = typeof headers === 'function' ? headers() : headers;
+    const finalBody = body ? body(variables) : variables;
 
     const requestInit: RequestInit = {
       method,
@@ -220,48 +220,48 @@ export function createMutation<T, V = void>(
       },
       body: JSON.stringify(finalBody),
       signal,
-    }
+    };
 
-    let lastMutationError: Error | null = null
-    const maxRetries = retry === false ? 0 : retry
+    let lastMutationError: Error | null = null;
+    const maxRetries = retry === false ? 0 : retry;
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       try {
-        const response = await fetcher(finalUrl, requestInit)
+        const response = await fetcher(finalUrl, requestInit);
 
         if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
 
-        const rawData = await response.json()
-        const data = transform ? transform(rawData) : (rawData as T)
+        const rawData = await response.json();
+        const data = transform ? transform(rawData) : (rawData as T);
 
-        _lastData = data
-        _lastError = undefined
-        onSuccess?.(data)
-        return data
+        _lastData = data;
+        _lastError = undefined;
+        onSuccess?.(data);
+        return data;
       } catch (error) {
-        lastMutationError = error as Error
+        lastMutationError = error as Error;
 
         if (signal?.aborted) {
-          throw lastMutationError
+          throw lastMutationError;
         }
 
         if (attempt < maxRetries) {
-          await sleep(retryDelay * (attempt + 1))
+          await sleep(retryDelay * (attempt + 1));
         }
       }
     }
 
-    _lastError = lastMutationError!
-    onError?.(_lastError)
-    throw _lastError
+    _lastError = lastMutationError!;
+    onError?.(_lastError);
+    throw _lastError;
   }
 
   function reset(): void {
-    _lastData = undefined
-    _lastError = undefined
+    _lastData = undefined;
+    _lastError = undefined;
   }
 
-  return { mutate, reset }
+  return { mutate, reset };
 }

@@ -1,22 +1,22 @@
-import type { ChunkedOptions, PerformanceConfig, PerformanceUtils } from './types'
+import type { ChunkedOptions, PerformanceConfig, PerformanceUtils } from './types';
 
 /**
  * Frame-aware task scheduler
  * Respects browser's rendering budget to maintain 60fps
  */
 export class TaskScheduler {
-  private frameBudgetMs: number
+  private frameBudgetMs: number;
   private taskQueue: Array<{
-    task: () => unknown | Promise<unknown>
-    resolve: (value: unknown) => void
-    reject: (error: unknown) => void
-    priority: 'high' | 'normal' | 'low'
-  }> = []
-  private isProcessing = false
-  private frameDeadline = 0
+    task: () => unknown | Promise<unknown>;
+    resolve: (value: unknown) => void;
+    reject: (error: unknown) => void;
+    priority: 'high' | 'normal' | 'low';
+  }> = [];
+  private isProcessing = false;
+  private frameDeadline = 0;
 
   constructor(frameBudgetMs = 5) {
-    this.frameBudgetMs = frameBudgetMs
+    this.frameBudgetMs = frameBudgetMs;
   }
 
   /**
@@ -24,7 +24,7 @@ export class TaskScheduler {
    */
   schedule<T>(
     task: () => T | Promise<T>,
-    priority: 'high' | 'normal' | 'low' = 'normal'
+    priority: 'high' | 'normal' | 'low' = 'normal',
   ): Promise<T> {
     return new Promise((resolve, reject) => {
       this.taskQueue.push({
@@ -32,33 +32,33 @@ export class TaskScheduler {
         resolve: resolve as (value: unknown) => void,
         reject,
         priority,
-      })
+      });
 
       // Sort by priority
       this.taskQueue.sort((a, b) => {
-        const order = { high: 0, normal: 1, low: 2 }
-        return order[a.priority] - order[b.priority]
-      })
+        const order = { high: 0, normal: 1, low: 2 };
+        return order[a.priority] - order[b.priority];
+      });
 
-      this.requestProcessing()
-    })
+      this.requestProcessing();
+    });
   }
 
   /**
    * Request processing time
    */
   private requestProcessing(): void {
-    if (this.isProcessing) return
+    if (this.isProcessing) return;
 
     // Use requestAnimationFrame for frame-aligned processing
     if (typeof requestAnimationFrame !== 'undefined') {
       requestAnimationFrame((timestamp) => {
-        this.frameDeadline = timestamp + this.frameBudgetMs
-        this.processQueue()
-      })
+        this.frameDeadline = timestamp + this.frameBudgetMs;
+        this.processQueue();
+      });
     } else {
       // Node.js fallback - use setTimeout(0) for next tick
-      setTimeout(() => this.processQueue(), 0)
+      setTimeout(() => this.processQueue(), 0);
     }
   }
 
@@ -66,36 +66,36 @@ export class TaskScheduler {
    * Process queue while respecting frame budget
    */
   private async processQueue(): Promise<void> {
-    this.isProcessing = true
+    this.isProcessing = true;
 
     while (this.taskQueue.length > 0) {
       // Check if we should yield to browser
       if (this.shouldYield()) {
-        this.isProcessing = false
-        this.requestProcessing()
-        return
+        this.isProcessing = false;
+        this.requestProcessing();
+        return;
       }
 
-      const item = this.taskQueue.shift()
-      if (!item) break
+      const item = this.taskQueue.shift();
+      if (!item) break;
 
       try {
-        const result = await item.task()
-        item.resolve(result)
+        const result = await item.task();
+        item.resolve(result);
       } catch (error) {
-        item.reject(error)
+        item.reject(error);
       }
     }
 
-    this.isProcessing = false
+    this.isProcessing = false;
   }
 
   /**
    * Check if we should yield to browser
    */
   private shouldYield(): boolean {
-    if (typeof performance === 'undefined') return false
-    return performance.now() >= this.frameDeadline
+    if (typeof performance === 'undefined') return false;
+    return performance.now() >= this.frameDeadline;
   }
 
   /**
@@ -103,34 +103,34 @@ export class TaskScheduler {
    */
   async yieldToMain(): Promise<void> {
     // Check for scheduler.yield API (Chrome 115+)
-    const g = globalThis as unknown as { scheduler?: { yield?: () => Promise<void> } }
+    const g = globalThis as unknown as { scheduler?: { yield?: () => Promise<void> } };
     if (g.scheduler?.yield) {
-      return g.scheduler.yield()
+      return g.scheduler.yield();
     }
 
     // Fallback: setTimeout to yield
-    return new Promise((resolve) => setTimeout(resolve, 0))
+    return new Promise((resolve) => setTimeout(resolve, 0));
   }
 
   /**
    * Process array in chunks
    */
   async chunked<T, R>(items: T[], fn: (item: T) => R, options: ChunkedOptions = {}): Promise<R[]> {
-    const { chunkSize = 100, yieldEvery = true } = options
-    const results: R[] = []
+    const { chunkSize = 100, yieldEvery = true } = options;
+    const results: R[] = [];
 
     for (let i = 0; i < items.length; i += chunkSize) {
-      const chunk = items.slice(i, i + chunkSize)
+      const chunk = items.slice(i, i + chunkSize);
 
-      const chunkResults = await this.schedule(() => chunk.map(fn), 'normal')
-      results.push(...(chunkResults as R[]))
+      const chunkResults = await this.schedule(() => chunk.map(fn), 'normal');
+      results.push(...(chunkResults as R[]));
 
       if (yieldEvery && i + chunkSize < items.length) {
-        await this.yieldToMain()
+        await this.yieldToMain();
       }
     }
 
-    return results
+    return results;
   }
 }
 
@@ -138,41 +138,41 @@ export class TaskScheduler {
  * Create performance utilities based on config
  */
 export function createPerformanceUtils(
-  config: PerformanceConfig | undefined
+  config: PerformanceConfig | undefined,
 ): PerformanceUtils | undefined {
-  if (!config) return undefined
+  if (!config) return undefined;
 
-  const options = typeof config === 'string' ? getPresetOptions(config) : config
+  const options = typeof config === 'string' ? getPresetOptions(config) : config;
 
   if (!options.scheduler && !options.batching) {
-    return undefined
+    return undefined;
   }
 
-  const scheduler = new TaskScheduler()
+  const scheduler = new TaskScheduler();
 
   return {
     schedule: scheduler.schedule.bind(scheduler),
     yieldToMain: scheduler.yieldToMain.bind(scheduler),
     chunked: scheduler.chunked.bind(scheduler),
-  }
+  };
 }
 
 /**
  * Get options from preset name
  */
 function getPresetOptions(preset: string): {
-  scheduler?: boolean
-  batching?: boolean
-  workers?: boolean
+  scheduler?: boolean;
+  batching?: boolean;
+  workers?: boolean;
 } {
   switch (preset) {
     case 'minimal':
-      return {}
+      return {};
     case 'balanced':
-      return { scheduler: true, batching: true }
+      return { scheduler: true, batching: true };
     case 'heavy':
-      return { scheduler: true, batching: true, workers: true }
+      return { scheduler: true, batching: true, workers: true };
     default:
-      return {}
+      return {};
   }
 }

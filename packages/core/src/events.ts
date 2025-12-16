@@ -1,11 +1,11 @@
-import type { EmitOptions, EventBus, EventHandler, StoreEvent, Unsubscribe } from './types'
+import type { EmitOptions, EventBus, EventHandler, StoreEvent, Unsubscribe } from './types';
 
 /**
  * Event bus implementation for bi-directional communication
  */
 export function createEventBus(): EventBus {
-  const handlers = new Map<string, Set<EventHandler<unknown>>>()
-  const onceHandlers = new WeakSet<EventHandler<unknown>>()
+  const handlers = new Map<string, Set<EventHandler<unknown>>>();
+  const onceHandlers = new WeakSet<EventHandler<unknown>>();
 
   return {
     /**
@@ -19,23 +19,23 @@ export function createEventBus(): EventBus {
         source: options?.source ?? 'user',
         priority: options?.priority ?? 'normal',
         meta: options?.meta,
-      }
+      };
 
-      const typeHandlers = handlers.get(type)
-      if (!typeHandlers) return
+      const typeHandlers = handlers.get(type);
+      if (!typeHandlers) return;
 
       // Execute handlers in order added
       for (const handler of typeHandlers) {
         try {
-          handler(event as StoreEvent<unknown>)
+          handler(event as StoreEvent<unknown>);
 
           // Remove if once handler
           if (onceHandlers.has(handler)) {
-            typeHandlers.delete(handler)
-            onceHandlers.delete(handler)
+            typeHandlers.delete(handler);
+            onceHandlers.delete(handler);
           }
         } catch (error) {
-          console.error(`[Sthira] Error in event handler for "${type}":`, error)
+          console.error(`[Sthira] Error in event handler for "${type}":`, error);
         }
       }
     },
@@ -45,23 +45,23 @@ export function createEventBus(): EventBus {
      */
     on<T>(type: string, handler: EventHandler<T>): Unsubscribe {
       if (!handlers.has(type)) {
-        handlers.set(type, new Set())
+        handlers.set(type, new Set());
       }
 
-      handlers.get(type)!.add(handler as EventHandler<unknown>)
+      handlers.get(type)!.add(handler as EventHandler<unknown>);
 
       return () => {
-        handlers.get(type)?.delete(handler as EventHandler<unknown>)
-      }
+        handlers.get(type)?.delete(handler as EventHandler<unknown>);
+      };
     },
 
     /**
      * Subscribe to an event type (once)
      */
     once<T>(type: string, handler: EventHandler<T>): Unsubscribe {
-      const wrappedHandler = handler as EventHandler<unknown>
-      onceHandlers.add(wrappedHandler)
-      return this.on(type, handler)
+      const wrappedHandler = handler as EventHandler<unknown>;
+      onceHandlers.add(wrappedHandler);
+      return this.on(type, handler);
     },
 
     /**
@@ -69,13 +69,13 @@ export function createEventBus(): EventBus {
      */
     off(type: string, handler?: EventHandler): void {
       if (!handler) {
-        handlers.delete(type)
-        return
+        handlers.delete(type);
+        return;
       }
 
-      handlers.get(type)?.delete(handler as EventHandler<unknown>)
+      handlers.get(type)?.delete(handler as EventHandler<unknown>);
     },
-  }
+  };
 }
 
 /**
@@ -87,4 +87,4 @@ export const StoreEvents = {
   COMPUTED_INVALIDATE: 'computed:invalidate',
   ERROR: 'error',
   DESTROY: 'destroy',
-} as const
+} as const;

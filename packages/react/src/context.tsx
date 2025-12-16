@@ -1,19 +1,19 @@
-import type { Store } from '@sthira/core'
-import { createContext, useContext, type ReactNode } from 'react'
+import type { Store } from '@sthira/core';
+import { createContext, useContext, type ReactNode } from 'react';
 
 /**
  * Store context for dependency injection
  */
-const StoreContext = createContext<Map<string, Store<object, object>> | null>(null)
+const StoreContext = createContext<Map<string, Store<object, object>> | null>(null);
 
 /**
  * Provider props
  */
 export interface StoreProviderProps {
   /** Store instances to provide */
-  stores: Store<object, object>[]
+  stores: Store<object, object>[];
   /** Child components */
-  children: ReactNode
+  children: ReactNode;
 }
 
 /**
@@ -28,12 +28,12 @@ export interface StoreProviderProps {
  */
 export function StoreProvider({ stores, children }: StoreProviderProps): ReactNode {
   // Create a map of stores by name
-  const storeMap = new Map<string, Store<object, object>>()
+  const storeMap = new Map<string, Store<object, object>>();
   for (const store of stores) {
-    storeMap.set(store.name, store)
+    storeMap.set(store.name, store);
   }
 
-  return <StoreContext.Provider value={storeMap}>{children}</StoreContext.Provider>
+  return <StoreContext.Provider value={storeMap}>{children}</StoreContext.Provider>;
 }
 
 /**
@@ -45,33 +45,33 @@ export function StoreProvider({ stores, children }: StoreProviderProps): ReactNo
  * ```
  */
 export function useStoreContext<TState extends object, TActions extends object>(
-  name: string
+  name: string,
 ): Store<TState, TActions> {
-  const storeMap = useContext(StoreContext)
+  const storeMap = useContext(StoreContext);
 
   if (!storeMap) {
     throw new Error(
       `[Sthira] useStoreContext must be used within a StoreProvider. ` +
-      `Make sure to wrap your app with <StoreProvider stores={[...]}>.`
-    )
+        `Make sure to wrap your app with <StoreProvider stores={[...]}>.`,
+    );
   }
 
-  const store = storeMap.get(name)
+  const store = storeMap.get(name);
 
   if (!store) {
     throw new Error(
       `[Sthira] Store "${name}" not found in context. ` +
-      `Available stores: ${Array.from(storeMap.keys()).join(', ')}`
-    )
+        `Available stores: ${Array.from(storeMap.keys()).join(', ')}`,
+    );
   }
 
-  return store as Store<TState, TActions>
+  return store as Store<TState, TActions>;
 }
 
 /**
  * Check if running in StoreProvider context
  */
 export function useHasStoreContext(): boolean {
-  const storeMap = useContext(StoreContext)
-  return storeMap !== null
+  const storeMap = useContext(StoreContext);
+  return storeMap !== null;
 }

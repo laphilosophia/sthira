@@ -38,7 +38,7 @@ Subscribe to entire store state + actions:
 
 ```typescript
 function Component() {
-  const { count, increment, decrement } = useStore(counterStore)
+  const { count, increment, decrement } = useStore(counterStore);
   // Re-renders on any state change
 }
 ```
@@ -49,12 +49,12 @@ Subscribe to specific state slice:
 
 ```typescript
 function Component() {
-  const count = useSelector(counterStore, (s) => s.count)
+  const count = useSelector(counterStore, (s) => s.count);
   // Re-renders only when count changes
 }
 
 // With custom equality
-const items = useSelector(store, (s) => s.items, shallowEqual)
+const items = useSelector(store, (s) => s.items, shallowEqual);
 ```
 
 ### `useComputed(store, key)`
@@ -74,8 +74,8 @@ Separate state and actions:
 
 ```typescript
 function Component() {
-  const state = useStoreState(counterStore) // { count: 0 }
-  const actions = useStoreActions(counterStore) // { increment, decrement }
+  const state = useStoreState(counterStore); // { count: 0 }
+  const actions = useStoreActions(counterStore); // { increment, decrement }
 }
 ```
 
@@ -106,20 +106,20 @@ function Counter() {
 
 ```typescript
 // ❌ Bad: Creates new function every render
-useSelector(store, (s) => s.items.filter((i) => i.active))
+useSelector(store, (s) => s.items.filter((i) => i.active));
 
 // ✅ Good: Stable selector reference
-const selectActive = useMemo(() => (s) => s.items.filter((i) => i.active), [])
-useSelector(store, selectActive)
+const selectActive = useMemo(() => (s) => s.items.filter((i) => i.active), []);
+useSelector(store, selectActive);
 ```
 
 ### Shallow Equality
 
 ```typescript
-import { shallowEqual } from '@sthira/react'
+import { shallowEqual } from '@sthira/react';
 
 // Only re-render if array contents change
-const items = useSelector(store, (s) => s.items, shallowEqual)
+const items = useSelector(store, (s) => s.items, shallowEqual);
 ```
 
 ## Exports

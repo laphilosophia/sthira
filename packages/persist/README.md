@@ -11,8 +11,8 @@ pnpm add @Sthira/persist
 ## Quick Start
 
 ```typescript
-import { createStore } from '@Sthira/core'
-import { createPersistPlugin } from '@Sthira/persist'
+import { createStore } from '@Sthira/core';
+import { createPersistPlugin } from '@Sthira/persist';
 
 const store = createStore({
   name: 'settings',
@@ -23,33 +23,33 @@ const store = createStore({
       storage: 'indexeddb', // 'localstorage' | 'memory'
     }),
   ],
-})
+});
 
 // Access persist API
-await store.persist.hydrate()
-store.persist.getStatus() // { hydrated: true, persisting: false }
+await store.persist.hydrate();
+store.persist.getStatus(); // { hydrated: true, persisting: false }
 ```
 
 ## Plugin API
 
 ```typescript
 interface PersistPluginConfig {
-  key: string // Storage key
-  storage: 'indexeddb' | 'localstorage' | 'memory'
-  debounce?: number // Write debounce (ms)
-  version?: number // Schema version
-  migrate?: (state, version) => state
-  partialize?: (state) => Partial<state>
+  key: string; // Storage key
+  storage: 'indexeddb' | 'localstorage' | 'memory';
+  debounce?: number; // Write debounce (ms)
+  version?: number; // Schema version
+  migrate?: (state, version) => state;
+  partialize?: (state) => Partial<state>;
 }
 
 // API exposed on store.persist
 interface PersistApi {
-  hydrate: () => Promise<void> // Load from storage
-  persist: () => Promise<void> // Manual save
-  clear: () => Promise<void> // Clear storage
-  pause: () => void // Pause auto-persist
-  resume: () => void // Resume auto-persist
-  getStatus: () => { hydrated; persisting; lastPersistedAt }
+  hydrate: () => Promise<void>; // Load from storage
+  persist: () => Promise<void>; // Manual save
+  clear: () => Promise<void>; // Clear storage
+  pause: () => void; // Pause auto-persist
+  resume: () => void; // Resume auto-persist
+  getStatus: () => { hydrated; persisting; lastPersistedAt };
 }
 ```
 
@@ -58,30 +58,30 @@ interface PersistApi {
 ### IndexedDB (Recommended)
 
 ```typescript
-import { createIndexedDBAdapter } from '@Sthira/persist'
+import { createIndexedDBAdapter } from '@Sthira/persist';
 
 const adapter = createIndexedDBAdapter({
   dbName: 'my-app',
   storeName: 'state',
-})
+});
 
-createPersistPlugin({ key: 'my-store', adapter })
+createPersistPlugin({ key: 'my-store', adapter });
 ```
 
 ### localStorage
 
 ```typescript
-import { createLocalStorageAdapter } from '@Sthira/persist'
+import { createLocalStorageAdapter } from '@Sthira/persist';
 
-const adapter = createLocalStorageAdapter({ prefix: 'app_' })
+const adapter = createLocalStorageAdapter({ prefix: 'app_' });
 ```
 
 ### Memory (Testing)
 
 ```typescript
-import { createMemoryAdapter } from '@Sthira/persist'
+import { createMemoryAdapter } from '@Sthira/persist';
 
-const adapter = createMemoryAdapter()
+const adapter = createMemoryAdapter();
 ```
 
 ## Migrations
@@ -93,11 +93,11 @@ createPersistPlugin({
   version: 2,
   migrate: (state, version) => {
     if (version === 1) {
-      return { ...state, newField: 'default' }
+      return { ...state, newField: 'default' };
     }
-    return state
+    return state;
   },
-})
+});
 ```
 
 ## Partialize
@@ -112,7 +112,7 @@ createPersistPlugin({
     preferences: state.preferences, // Persist
     // token: state.token, // Don't persist
   }),
-})
+});
 ```
 
 ## Wait for Hydration

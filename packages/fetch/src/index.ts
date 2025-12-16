@@ -3,13 +3,13 @@
 // ============================================================================
 
 // Fetch sources
-export { createFetchSource, createMutation } from './fetch'
+export { createFetchSource, createMutation } from './fetch';
 
 // Cache
-export { QueryCache, getQueryCache, resetQueryCache } from './cache'
+export { QueryCache, getQueryCache, resetQueryCache } from './cache';
 
 // Global API
-export { sthira } from './sthira'
+export { sthira } from './sthira';
 
 // Types
 export type {
@@ -23,4 +23,4 @@ export type {
   MutationResult,
   QueryResult,
   QueryStatus,
-} from './types'
+} from './types';

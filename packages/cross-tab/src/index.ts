@@ -3,15 +3,15 @@
 // ============================================================================
 
 // Plugin
-export { createNoopSyncApi, createSyncPlugin } from './plugin'
-export type { SyncApi, SyncConfig } from './plugin'
+export { createNoopSyncApi, createSyncPlugin } from './plugin';
+export type { SyncApi, SyncConfig } from './plugin';
 
 // Channels
 export {
   createBroadcastChannelAdapter,
   createLocalStorageAdapter,
   getDefaultAdapter,
-} from './channel'
+} from './channel';
 
 // Types
 export type {
@@ -21,4 +21,4 @@ export type {
   CrossTabState,
   SyncMessage,
   SyncMessageType,
-} from './types'
+} from './types';

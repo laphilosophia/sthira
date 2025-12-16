@@ -1,4 +1,4 @@
-import type { BatchOptions } from './types'
+import type { BatchOptions } from './types';
 
 /**
  * Create a batcher that collects updates and flushes them together
@@ -6,68 +6,68 @@ import type { BatchOptions } from './types'
  */
 export function createBatcher<T>(
   flush: (items: T[]) => void,
-  options: BatchOptions = {}
+  options: BatchOptions = {},
 ): {
-  add: (item: T) => void
-  flush: () => void
-  readonly pending: number
+  add: (item: T) => void;
+  flush: () => void;
+  readonly pending: number;
 } {
-  const { maxSize = 100, maxWait = 50, debounceMs = 10 } = options
+  const { maxSize = 100, maxWait = 50, debounceMs = 10 } = options;
 
-  let queue: T[] = []
-  let debounceTimer: ReturnType<typeof setTimeout> | null = null
-  let maxWaitTimer: ReturnType<typeof setTimeout> | null = null
+  let queue: T[] = [];
+  let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+  let maxWaitTimer: ReturnType<typeof setTimeout> | null = null;
 
   function doFlush(): void {
-    if (queue.length === 0) return
+    if (queue.length === 0) return;
 
     // Clear timers
     if (debounceTimer) {
-      clearTimeout(debounceTimer)
-      debounceTimer = null
+      clearTimeout(debounceTimer);
+      debounceTimer = null;
     }
     if (maxWaitTimer) {
-      clearTimeout(maxWaitTimer)
-      maxWaitTimer = null
+      clearTimeout(maxWaitTimer);
+      maxWaitTimer = null;
     }
 
-    const items = queue
-    queue = []
-    flush(items)
+    const items = queue;
+    queue = [];
+    flush(items);
   }
 
   function scheduleFlush(): void {
     // Set debounce timer
     if (debounceTimer) {
-      clearTimeout(debounceTimer)
+      clearTimeout(debounceTimer);
     }
-    debounceTimer = setTimeout(doFlush, debounceMs)
+    debounceTimer = setTimeout(doFlush, debounceMs);
   }
 
   return {
     add(item: T): void {
-      queue.push(item)
+      queue.push(item);
 
       // Immediate flush if max size reached
       if (queue.length >= maxSize) {
-        doFlush()
-        return
+        doFlush();
+        return;
       }
 
       // Start max wait timer on first item
       if (queue.length === 1 && maxWait > 0) {
-        maxWaitTimer = setTimeout(doFlush, maxWait)
+        maxWaitTimer = setTimeout(doFlush, maxWait);
       }
 
-      scheduleFlush()
+      scheduleFlush();
     },
 
     flush: doFlush,
 
     get pending(): number {
-      return queue.length
+      return queue.length;
     },
-  }
+  };
 }
 
 /**
@@ -76,34 +76,34 @@ export function createBatcher<T>(
 export function createReactBatcher<T>(
   setState: (updater: (prev: T) => T) => void,
   merger: (batch: Partial<T>[]) => Partial<T>,
-  options: BatchOptions = {}
+  options: BatchOptions = {},
 ): {
-  update: (partial: Partial<T>) => void
-  flush: () => void
+  update: (partial: Partial<T>) => void;
+  flush: () => void;
 } {
   const batcher = createBatcher<Partial<T>>((items) => {
-    const merged = merger(items)
-    setState((prev) => ({ ...prev, ...merged }))
-  }, options)
+    const merged = merger(items);
+    setState((prev) => ({ ...prev, ...merged }));
+  }, options);
 
   return {
     update: batcher.add,
     flush: batcher.flush,
-  }
+  };
 }
 
 /**
  * Default merger that spreads all partials
  */
 export function defaultMerger<T>(batch: Partial<T>[]): Partial<T> {
-  return batch.reduce((acc, item) => ({ ...acc, ...item }), {} as Partial<T>)
+  return batch.reduce((acc, item) => ({ ...acc, ...item }), {} as Partial<T>);
 }
 
 /**
  * Deep merge for nested objects
  */
 export function deepMerger<T extends Record<string, unknown>>(batch: Partial<T>[]): Partial<T> {
-  const result: Record<string, unknown> = {}
+  const result: Record<string, unknown> = {};
 
   for (const item of batch) {
     for (const [key, value] of Object.entries(item)) {
@@ -114,12 +114,12 @@ export function deepMerger<T extends Record<string, unknown>>(batch: Partial<T>[
         typeof result[key] === 'object' &&
         result[key] !== null
       ) {
-        result[key] = { ...(result[key] as object), ...value }
+        result[key] = { ...(result[key] as object), ...value };
       } else {
-        result[key] = value
+        result[key] = value;
       }
     }
   }
 
-  return result as Partial<T>
+  return result as Partial<T>;
 }

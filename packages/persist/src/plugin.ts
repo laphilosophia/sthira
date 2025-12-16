@@ -2,12 +2,12 @@
 // @sthira/persist - Persistence Plugin for Sthira
 // ============================================================================
 
-import type { Plugin, Store } from '@sthira/core'
-import { getIndexedDBAdapter } from './adapters/indexeddb'
-import { getLocalStorageAdapter } from './adapters/localstorage'
-import { createMemoryAdapter } from './adapters/memory'
-import { jsonSerializer } from './serialization'
-import type { PersistedData, Serializer, StorageAdapter } from './types'
+import type { Plugin, Store } from '@sthira/core';
+import { getIndexedDBAdapter } from './adapters/indexeddb';
+import { getLocalStorageAdapter } from './adapters/localstorage';
+import { createMemoryAdapter } from './adapters/memory';
+import { jsonSerializer } from './serialization';
+import type { PersistedData, Serializer, StorageAdapter } from './types';
 
 // ============================================================================
 // Configuration Types
@@ -18,27 +18,27 @@ import type { PersistedData, Serializer, StorageAdapter } from './types'
  */
 export interface PersistConfig<T extends object = object> {
   /** Storage key */
-  key: string
+  key: string;
   /** Storage type */
-  storage?: 'indexeddb' | 'localstorage' | 'memory'
+  storage?: 'indexeddb' | 'localstorage' | 'memory';
   /** Custom storage adapter (overrides storage option) */
-  adapter?: StorageAdapter
+  adapter?: StorageAdapter;
   /** Custom serializer (default: JSON) */
-  serializer?: Serializer
+  serializer?: Serializer;
   /** Schema version for migrations */
-  version?: number
+  version?: number;
   /** Migration function */
-  migrate?: (state: unknown, version: number) => Partial<T>
+  migrate?: (state: unknown, version: number) => Partial<T>;
   /** Persist only specific fields */
-  partialize?: (state: T) => Partial<T>
+  partialize?: (state: T) => Partial<T>;
   /** Merge strategy */
-  merge?: (persisted: Partial<T>, current: T) => T
+  merge?: (persisted: Partial<T>, current: T) => T;
   /** Debounce writes (ms) */
-  debounce?: number
+  debounce?: number;
   /** Called when hydration completes */
-  onReady?: (state: T) => void
+  onReady?: (state: T) => void;
   /** Called on error */
-  onError?: (error: Error) => void
+  onError?: (error: Error) => void;
 }
 
 /**
@@ -46,17 +46,17 @@ export interface PersistConfig<T extends object = object> {
  */
 export interface PersistApi {
   /** Load state from storage */
-  hydrate: () => Promise<void>
+  hydrate: () => Promise<void>;
   /** Force persist current state */
-  persist: () => Promise<void>
+  persist: () => Promise<void>;
   /** Clear persisted data */
-  clear: () => Promise<void>
+  clear: () => Promise<void>;
   /** Pause auto-persist */
-  pause: () => void
+  pause: () => void;
   /** Resume auto-persist */
-  resume: () => void
+  resume: () => void;
   /** Get persist status */
-  getStatus: () => { hydrated: boolean; persisting: boolean; lastPersistedAt: number | null }
+  getStatus: () => { hydrated: boolean; persisting: boolean; lastPersistedAt: number | null };
 }
 
 // ============================================================================
@@ -67,7 +67,7 @@ export interface PersistApi {
  * Create persistence plugin
  */
 export function createPersistPlugin<T extends object>(
-  config: PersistConfig<T>
+  config: PersistConfig<T>,
 ): Plugin<T> & { api: PersistApi } {
   const {
     key,
@@ -81,65 +81,65 @@ export function createPersistPlugin<T extends object>(
     debounce = 100,
     onReady,
     onError,
-  } = config
+  } = config;
 
   // State
-  let store: Store<T, object> | null = null
-  let hydrated = false
-  let persisting = false
-  let lastPersistedAt: number | null = null
-  let pendingWrites = 0
-  let isPaused = false
-  let debounceTimer: ReturnType<typeof setTimeout> | null = null
-  let unsubscribe: (() => void) | null = null
+  let store: Store<T, object> | null = null;
+  let hydrated = false;
+  let persisting = false;
+  let lastPersistedAt: number | null = null;
+  let pendingWrites = 0;
+  let isPaused = false;
+  let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+  let unsubscribe: (() => void) | null = null;
 
   // Storage key
-  const storageKey = `sthira:${key}`
+  const storageKey = `sthira:${key}`;
 
   // Get adapter
   const getAdapter = (): StorageAdapter => {
-    if (customAdapter) return customAdapter
+    if (customAdapter) return customAdapter;
     switch (storage) {
       case 'indexeddb':
-        return getIndexedDBAdapter({ dbName: `sthira-${key}` })
+        return getIndexedDBAdapter({ dbName: `sthira-${key}` });
       case 'memory':
-        return createMemoryAdapter()
+        return createMemoryAdapter();
       default:
-        return getLocalStorageAdapter()
+        return getLocalStorageAdapter();
     }
-  }
+  };
 
-  const adapter = getAdapter()
+  const adapter = getAdapter();
 
   /**
    * Persist current state to storage
    */
   async function persistState(): Promise<void> {
-    if (!store || isPaused || persisting) return
+    if (!store || isPaused || persisting) return;
 
-    persisting = true
-    pendingWrites++
+    persisting = true;
+    pendingWrites++;
 
     try {
-      const currentState = store.getState()
-      const partialState = partialize(currentState)
+      const currentState = store.getState();
+      const partialState = partialize(currentState);
 
       const data: PersistedData<Partial<T>> = {
         version,
         state: partialState,
         timestamp: Date.now(),
-      }
+      };
 
-      const encoded = serializer.encode(data)
-      await adapter.setItem(storageKey, encoded)
+      const encoded = serializer.encode(data);
+      await adapter.setItem(storageKey, encoded);
 
-      lastPersistedAt = Date.now()
+      lastPersistedAt = Date.now();
     } catch (error) {
-      onError?.(error as Error)
-      console.error('[Sthira Persist] Failed to persist:', error)
+      onError?.(error as Error);
+      console.error('[Sthira Persist] Failed to persist:', error);
     } finally {
-      pendingWrites--
-      persisting = false
+      pendingWrites--;
+      persisting = false;
     }
   }
 
@@ -147,56 +147,56 @@ export function createPersistPlugin<T extends object>(
    * Schedule debounced persist
    */
   function schedulePersist(): void {
-    if (isPaused) return
+    if (isPaused) return;
 
     if (debounceTimer) {
-      clearTimeout(debounceTimer)
+      clearTimeout(debounceTimer);
     }
 
     debounceTimer = setTimeout(() => {
-      debounceTimer = null
-      persistState()
-    }, debounce)
+      debounceTimer = null;
+      persistState();
+    }, debounce);
   }
 
   /**
    * Hydrate state from storage
    */
   async function hydrateState(): Promise<void> {
-    if (!store) return
+    if (!store) return;
 
     try {
-      const encoded = await adapter.getItem(storageKey)
+      const encoded = await adapter.getItem(storageKey);
 
       if (!encoded) {
-        hydrated = true
-        onReady?.(store.getState())
-        return
+        hydrated = true;
+        onReady?.(store.getState());
+        return;
       }
 
-      const data = serializer.decode<PersistedData<Partial<T>>>(encoded)
-      let restoredState = data.state
+      const data = serializer.decode<PersistedData<Partial<T>>>(encoded);
+      let restoredState = data.state;
 
       // Migration if version mismatch
       if (data.version !== version && migrate) {
-        restoredState = migrate(data.state, data.version) as Partial<T>
+        restoredState = migrate(data.state, data.version) as Partial<T>;
       }
 
       // Merge with current state
-      const currentState = store.getState()
-      const mergedState = merge(restoredState, currentState)
+      const currentState = store.getState();
+      const mergedState = merge(restoredState, currentState);
 
       // Update store silently
-      store.setState(mergedState as Partial<T>, { silent: true })
+      store.setState(mergedState as Partial<T>, { silent: true });
 
-      hydrated = true
-      lastPersistedAt = data.timestamp
+      hydrated = true;
+      lastPersistedAt = data.timestamp;
 
-      onReady?.(store.getState())
+      onReady?.(store.getState());
     } catch (error) {
-      onError?.(error as Error)
-      console.error('[Sthira Persist] Failed to hydrate:', error)
-      hydrated = true // Unblock UI
+      onError?.(error as Error);
+      console.error('[Sthira Persist] Failed to hydrate:', error);
+      hydrated = true; // Unblock UI
     }
   }
 
@@ -204,19 +204,19 @@ export function createPersistPlugin<T extends object>(
   function handleVisibilityChange(): void {
     if (document.hidden && pendingWrites > 0) {
       if (debounceTimer) {
-        clearTimeout(debounceTimer)
-        debounceTimer = null
+        clearTimeout(debounceTimer);
+        debounceTimer = null;
       }
-      persistState()
+      persistState();
     }
   }
 
   function handleBeforeUnload(): void {
     if (pendingWrites > 0) {
       if (debounceTimer) {
-        clearTimeout(debounceTimer)
+        clearTimeout(debounceTimer);
       }
-      persistState()
+      persistState();
     }
   }
 
@@ -225,23 +225,23 @@ export function createPersistPlugin<T extends object>(
     hydrate: hydrateState,
     persist: async () => {
       if (debounceTimer) {
-        clearTimeout(debounceTimer)
-        debounceTimer = null
+        clearTimeout(debounceTimer);
+        debounceTimer = null;
       }
-      await persistState()
+      await persistState();
     },
     clear: async () => {
-      await adapter.removeItem(storageKey)
-      lastPersistedAt = null
+      await adapter.removeItem(storageKey);
+      lastPersistedAt = null;
     },
     pause: () => {
-      isPaused = true
+      isPaused = true;
     },
     resume: () => {
-      isPaused = false
+      isPaused = false;
     },
     getStatus: () => ({ hydrated, persisting, lastPersistedAt }),
-  }
+  };
 
   // Plugin definition
   const plugin: Plugin<T> = {
@@ -249,49 +249,49 @@ export function createPersistPlugin<T extends object>(
     version: '1.0.0',
 
     onInit: (s: Store<T, object>) => {
-      store = s
+      store = s;
 
       // Subscribe to state changes
       unsubscribe = store.subscribe(() => {
-        schedulePersist()
-      })
+        schedulePersist();
+      });
 
       // Browser event listeners
       if (typeof document !== 'undefined') {
-        document.addEventListener('visibilitychange', handleVisibilityChange)
+        document.addEventListener('visibilitychange', handleVisibilityChange);
       }
       if (typeof window !== 'undefined') {
-        window.addEventListener('beforeunload', handleBeforeUnload)
+        window.addEventListener('beforeunload', handleBeforeUnload);
       }
 
       // Auto-hydrate
-      hydrateState()
+      hydrateState();
     },
 
     onDestroy: async () => {
       // Flush pending writes
       if (debounceTimer) {
-        clearTimeout(debounceTimer)
-        debounceTimer = null
+        clearTimeout(debounceTimer);
+        debounceTimer = null;
       }
       if (pendingWrites > 0) {
-        await persistState()
+        await persistState();
       }
 
       // Cleanup
-      unsubscribe?.()
+      unsubscribe?.();
       if (typeof document !== 'undefined') {
-        document.removeEventListener('visibilitychange', handleVisibilityChange)
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
       }
       if (typeof window !== 'undefined') {
-        window.removeEventListener('beforeunload', handleBeforeUnload)
+        window.removeEventListener('beforeunload', handleBeforeUnload);
       }
     },
 
     extend: () => ({ persist: api }),
-  }
+  };
 
-  return Object.assign(plugin, { api })
+  return Object.assign(plugin, { api });
 }
 
 // ============================================================================
@@ -303,22 +303,22 @@ export function createPersistPlugin<T extends object>(
  */
 export function waitForHydration(api: PersistApi, timeoutMs = 5000): Promise<void> {
   return new Promise((resolve, reject) => {
-    const start = Date.now()
+    const start = Date.now();
 
     function check(): void {
       if (api.getStatus().hydrated) {
-        resolve()
-        return
+        resolve();
+        return;
       }
 
       if (Date.now() - start > timeoutMs) {
-        reject(new Error('[Sthira Persist] Hydration timeout'))
-        return
+        reject(new Error('[Sthira Persist] Hydration timeout'));
+        return;
       }
 
-      setTimeout(check, 10)
+      setTimeout(check, 10);
     }
 
-    check()
-  })
+    check();
+  });
 }

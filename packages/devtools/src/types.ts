@@ -7,15 +7,15 @@
  */
 export interface DevToolsConfig {
   /** Store name for DevTools */
-  name?: string
+  name?: string;
   /** Enable action names */
-  actionNames?: boolean
+  actionNames?: boolean;
   /** Max number of actions to keep in history */
-  maxAge?: number
+  maxAge?: number;
   /** Serialize options */
-  serialize?: boolean
+  serialize?: boolean;
   /** Enable features */
-  features?: DevToolsFeatures
+  features?: DevToolsFeatures;
 }
 
 /**
@@ -23,38 +23,38 @@ export interface DevToolsConfig {
  */
 export interface DevToolsFeatures {
   /** Enable pause/resume */
-  pause?: boolean
+  pause?: boolean;
   /** Enable lock actions */
-  lock?: boolean
+  lock?: boolean;
   /** Enable export state */
-  export?: boolean
+  export?: boolean;
   /** Enable import state */
-  import?: boolean
+  import?: boolean;
   /** Enable jump to action */
-  jump?: boolean
+  jump?: boolean;
   /** Enable skip action */
-  skip?: boolean
+  skip?: boolean;
   /** Enable reorder actions */
-  reorder?: boolean
+  reorder?: boolean;
   /** Enable persist state */
-  persist?: boolean
+  persist?: boolean;
   /** Enable dispatch custom actions */
-  dispatch?: boolean
+  dispatch?: boolean;
   /** Enable testing mode */
-  test?: boolean
+  test?: boolean;
 }
 
 /**
  * Extension connection interface
  */
 export interface DevToolsExtension {
-  connect(options?: DevToolsConfig): DevToolsConnection
-  disconnect(): void
-  send(action: string | DevToolsAction, state: unknown): void
-  subscribe(listener: (message: DevToolsMessage) => void): () => void
-  unsubscribe(): void
-  init(state: unknown): void
-  error(message: string): void
+  connect(options?: DevToolsConfig): DevToolsConnection;
+  disconnect(): void;
+  send(action: string | DevToolsAction, state: unknown): void;
+  subscribe(listener: (message: DevToolsMessage) => void): () => void;
+  unsubscribe(): void;
+  init(state: unknown): void;
+  error(message: string): void;
 }
 
 /**
@@ -62,68 +62,68 @@ export interface DevToolsExtension {
  */
 export interface DevToolsConnection {
   /** Initialize with state */
-  init(state: unknown): void
+  init(state: unknown): void;
   /** Send action */
-  send(action: string | DevToolsAction, state: unknown): void
+  send(action: string | DevToolsAction, state: unknown): void;
   /** Subscribe to messages */
-  subscribe(listener: (message: DevToolsMessage) => void): () => void
+  subscribe(listener: (message: DevToolsMessage) => void): () => void;
   /** Unsubscribe */
-  unsubscribe(): void
+  unsubscribe(): void;
   /** Error */
-  error(message: string): void
+  error(message: string): void;
 }
 
 /**
  * DevTools action
  */
 export interface DevToolsAction {
-  type: string
-  [key: string]: unknown
+  type: string;
+  [key: string]: unknown;
 }
 
 /**
  * DevTools message
  */
 export interface DevToolsMessage {
-  type: string
-  state?: string
+  type: string;
+  state?: string;
   payload?: {
-    type: string
-    actionId?: number
-    index?: number
-    [key: string]: unknown
-  }
+    type: string;
+    actionId?: number;
+    index?: number;
+    [key: string]: unknown;
+  };
 }
 
 /**
  * Inspected state
  */
 export interface InspectedState {
-  state: unknown
-  computed: Record<string, unknown>
-  subscribers: number
-  actions: string[]
+  state: unknown;
+  computed: Record<string, unknown>;
+  subscribers: number;
+  actions: string[];
 }
 
 /**
  * State diff
  */
 export interface StateDiff {
-  path: string[]
-  oldValue: unknown
-  newValue: unknown
+  path: string[];
+  oldValue: unknown;
+  newValue: unknown;
 }
 
 /**
  * Action log entry
  */
 export interface ActionLogEntry {
-  id: number
-  type: string
-  payload?: unknown
-  timestamp: number
-  prevState: unknown
-  nextState: unknown
+  id: number;
+  type: string;
+  payload?: unknown;
+  timestamp: number;
+  prevState: unknown;
+  nextState: unknown;
 }
 
 /**
@@ -131,19 +131,19 @@ export interface ActionLogEntry {
  */
 export interface DevToolsApi {
   /** Connect to devtools */
-  connect(): void
+  connect(): void;
   /** Disconnect from devtools */
-  disconnect(): void
+  disconnect(): void;
   /** Log an action */
-  logAction(type: string, payload?: unknown): void
+  logAction(type: string, payload?: unknown): void;
   /** Get action history */
-  getHistory(): ActionLogEntry[]
+  getHistory(): ActionLogEntry[];
   /** Clear history */
-  clearHistory(): void
+  clearHistory(): void;
   /** Jump to state at action index */
-  jumpTo(actionId: number): void
+  jumpTo(actionId: number): void;
   /** Export state as JSON */
-  exportState(): string
+  exportState(): string;
   /** Import state from JSON */
-  importState(json: string): void
+  importState(json: string): void;
 }

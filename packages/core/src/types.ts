@@ -1,4 +1,4 @@
-import type { ZodError, ZodType } from 'zod'
+import type { ZodError, ZodType } from 'zod';
 
 // ============================================================================
 // Core Types
@@ -9,41 +9,41 @@ import type { ZodError, ZodType } from 'zod'
  */
 export interface StoreConfig<TState extends object, TActions extends object> {
   /** Unique store name for debugging and DevTools */
-  name: string
+  name: string;
 
   /** Zod schema for runtime validation */
-  schema?: ZodType<TState>
+  schema?: ZodType<TState>;
 
   /** Initial state or factory function */
-  state: TState | (() => TState)
+  state: TState | (() => TState);
 
   /** Computed/derived values (auto-memoized) */
-  computed?: ComputedDefinitions<TState>
+  computed?: ComputedDefinitions<TState>;
 
   /** Actions that can modify state */
-  actions?: (set: SetState<TState>, get: GetState<TState>) => TActions
+  actions?: (set: SetState<TState>, get: GetState<TState>) => TActions;
 
   /** Axios-style interceptors */
-  interceptors?: Interceptors<TState>
+  interceptors?: Interceptors<TState>;
 
   /** Performance configuration */
-  performance?: PerformanceConfig
+  performance?: PerformanceConfig;
 
   /** Legacy plugins array (v1 API) */
-  plugins?: Plugin<TState>[]
+  plugins?: Plugin<TState>[];
 
   // ========================================
   // v2 Declarative Plugin Config
   // ========================================
 
   /** Persistence configuration */
-  persist?: boolean | PersistPluginConfig
+  persist?: boolean | PersistPluginConfig;
 
   /** Cross-tab sync configuration */
-  sync?: boolean | string | SyncPluginConfig
+  sync?: boolean | string | SyncPluginConfig;
 
   /** DevTools configuration */
-  devtools?: boolean | DevToolsPluginConfig
+  devtools?: boolean | DevToolsPluginConfig;
 }
 
 /**
@@ -51,22 +51,22 @@ export interface StoreConfig<TState extends object, TActions extends object> {
  */
 export type SetState<TState> = (
   partial: Partial<TState> | ((state: TState) => Partial<TState>),
-  options?: SetOptions
-) => void
+  options?: SetOptions,
+) => void;
 
 /**
  * Get state function
  */
-export type GetState<TState> = () => TState
+export type GetState<TState> = () => TState;
 
 /**
  * Set options
  */
 export interface SetOptions {
   /** Skip interceptors */
-  skipInterceptors?: boolean
+  skipInterceptors?: boolean;
   /** Skip subscribers notification */
-  silent?: boolean
+  silent?: boolean;
 }
 
 // ============================================================================
@@ -74,17 +74,17 @@ export interface SetOptions {
 // ============================================================================
 
 export type ComputedDefinitions<TState> = {
-  [key: string]: ComputedFn<TState, unknown>
-}
+  [key: string]: ComputedFn<TState, unknown>;
+};
 
 export type ComputedFn<TState, TResult> = (
   state: TState,
-  computed: Record<string, unknown>
-) => TResult
+  computed: Record<string, unknown>,
+) => TResult;
 
 export type ComputedValues<TComputed extends ComputedDefinitions<object>> = {
-  [K in keyof TComputed]: TComputed[K] extends ComputedFn<object, infer R> ? R : never
-}
+  [K in keyof TComputed]: TComputed[K] extends ComputedFn<object, infer R> ? R : never;
+};
 
 // ============================================================================
 // Interceptors Types
@@ -95,37 +95,37 @@ export interface Interceptors<TState> {
   beforeSet?: (
     path: string | null,
     value: Partial<TState>,
-    prevState: TState
-  ) => Partial<TState> | void
+    prevState: TState,
+  ) => Partial<TState> | void;
 
   /** Called after state is set */
-  afterSet?: (path: string | null, value: Partial<TState>, newState: TState) => void
+  afterSet?: (path: string | null, value: Partial<TState>, newState: TState) => void;
 
   /** Called when an error occurs */
-  onError?: (error: Error, context: ErrorContext) => void
+  onError?: (error: Error, context: ErrorContext) => void;
 }
 
 export interface ErrorContext {
-  action?: string
-  state?: unknown
-  error: Error
+  action?: string;
+  state?: unknown;
+  error: Error;
 }
 
 // ============================================================================
 // FSM / Async State Types
 // ============================================================================
 
-export type AsyncStatus = 'idle' | 'loading' | 'success' | 'error' | 'stale'
+export type AsyncStatus = 'idle' | 'loading' | 'success' | 'error' | 'stale';
 
 export interface AsyncState<TData, TError = Error> {
-  status: AsyncStatus
-  data: TData | undefined
-  error: TError | undefined
-  dataUpdatedAt: number | null
-  errorUpdatedAt: number | null
-  isFetching: boolean
-  isRefetching: boolean
-  fetchCount: number
+  status: AsyncStatus;
+  data: TData | undefined;
+  error: TError | undefined;
+  dataUpdatedAt: number | null;
+  errorUpdatedAt: number | null;
+  isFetching: boolean;
+  isRefetching: boolean;
+  fetchCount: number;
 }
 
 /**
@@ -137,28 +137,28 @@ export const ASYNC_TRANSITIONS: Record<AsyncStatus, AsyncStatus[]> = {
   success: ['loading', 'stale'],
   error: ['loading', 'idle'],
   stale: ['loading', 'success'],
-}
+};
 
 // ============================================================================
 // Performance Types
 // ============================================================================
 
-export type PerformancePreset = 'minimal' | 'balanced' | 'heavy'
+export type PerformancePreset = 'minimal' | 'balanced' | 'heavy';
 
 export interface PerformanceOptions {
   /** Enable frame-aware task scheduling */
-  scheduler?: boolean
+  scheduler?: boolean;
   /** Enable batched updates */
-  batching?: boolean
+  batching?: boolean;
   /** Enable web worker pool */
-  workers?: boolean | WorkerConfig
+  workers?: boolean | WorkerConfig;
 }
 
-export type PerformanceConfig = PerformancePreset | PerformanceOptions
+export type PerformanceConfig = PerformancePreset | PerformanceOptions;
 
 export interface WorkerConfig {
-  maxWorkers?: number
-  workerScript?: string | URL
+  maxWorkers?: number;
+  workerScript?: string | URL;
 }
 
 // ============================================================================
@@ -166,23 +166,23 @@ export interface WorkerConfig {
 // ============================================================================
 
 export interface Plugin<TState extends object = object> {
-  name: string
-  version: string
+  name: string;
+  version: string;
 
   /** Called when store is created */
-  onInit?: (store: Store<TState, object>) => void | Promise<void>
+  onInit?: (store: Store<TState, object>) => void | Promise<void>;
 
   /** Called before store is destroyed */
-  onDestroy?: (store: Store<TState, object>) => void | Promise<void>
+  onDestroy?: (store: Store<TState, object>) => void | Promise<void>;
 
   /** Called before state change */
-  onBeforeChange?: (partial: Partial<TState>, prevState: TState) => Partial<TState> | void
+  onBeforeChange?: (partial: Partial<TState>, prevState: TState) => Partial<TState> | void;
 
   /** Called after state change */
-  onAfterChange?: (newState: TState, prevState: TState) => void
+  onAfterChange?: (newState: TState, prevState: TState) => void;
 
   /** Extend store with new properties */
-  extend?: (store: Store<TState, object>) => Record<string, unknown>
+  extend?: (store: Store<TState, object>) => Record<string, unknown>;
 }
 
 // ============================================================================
@@ -194,23 +194,23 @@ export interface Plugin<TState extends object = object> {
  */
 export interface PersistPluginConfig {
   /** Storage key */
-  key: string
+  key: string;
   /** Storage adapter type */
-  storage?: 'indexeddb' | 'localstorage' | 'memory'
+  storage?: 'indexeddb' | 'localstorage' | 'memory';
   /** Serialization format */
-  serialize?: 'json' | 'msgpack'
+  serialize?: 'json' | 'msgpack';
   /** Schema version for migrations */
-  version?: number
+  version?: number;
   /** Migration function */
-  migrate?: (state: unknown, version: number) => unknown
+  migrate?: (state: unknown, version: number) => unknown;
   /** Persist only specific fields */
-  partialize?: (state: unknown) => unknown
+  partialize?: (state: unknown) => unknown;
   /** Debounce writes (ms) */
-  debounce?: number
+  debounce?: number;
   /** Called when hydration completes */
-  onReady?: (state: unknown) => void
+  onReady?: (state: unknown) => void;
   /** Called on error */
-  onError?: (error: Error) => void
+  onError?: (error: Error) => void;
 }
 
 /**
@@ -218,15 +218,15 @@ export interface PersistPluginConfig {
  */
 export interface SyncPluginConfig {
   /** BroadcastChannel name */
-  channel: string
+  channel: string;
   /** Only sync specific fields */
-  include?: string[]
+  include?: string[];
   /** Exclude specific fields from sync */
-  exclude?: string[]
+  exclude?: string[];
   /** Debounce sync messages (ms) */
-  debounce?: number
+  debounce?: number;
   /** Conflict resolution strategy */
-  onConflict?: 'local' | 'remote' | 'merge'
+  onConflict?: 'local' | 'remote' | 'merge';
 }
 
 /**
@@ -234,11 +234,11 @@ export interface SyncPluginConfig {
  */
 export interface DevToolsPluginConfig {
   /** Instance name in DevTools */
-  name?: string
+  name?: string;
   /** Max action history */
-  maxAge?: number
+  maxAge?: number;
   /** Enable action traces */
-  trace?: boolean
+  trace?: boolean;
 }
 
 /**
@@ -246,17 +246,17 @@ export interface DevToolsPluginConfig {
  */
 export interface PersistApi {
   /** Load state from storage */
-  hydrate: () => Promise<void>
+  hydrate: () => Promise<void>;
   /** Force persist current state */
-  persist: () => Promise<void>
+  persist: () => Promise<void>;
   /** Clear persisted data */
-  clear: () => Promise<void>
+  clear: () => Promise<void>;
   /** Pause auto-persist */
-  pause: () => void
+  pause: () => void;
   /** Resume auto-persist */
-  resume: () => void
+  resume: () => void;
   /** Get persist status */
-  getStatus: () => { hydrated: boolean; persisting: boolean; lastPersistedAt: number | null }
+  getStatus: () => { hydrated: boolean; persisting: boolean; lastPersistedAt: number | null };
 }
 
 /**
@@ -264,11 +264,11 @@ export interface PersistApi {
  */
 export interface SyncApi {
   /** Force broadcast current state */
-  broadcast: () => void
+  broadcast: () => void;
   /** Disconnect from sync channel */
-  disconnect: () => void
+  disconnect: () => void;
   /** Get sync status */
-  getStatus: () => { connected: boolean; tabId: string; lastSyncAt: number | null }
+  getStatus: () => { connected: boolean; tabId: string; lastSyncAt: number | null };
 }
 
 /**
@@ -276,17 +276,17 @@ export interface SyncApi {
  */
 export interface DevToolsApi {
   /** Export current state as JSON */
-  export: () => string
+  export: () => string;
   /** Import state from JSON */
-  import: (json: string) => void
+  import: (json: string) => void;
   /** Alias for export */
-  exportState?: () => string
+  exportState?: () => string;
   /** Alias for import */
-  importState?: (json: string) => void
+  importState?: (json: string) => void;
   /** Disconnect from devtools */
-  disconnect?: () => void
+  disconnect?: () => void;
   /** Get status */
-  getStatus?: () => { connected: boolean }
+  getStatus?: () => { connected: boolean };
 }
 
 // ============================================================================
@@ -295,67 +295,67 @@ export interface DevToolsApi {
 
 export interface Store<TState extends object, TActions extends object> {
   /** Store name */
-  readonly name: string
+  readonly name: string;
 
   /** Get current state */
-  getState: GetState<TState>
+  getState: GetState<TState>;
 
   /** Set state */
-  setState: SetState<TState>
+  setState: SetState<TState>;
 
   /** Subscribe to state changes */
-  subscribe: (listener: Listener<TState>) => Unsubscribe
+  subscribe: (listener: Listener<TState>) => Unsubscribe;
 
   /** Get computed values */
-  getComputed: () => Record<string, unknown>
+  getComputed: () => Record<string, unknown>;
 
   /** Actions */
-  actions: TActions
+  actions: TActions;
 
   /** Destroy store */
-  destroy: () => void
+  destroy: () => void;
 
   /** Performance utilities (if enabled) */
-  perf?: PerformanceUtils
+  perf?: PerformanceUtils;
 
   /** Event bus */
-  events: EventBus
+  events: EventBus;
 
   /** Plugin extensions */
-  [key: string]: unknown
+  [key: string]: unknown;
 }
 
-export type Listener<TState> = (state: TState, prevState: TState) => void
-export type Unsubscribe = () => void
+export type Listener<TState> = (state: TState, prevState: TState) => void;
+export type Unsubscribe = () => void;
 
 // ============================================================================
 // Event Bus Types
 // ============================================================================
 
-export type EventPriority = 'critical' | 'high' | 'normal' | 'low' | 'idle'
+export type EventPriority = 'critical' | 'high' | 'normal' | 'low' | 'idle';
 
 export interface StoreEvent<TPayload = unknown> {
-  type: string
-  payload: TPayload
-  timestamp: number
-  source: 'user' | 'system' | 'sync' | 'plugin'
-  priority: EventPriority
-  meta?: Record<string, unknown>
+  type: string;
+  payload: TPayload;
+  timestamp: number;
+  source: 'user' | 'system' | 'sync' | 'plugin';
+  priority: EventPriority;
+  meta?: Record<string, unknown>;
 }
 
-export type EventHandler<TPayload = unknown> = (event: StoreEvent<TPayload>) => void
+export type EventHandler<TPayload = unknown> = (event: StoreEvent<TPayload>) => void;
 
 export interface EventBus {
-  emit<T>(type: string, payload: T, options?: EmitOptions): void
-  on<T>(type: string, handler: EventHandler<T>): Unsubscribe
-  once<T>(type: string, handler: EventHandler<T>): Unsubscribe
-  off(type: string, handler?: EventHandler): void
+  emit<T>(type: string, payload: T, options?: EmitOptions): void;
+  on<T>(type: string, handler: EventHandler<T>): Unsubscribe;
+  once<T>(type: string, handler: EventHandler<T>): Unsubscribe;
+  off(type: string, handler?: EventHandler): void;
 }
 
 export interface EmitOptions {
-  source?: StoreEvent['source']
-  priority?: EventPriority
-  meta?: Record<string, unknown>
+  source?: StoreEvent['source'];
+  priority?: EventPriority;
+  meta?: Record<string, unknown>;
 }
 
 // ============================================================================
@@ -364,21 +364,21 @@ export interface EmitOptions {
 
 export interface PerformanceUtils {
   /** Schedule a task with priority */
-  schedule<T>(task: () => T | Promise<T>, priority?: 'high' | 'normal' | 'low'): Promise<T>
+  schedule<T>(task: () => T | Promise<T>, priority?: 'high' | 'normal' | 'low'): Promise<T>;
 
   /** Yield to main thread */
-  yieldToMain(): Promise<void>
+  yieldToMain(): Promise<void>;
 
   /** Process array in chunks */
-  chunked<T, R>(items: T[], fn: (item: T) => R, options?: ChunkedOptions): Promise<R[]>
+  chunked<T, R>(items: T[], fn: (item: T) => R, options?: ChunkedOptions): Promise<R[]>;
 
   /** Offload to worker (if workers enabled) */
-  offload?<T, R>(taskType: string, data: T): Promise<R>
+  offload?<T, R>(taskType: string, data: T): Promise<R>;
 }
 
 export interface ChunkedOptions {
-  chunkSize?: number
-  yieldEvery?: boolean
+  chunkSize?: number;
+  yieldEvery?: boolean;
 }
 
 // ============================================================================
@@ -386,9 +386,9 @@ export interface ChunkedOptions {
 // ============================================================================
 
 export interface ValidationResult<T> {
-  success: boolean
-  data?: T
-  error?: ZodError
+  success: boolean;
+  data?: T;
+  error?: ZodError;
 }
 
 // ============================================================================
@@ -396,20 +396,20 @@ export interface ValidationResult<T> {
 // ============================================================================
 
 export interface DataSource<T> {
-  type: 'query' | 'mutation' | 'subscription'
-  getCacheKey(): string
-  fetch(): Promise<T>
-  subscribe?(callback: (data: T) => void): Unsubscribe
-  invalidate(): void
+  type: 'query' | 'mutation' | 'subscription';
+  getCacheKey(): string;
+  fetch(): Promise<T>;
+  subscribe?(callback: (data: T) => void): Unsubscribe;
+  invalidate(): void;
 }
 
 export interface DataSourceConfig<T> {
-  cacheKey?: string | (() => string)
-  staleTime?: number
-  cacheTime?: number
-  retry?: number | boolean
-  retryDelay?: number
-  transform?: (raw: unknown) => T
-  onSuccess?: (data: T) => void
-  onError?: (error: Error) => void
+  cacheKey?: string | (() => string);
+  staleTime?: number;
+  cacheTime?: number;
+  retry?: number | boolean;
+  retryDelay?: number;
+  transform?: (raw: unknown) => T;
+  onSuccess?: (data: T) => void;
+  onError?: (error: Error) => void;
 }

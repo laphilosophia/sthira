@@ -3,8 +3,8 @@
 // ============================================================================
 
 // Plugin
-export { createPersistPlugin, waitForHydration } from './plugin'
-export type { PersistApi, PersistConfig } from './plugin'
+export { createPersistPlugin, waitForHydration } from './plugin';
+export type { PersistApi, PersistConfig } from './plugin';
 
 // Serialization
 export {
@@ -14,12 +14,12 @@ export {
   jsonSerializer,
   loadMsgpack,
   msgpackSerializer,
-} from './serialization'
+} from './serialization';
 
 // Adapters
-export { createIndexedDBAdapter, getIndexedDBAdapter } from './adapters/indexeddb'
-export { createLocalStorageAdapter, getLocalStorageAdapter } from './adapters/localstorage'
-export { createMemoryAdapter } from './adapters/memory'
+export { createIndexedDBAdapter, getIndexedDBAdapter } from './adapters/indexeddb';
+export { createLocalStorageAdapter, getLocalStorageAdapter } from './adapters/localstorage';
+export { createMemoryAdapter } from './adapters/memory';
 
 // Types
 export type {
@@ -29,4 +29,4 @@ export type {
   SerializationFormat,
   Serializer,
   StorageAdapter,
-} from './types'
+} from './types';

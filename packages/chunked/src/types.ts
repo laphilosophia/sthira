@@ -5,26 +5,26 @@
 /**
  * Chunk state
  */
-export type ChunkState = 'hot' | 'warm' | 'cold' | 'evicted'
+export type ChunkState = 'hot' | 'warm' | 'cold' | 'evicted';
 
 /**
  * Chunk metadata
  */
 export interface ChunkMeta {
-  id: string
-  state: ChunkState
-  createdAt: number
-  accessedAt: number
-  size: number
-  isPinned: boolean
+  id: string;
+  state: ChunkState;
+  createdAt: number;
+  accessedAt: number;
+  size: number;
+  isPinned: boolean;
 }
 
 /**
  * Chunk data with metadata
  */
 export interface Chunk<T = unknown> {
-  meta: ChunkMeta
-  data: T
+  meta: ChunkMeta;
+  data: T;
 }
 
 /**
@@ -32,13 +32,13 @@ export interface Chunk<T = unknown> {
  */
 export interface TierConfig {
   /** Max items in hot tier (raw objects) */
-  hotLimit?: number
+  hotLimit?: number;
 
   /** Max items in warm tier (compressed) */
-  warmLimit?: number
+  warmLimit?: number;
 
   /** Time before moving to colder tier (ms) */
-  ttl?: number
+  ttl?: number;
 }
 
 /**
@@ -46,28 +46,28 @@ export interface TierConfig {
  */
 export interface ChunkedStoreConfig<T> {
   /** Store name */
-  name: string
+  name: string;
 
   /** Chunk size (number of items per chunk) */
-  chunkSize?: number
+  chunkSize?: number;
 
   /** Memory budget in bytes */
-  memoryBudget?: number
+  memoryBudget?: number;
 
   /** Enable compression for warm/cold storage */
-  compress?: boolean
+  compress?: boolean;
 
   /** Tier configuration */
-  tiers?: TierConfig
+  tiers?: TierConfig;
 
   /** Custom chunk key generator */
-  getKey?: (item: T, index: number) => string
+  getKey?: (item: T, index: number) => string;
 
   /** Called when chunk is evicted */
-  onEvict?: (chunkId: string) => void
+  onEvict?: (chunkId: string) => void;
 
   /** Called on error */
-  onError?: (error: Error) => void
+  onError?: (error: Error) => void;
 }
 
 /**
@@ -75,22 +75,22 @@ export interface ChunkedStoreConfig<T> {
  */
 export interface ChunkedStoreState {
   /** Total items */
-  totalItems: number
+  totalItems: number;
 
   /** Total chunks */
-  totalChunks: number
+  totalChunks: number;
 
   /** Chunks in hot memory */
-  hotChunks: number
+  hotChunks: number;
 
   /** Chunks in warm memory */
-  warmChunks: number
+  warmChunks: number;
 
   /** Chunks in cold storage */
-  coldChunks: number
+  coldChunks: number;
 
   /** Estimated memory usage (bytes) */
-  memoryUsage: number
+  memoryUsage: number;
 }
 
 /**
@@ -98,45 +98,45 @@ export interface ChunkedStoreState {
  */
 export interface ChunkedStoreApi<T> {
   /** Get item by key */
-  get(key: string): Promise<T | undefined>
+  get(key: string): Promise<T | undefined>;
 
   /** Set item */
-  set(key: string, value: T): Promise<void>
+  set(key: string, value: T): Promise<void>;
 
   /** Delete item */
-  delete(key: string): Promise<boolean>
+  delete(key: string): Promise<boolean>;
 
   /** Check if item exists */
-  has(key: string): Promise<boolean>
+  has(key: string): Promise<boolean>;
 
   /** Get all keys */
-  keys(): Promise<string[]>
+  keys(): Promise<string[]>;
 
   /** Get store state */
-  getState(): ChunkedStoreState
+  getState(): ChunkedStoreState;
 
   /** Pin chunk in hot memory */
-  pin(chunkId: string): void
+  pin(chunkId: string): void;
 
   /** Unpin chunk */
-  unpin(chunkId: string): void
+  unpin(chunkId: string): void;
 
   /** Force garbage collection */
-  gc(): Promise<void>
+  gc(): Promise<void>;
 
   /** Flush all chunks to storage */
-  flush(): Promise<void>
+  flush(): Promise<void>;
 
   /** Clear all data */
-  clear(): Promise<void>
+  clear(): Promise<void>;
 }
 
 /**
  * LRU cache item
  */
 export interface LRUItem<T> {
-  key: string
-  value: T
-  size: number
-  accessedAt: number
+  key: string;
+  value: T;
+  size: number;
+  accessedAt: number;
 }

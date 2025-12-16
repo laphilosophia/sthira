@@ -11,17 +11,17 @@ pnpm add @sthira/cross-tab
 ## Quick Start
 
 ```typescript
-import { createStore } from '@sthira/core'
-import { createSyncPlugin } from '@sthira/cross-tab'
+import { createStore } from '@sthira/core';
+import { createSyncPlugin } from '@sthira/cross-tab';
 
 const store = createStore({
   name: 'app',
   state: { user: null, data: [] },
   plugins: [createSyncPlugin({ channel: 'my-app' })],
-})
+});
 
 // State changes automatically sync across tabs
-store.setState({ user: { id: 1, name: 'John' } })
+store.setState({ user: { id: 1, name: 'John' } });
 // Other tabs receive this update instantly
 ```
 
@@ -29,19 +29,19 @@ store.setState({ user: { id: 1, name: 'John' } })
 
 ```typescript
 interface SyncPluginConfig {
-  channel: string // BroadcastChannel name
-  throttle?: number // Sync throttle (ms)
+  channel: string; // BroadcastChannel name
+  throttle?: number; // Sync throttle (ms)
 }
 
 // API exposed on store.sync
 interface SyncApi {
-  broadcast: () => void // Force broadcast current state
-  disconnect: () => void // Stop syncing
+  broadcast: () => void; // Force broadcast current state
+  disconnect: () => void; // Stop syncing
   getStatus: () => {
-    tabId: string // Current tab identifier
-    connected: boolean // Sync active
-    lastSyncAt: number | null // Last sync timestamp
-  }
+    tabId: string; // Current tab identifier
+    connected: boolean; // Sync active
+    lastSyncAt: number | null; // Last sync timestamp
+  };
 }
 ```
 
@@ -56,7 +56,7 @@ interface SyncApi {
 
 ```typescript
 // Only leader tab performs expensive operations
-store.sync.getStatus().isLeader // true for one tab only
+store.sync.getStatus().isLeader; // true for one tab only
 ```
 
 ## License

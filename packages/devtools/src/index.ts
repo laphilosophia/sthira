@@ -3,11 +3,11 @@
 // ============================================================================
 
 // Plugin
-export { createDevToolsPlugin, isDevToolsAvailable } from './plugin'
-export type { DevToolsApi, DevToolsConfig } from './plugin'
+export { createDevToolsPlugin, isDevToolsAvailable } from './plugin';
+export type { DevToolsApi, DevToolsConfig } from './plugin';
 
 // Inspector
-export { StoreInspector, createInspector } from './inspector'
+export { StoreInspector, createInspector } from './inspector';
 
 // Types
 export type {
@@ -18,4 +18,4 @@ export type {
   DevToolsMessage,
   InspectedState,
   StateDiff,
-} from './types'
+} from './types';

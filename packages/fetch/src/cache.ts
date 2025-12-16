@@ -1,71 +1,71 @@
-import type { CacheEntry, CacheOptions } from './types'
+import type { CacheEntry, CacheOptions } from './types';
 
 /**
  * In-memory cache for data fetching
  * Implements stale-while-revalidate pattern
  */
 export class QueryCache {
-  private cache = new Map<string, CacheEntry<unknown>>()
-  private gcInterval: ReturnType<typeof setInterval> | null = null
+  private cache = new Map<string, CacheEntry<unknown>>();
+  private gcInterval: ReturnType<typeof setInterval> | null = null;
 
   constructor() {
     // Start garbage collection
-    this.startGC()
+    this.startGC();
   }
 
   /**
    * Get cached data
    */
   get<T>(key: string): CacheEntry<T> | undefined {
-    const entry = this.cache.get(key) as CacheEntry<T> | undefined
+    const entry = this.cache.get(key) as CacheEntry<T> | undefined;
 
-    if (!entry) return undefined
+    if (!entry) return undefined;
 
     // Check if cache has expired
     if (this.isExpired(entry)) {
-      this.cache.delete(key)
-      return undefined
+      this.cache.delete(key);
+      return undefined;
     }
 
-    return entry
+    return entry;
   }
 
   /**
    * Set cached data
    */
   set<T>(key: string, data: T, options: CacheOptions = {}): void {
-    const { staleTime = 5 * 60 * 1000, cacheTime = 10 * 60 * 1000 } = options
+    const { staleTime = 5 * 60 * 1000, cacheTime = 10 * 60 * 1000 } = options;
 
     this.cache.set(key, {
       data,
       timestamp: Date.now(),
       staleTime,
       cacheTime,
-    })
+    });
   }
 
   /**
    * Check if data is stale
    */
   isStale(key: string): boolean {
-    const entry = this.cache.get(key)
-    if (!entry) return true
+    const entry = this.cache.get(key);
+    if (!entry) return true;
 
-    return Date.now() - entry.timestamp > entry.staleTime
+    return Date.now() - entry.timestamp > entry.staleTime;
   }
 
   /**
    * Check if cache entry has expired
    */
   private isExpired(entry: CacheEntry<unknown>): boolean {
-    return Date.now() - entry.timestamp > entry.cacheTime
+    return Date.now() - entry.timestamp > entry.cacheTime;
   }
 
   /**
    * Invalidate a cache entry
    */
   invalidate(key: string): void {
-    this.cache.delete(key)
+    this.cache.delete(key);
   }
 
   /**
@@ -74,7 +74,7 @@ export class QueryCache {
   invalidatePrefix(prefix: string): void {
     for (const key of this.cache.keys()) {
       if (key.startsWith(prefix)) {
-        this.cache.delete(key)
+        this.cache.delete(key);
       }
     }
   }
@@ -83,21 +83,21 @@ export class QueryCache {
    * Invalidate all cache entries
    */
   invalidateAll(): void {
-    this.cache.clear()
+    this.cache.clear();
   }
 
   /**
    * Get all cache keys
    */
   keys(): string[] {
-    return Array.from(this.cache.keys())
+    return Array.from(this.cache.keys());
   }
 
   /**
    * Get cache size
    */
   get size(): number {
-    return this.cache.size
+    return this.cache.size;
   }
 
   /**
@@ -106,8 +106,8 @@ export class QueryCache {
   private startGC(): void {
     // Run GC every minute
     this.gcInterval = setInterval(() => {
-      this.gc()
-    }, 60 * 1000)
+      this.gc();
+    }, 60 * 1000);
   }
 
   /**
@@ -116,7 +116,7 @@ export class QueryCache {
   private gc(): void {
     for (const [key, entry] of this.cache.entries()) {
       if (this.isExpired(entry)) {
-        this.cache.delete(key)
+        this.cache.delete(key);
       }
     }
   }
@@ -126,24 +126,24 @@ export class QueryCache {
    */
   destroy(): void {
     if (this.gcInterval) {
-      clearInterval(this.gcInterval)
-      this.gcInterval = null
+      clearInterval(this.gcInterval);
+      this.gcInterval = null;
     }
-    this.cache.clear()
+    this.cache.clear();
   }
 }
 
 // Global cache instance
-let globalCache: QueryCache | null = null
+let globalCache: QueryCache | null = null;
 
 /**
  * Get or create the global cache instance
  */
 export function getQueryCache(): QueryCache {
   if (!globalCache) {
-    globalCache = new QueryCache()
+    globalCache = new QueryCache();
   }
-  return globalCache
+  return globalCache;
 }
 
 /**
@@ -151,7 +151,7 @@ export function getQueryCache(): QueryCache {
  */
 export function resetQueryCache(): void {
   if (globalCache) {
-    globalCache.destroy()
-    globalCache = null
+    globalCache.destroy();
+    globalCache = null;
   }
 }

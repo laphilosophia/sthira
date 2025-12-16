@@ -5,16 +5,16 @@
 /**
  * Task priority levels
  */
-export type TaskPriority = 'critical' | 'high' | 'normal' | 'low' | 'idle'
+export type TaskPriority = 'critical' | 'high' | 'normal' | 'low' | 'idle';
 
 /**
  * Scheduled task
  */
 export interface ScheduledTask<T = unknown> {
-  id: string
-  task: () => T | Promise<T>
-  priority: TaskPriority
-  createdAt: number
+  id: string;
+  task: () => T | Promise<T>;
+  priority: TaskPriority;
+  createdAt: number;
 }
 
 /**
@@ -22,11 +22,11 @@ export interface ScheduledTask<T = unknown> {
  */
 export interface BatchOptions {
   /** Maximum batch size */
-  maxSize?: number
+  maxSize?: number;
   /** Maximum wait time before flush (ms) */
-  maxWait?: number
+  maxWait?: number;
   /** Minimum wait time for batching (ms) */
-  debounceMs?: number
+  debounceMs?: number;
 }
 
 /**
@@ -34,11 +34,11 @@ export interface BatchOptions {
  */
 export interface ChunkOptions {
   /** Items per chunk */
-  chunkSize?: number
+  chunkSize?: number;
   /** Yield to main thread between chunks */
-  yieldBetweenChunks?: boolean
+  yieldBetweenChunks?: boolean;
   /** Abort signal for cancellation */
-  signal?: AbortSignal
+  signal?: AbortSignal;
 }
 
 /**
@@ -46,28 +46,28 @@ export interface ChunkOptions {
  */
 export interface MemoryInfo {
   /** Used JS heap size in bytes */
-  usedHeap: number
+  usedHeap: number;
   /** Total JS heap size in bytes */
-  totalHeap: number
+  totalHeap: number;
   /** Heap limit in bytes */
-  heapLimit: number
+  heapLimit: number;
   /** Usage percentage (0-1) */
-  usagePercent: number
+  usagePercent: number;
 }
 
 /**
  * Memory pressure level
  */
-export type MemoryPressure = 'none' | 'moderate' | 'critical'
+export type MemoryPressure = 'none' | 'moderate' | 'critical';
 
 /**
  * Worker task
  */
 export interface WorkerTask<TInput = unknown, TOutput = unknown> {
-  type: string
-  payload: TInput
-  resolve: (value: TOutput) => void
-  reject: (error: Error) => void
+  type: string;
+  payload: TInput;
+  resolve: (value: TOutput) => void;
+  reject: (error: Error) => void;
 }
 
 /**
@@ -75,11 +75,11 @@ export interface WorkerTask<TInput = unknown, TOutput = unknown> {
  */
 export interface WorkerPoolOptions {
   /** Maximum number of workers */
-  maxWorkers?: number
+  maxWorkers?: number;
   /** Worker script URL or factory */
-  workerFactory?: () => Worker
+  workerFactory?: () => Worker;
   /** Terminate idle workers after ms */
-  idleTimeout?: number
+  idleTimeout?: number;
 }
 
 /**
@@ -87,7 +87,7 @@ export interface WorkerPoolOptions {
  */
 export interface SchedulerOptions {
   /** Frame budget in ms (default: 5ms for 60fps) */
-  frameBudget?: number
+  frameBudget?: number;
   /** Use requestIdleCallback when available */
-  useIdleCallback?: boolean
+  useIdleCallback?: boolean;
 }

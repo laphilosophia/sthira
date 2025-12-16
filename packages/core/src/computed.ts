@@ -1,15 +1,15 @@
-import type { ComputedDefinitions, ComputedFn } from './types'
+import type { ComputedDefinitions, ComputedFn } from './types';
 
 /**
  * Memoized computed value
  */
 interface MemoizedComputed<T> {
   /** Get the computed value */
-  get(): T
+  get(): T;
   /** Invalidate the cached value */
-  invalidate(): void
+  invalidate(): void;
   /** Check if cache is valid */
-  isValid(): boolean
+  isValid(): boolean;
 }
 
 /**
@@ -18,62 +18,62 @@ interface MemoizedComputed<T> {
 function createMemoizedComputed<TState, TResult>(
   fn: ComputedFn<TState, TResult>,
   getState: () => TState,
-  getComputed: () => Record<string, unknown>
+  getComputed: () => Record<string, unknown>,
 ): MemoizedComputed<TResult> {
-  let cachedValue: TResult | undefined
-  let cachedState: TState | undefined
-  let isValid = false
+  let cachedValue: TResult | undefined;
+  let cachedState: TState | undefined;
+  let isValid = false;
 
   return {
     get(): TResult {
-      const currentState = getState()
+      const currentState = getState();
 
       // Return cached if still valid (same state reference)
       if (isValid && cachedState === currentState) {
-        return cachedValue as TResult
+        return cachedValue as TResult;
       }
 
       // Recompute
-      cachedValue = fn(currentState, getComputed())
-      cachedState = currentState
-      isValid = true
+      cachedValue = fn(currentState, getComputed());
+      cachedState = currentState;
+      isValid = true;
 
-      return cachedValue
+      return cachedValue;
     },
 
     invalidate(): void {
-      isValid = false
-      cachedValue = undefined
-      cachedState = undefined
+      isValid = false;
+      cachedValue = undefined;
+      cachedState = undefined;
     },
 
     isValid(): boolean {
-      return isValid
+      return isValid;
     },
-  }
+  };
 }
 
 /**
  * Computed values manager
  */
 export class ComputedManager<TState extends object> {
-  private computedMap = new Map<string, MemoizedComputed<unknown>>()
-  private definitions: ComputedDefinitions<TState>
-  private getState: () => TState
+  private computedMap = new Map<string, MemoizedComputed<unknown>>();
+  private definitions: ComputedDefinitions<TState>;
+  private getState: () => TState;
 
   constructor(definitions: ComputedDefinitions<TState> | undefined, getState: () => TState) {
-    this.definitions = definitions ?? {}
-    this.getState = getState
+    this.definitions = definitions ?? {};
+    this.getState = getState;
 
     // Initialize computed values
-    this.initialize()
+    this.initialize();
   }
 
   /**
    * Initialize all computed values
    */
   private initialize(): void {
-    const computedProxy = this.createComputedProxy()
+    const computedProxy = this.createComputedProxy();
 
     for (const [key, fn] of Object.entries(this.definitions)) {
       this.computedMap.set(
@@ -81,9 +81,9 @@ export class ComputedManager<TState extends object> {
         createMemoizedComputed(
           fn as ComputedFn<TState, unknown>,
           this.getState,
-          () => computedProxy
-        )
-      )
+          () => computedProxy,
+        ),
+      );
     }
   }
 
@@ -93,33 +93,33 @@ export class ComputedManager<TState extends object> {
   private createComputedProxy(): Record<string, unknown> {
     return new Proxy({} as Record<string, unknown>, {
       get: (_, prop: string) => {
-        return this.get(prop)
+        return this.get(prop);
       },
-    })
+    });
   }
 
   /**
    * Get a computed value
    */
   get(key: string): unknown {
-    const computed = this.computedMap.get(key)
+    const computed = this.computedMap.get(key);
     if (!computed) {
-      return undefined
+      return undefined;
     }
-    return computed.get()
+    return computed.get();
   }
 
   /**
    * Get all computed values
    */
   getAll(): Record<string, unknown> {
-    const result: Record<string, unknown> = {}
+    const result: Record<string, unknown> = {};
 
     for (const key of this.computedMap.keys()) {
-      result[key] = this.get(key)
+      result[key] = this.get(key);
     }
 
-    return result
+    return result;
   }
 
   /**
@@ -127,7 +127,7 @@ export class ComputedManager<TState extends object> {
    */
   invalidateAll(): void {
     for (const computed of this.computedMap.values()) {
-      computed.invalidate()
+      computed.invalidate();
     }
   }
 
@@ -135,9 +135,9 @@ export class ComputedManager<TState extends object> {
    * Invalidate specific computed value
    */
   invalidate(key: string): void {
-    const computed = this.computedMap.get(key)
+    const computed = this.computedMap.get(key);
     if (computed) {
-      computed.invalidate()
+      computed.invalidate();
     }
   }
 
@@ -145,13 +145,13 @@ export class ComputedManager<TState extends object> {
    * Check if computed value exists
    */
   has(key: string): boolean {
-    return this.computedMap.has(key)
+    return this.computedMap.has(key);
   }
 
   /**
    * Get computed keys
    */
   keys(): string[] {
-    return Array.from(this.computedMap.keys())
+    return Array.from(this.computedMap.keys());
   }
 }

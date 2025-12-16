@@ -11,12 +11,12 @@ pnpm add @Sthira/perf
 ## Quick Start
 
 ```typescript
-import { createBatcher, getScheduler, MemoryMonitor } from '@Sthira/perf'
+import { createBatcher, getScheduler, MemoryMonitor } from '@Sthira/perf';
 
 // Batch rapid state updates
-const batcher = createBatcher(store, { maxWait: 16 })
-batcher.set({ a: 1 })
-batcher.set({ b: 2 })
+const batcher = createBatcher(store, { maxWait: 16 });
+batcher.set({ a: 1 });
+batcher.set({ b: 2 });
 // Single update: { a: 1, b: 2 }
 ```
 
@@ -28,19 +28,19 @@ Batch multiple state updates into one:
 
 ```typescript
 interface BatchOptions {
-  maxWait?: number // Max wait time (ms), default: 16
-  maxSize?: number // Max batch size, default: 100
-  merger?: MergerFn // Custom merger function
+  maxWait?: number; // Max wait time (ms), default: 16
+  maxSize?: number; // Max batch size, default: 100
+  merger?: MergerFn; // Custom merger function
 }
 
-const batcher = createBatcher(store, { maxWait: 16 })
+const batcher = createBatcher(store, { maxWait: 16 });
 
-batcher.set({ count: 1 })
-batcher.set({ count: 2 })
-batcher.set({ count: 3 })
+batcher.set({ count: 1 });
+batcher.set({ count: 2 });
+batcher.set({ count: 3 });
 // Batched into single update after 16ms
 
-batcher.flush() // Force flush immediately
+batcher.flush(); // Force flush immediately
 ```
 
 ### `TaskScheduler`
@@ -48,22 +48,22 @@ batcher.flush() // Force flush immediately
 Priority-based task scheduling:
 
 ```typescript
-import { TaskScheduler, getScheduler } from '@Sthira/perf'
+import { TaskScheduler, getScheduler } from '@Sthira/perf';
 
-const scheduler = getScheduler()
+const scheduler = getScheduler();
 
 // Schedule with priority
 scheduler.schedule({
   id: 'render',
   priority: 'high', // 'critical' | 'high' | 'normal' | 'low' | 'idle'
   task: () => updateUI(),
-})
+});
 
 scheduler.schedule({
   id: 'analytics',
   priority: 'idle',
   task: () => sendAnalytics(),
-})
+});
 
 // High priority runs first
 ```
@@ -73,15 +73,15 @@ scheduler.schedule({
 Process large arrays in chunks to avoid blocking:
 
 ```typescript
-import { chunked } from '@Sthira/perf'
+import { chunked } from '@Sthira/perf';
 
-const items = Array.from({ length: 10000 }, (_, i) => i)
+const items = Array.from({ length: 10000 }, (_, i) => i);
 
 await chunked(items, 100, async (chunk) => {
   for (const item of chunk) {
-    processItem(item)
+    processItem(item);
   }
-})
+});
 // Yields to main thread between chunks
 ```
 
@@ -90,12 +90,12 @@ await chunked(items, 100, async (chunk) => {
 Yield control to main thread:
 
 ```typescript
-import { yieldToMain } from '@Sthira/perf'
+import { yieldToMain } from '@Sthira/perf';
 
 async function heavyTask() {
   for (let i = 0; i < 1000; i++) {
-    if (i % 100 === 0) await yieldToMain()
-    processItem(i)
+    if (i % 100 === 0) await yieldToMain();
+    processItem(i);
   }
 }
 ```
@@ -105,20 +105,20 @@ async function heavyTask() {
 Monitor memory pressure:
 
 ```typescript
-import { MemoryMonitor, getMemoryMonitor } from '@Sthira/perf'
+import { MemoryMonitor, getMemoryMonitor } from '@Sthira/perf';
 
-const monitor = getMemoryMonitor()
+const monitor = getMemoryMonitor();
 
 monitor.subscribe((pressure) => {
   if (pressure === 'critical') {
     // Clear caches, reduce memory
-    cache.clear()
+    cache.clear();
   }
-})
+});
 
 // Manual check
-const pressure = monitor.getPressure() // 'normal' | 'moderate' | 'critical'
-const info = monitor.getInfo() // { usedJSHeapSize, totalJSHeapSize, ... }
+const pressure = monitor.getPressure(); // 'normal' | 'moderate' | 'critical'
+const info = monitor.getInfo(); // { usedJSHeapSize, totalJSHeapSize, ... }
 ```
 
 ### `createDebounced(fn, delay)`
@@ -126,17 +126,17 @@ const info = monitor.getInfo() // { usedJSHeapSize, totalJSHeapSize, ... }
 Debounce function calls:
 
 ```typescript
-import { createDebounced } from '@Sthira/perf'
+import { createDebounced } from '@Sthira/perf';
 
-const debouncedSearch = createDebounced((query: string) => api.search(query), 300)
+const debouncedSearch = createDebounced((query: string) => api.search(query), 300);
 
 // Only last call executes after 300ms
-debouncedSearch('a')
-debouncedSearch('ab')
-debouncedSearch('abc') // ← This one runs
+debouncedSearch('a');
+debouncedSearch('ab');
+debouncedSearch('abc'); // ← This one runs
 
 // Cancel pending
-debouncedSearch.cancel()
+debouncedSearch.cancel();
 ```
 
 ### `createPausable(fn)`
@@ -144,27 +144,27 @@ debouncedSearch.cancel()
 Create pausable async operations:
 
 ```typescript
-import { createPausable } from '@Sthira/perf'
+import { createPausable } from '@Sthira/perf';
 
 const pausable = createPausable(async () => {
   for (const item of items) {
-    await processItem(item)
+    await processItem(item);
   }
-})
+});
 
-pausable.start()
-pausable.pause() // Pause execution
-pausable.resume() // Resume
-pausable.cancel() // Cancel entirely
+pausable.start();
+pausable.pause(); // Pause execution
+pausable.resume(); // Resume
+pausable.cancel(); // Cancel entirely
 ```
 
 ## React Integration
 
 ```typescript
-import { createReactBatcher } from '@Sthira/perf'
+import { createReactBatcher } from '@Sthira/perf';
 
 // Uses React's scheduler for optimal batching
-const batcher = createReactBatcher(store)
+const batcher = createReactBatcher(store);
 ```
 
 ## Exports

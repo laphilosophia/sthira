@@ -2,9 +2,9 @@
 // @sthira/cross-tab - Cross-Tab Sync Plugin for Sthira
 // ============================================================================
 
-import type { Plugin, Store } from '@sthira/core'
-import { getDefaultAdapter } from './channel'
-import type { ChannelAdapter, ConflictStrategy, SyncMessage } from './types'
+import type { Plugin, Store } from '@sthira/core';
+import { getDefaultAdapter } from './channel';
+import type { ChannelAdapter, ConflictStrategy, SyncMessage } from './types';
 
 // ============================================================================
 // Configuration Types
@@ -15,17 +15,17 @@ import type { ChannelAdapter, ConflictStrategy, SyncMessage } from './types'
  */
 export interface SyncConfig<T = unknown> {
   /** Channel name */
-  channel: string
+  channel: string;
   /** Conflict resolution strategy */
-  onConflict?: ConflictStrategy
+  onConflict?: ConflictStrategy;
   /** Custom conflict resolver */
-  resolver?: (local: T, remote: T, timestamp: number) => T
+  resolver?: (local: T, remote: T, timestamp: number) => T;
   /** Debounce broadcasts (ms) */
-  debounce?: number
+  debounce?: number;
   /** Request state from other tabs on connect */
-  syncOnConnect?: boolean
+  syncOnConnect?: boolean;
   /** Custom channel adapter */
-  adapter?: ChannelAdapter
+  adapter?: ChannelAdapter;
 }
 
 /**
@@ -33,17 +33,17 @@ export interface SyncConfig<T = unknown> {
  */
 export interface SyncApi {
   /** Broadcast current state to all tabs */
-  broadcast: () => void
+  broadcast: () => void;
   /** Request state from other tabs */
-  requestState: () => void
+  requestState: () => void;
   /** Pause syncing */
-  pause: () => void
+  pause: () => void;
   /** Resume syncing */
-  resume: () => void
+  resume: () => void;
   /** Disconnect and cleanup */
-  disconnect: () => void
+  disconnect: () => void;
   /** Get sync status */
-  getStatus: () => { connected: boolean; tabId: string; lastSyncAt: number | null }
+  getStatus: () => { connected: boolean; tabId: string; lastSyncAt: number | null };
 }
 
 // ============================================================================
@@ -54,14 +54,14 @@ export interface SyncApi {
  * Generate random tab ID
  */
 function generateTabId(): string {
-  return `tab-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
+  return `tab-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
 /**
  * Create cross-tab sync plugin
  */
 export function createSyncPlugin<T extends object>(
-  config: SyncConfig<T>
+  config: SyncConfig<T>,
 ): Plugin<T> & { api: SyncApi } {
   const {
     channel,
@@ -69,18 +69,18 @@ export function createSyncPlugin<T extends object>(
     resolver,
     debounce = 50,
     syncOnConnect = true,
-  } = config
+  } = config;
 
-  const tabId = generateTabId()
-  let store: Store<T, object> | null = null
-  let adapter: ChannelAdapter | null = null
-  let stateVersion = 0
-  let isPaused = false
-  let connected = false
-  let lastSyncAt: number | null = null
-  let debounceTimer: ReturnType<typeof setTimeout> | null = null
-  let unsubscribeStore: (() => void) | null = null
-  let unsubscribeChannel: (() => void) | null = null
+  const tabId = generateTabId();
+  let store: Store<T, object> | null = null;
+  let adapter: ChannelAdapter | null = null;
+  let stateVersion = 0;
+  let isPaused = false;
+  let connected = false;
+  let lastSyncAt: number | null = null;
+  let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+  let unsubscribeStore: (() => void) | null = null;
+  let unsubscribeChannel: (() => void) | null = null;
 
   /**
    * Resolve conflict between local and remote state
@@ -88,14 +88,14 @@ export function createSyncPlugin<T extends object>(
   function resolveConflict(local: T, remote: T, timestamp: number): T {
     switch (onConflict) {
       case 'first-write-wins':
-        return local
+        return local;
       case 'merge':
-        return { ...local, ...remote }
+        return { ...local, ...remote };
       case 'manual':
-        return resolver ? resolver(local, remote, timestamp) : remote
+        return resolver ? resolver(local, remote, timestamp) : remote;
       case 'last-write-wins':
       default:
-        return remote
+        return remote;
     }
   }
 
@@ -103,31 +103,31 @@ export function createSyncPlugin<T extends object>(
    * Handle incoming messages
    */
   function handleMessage(message: SyncMessage<T>): void {
-    if (!store || message.tabId === tabId || message.storeName !== store.name || isPaused) return
+    if (!store || message.tabId === tabId || message.storeName !== store.name || isPaused) return;
 
     switch (message.type) {
       case 'state_update':
         if (message.state && message.version !== undefined && message.version > stateVersion) {
-          const resolved = resolveConflict(store.getState(), message.state, message.timestamp)
-          store.setState(resolved as Partial<T>, { silent: true })
-          stateVersion = message.version
-          lastSyncAt = Date.now()
+          const resolved = resolveConflict(store.getState(), message.state, message.timestamp);
+          store.setState(resolved as Partial<T>, { silent: true });
+          stateVersion = message.version;
+          lastSyncAt = Date.now();
         }
-        break
+        break;
 
       case 'request_state':
-        broadcastState('state_response')
-        break
+        broadcastState('state_response');
+        break;
 
       case 'state_response':
         if (message.state && message.version !== undefined) {
           if (stateVersion === 0 || message.version > stateVersion) {
-            store.setState(message.state as Partial<T>, { silent: true })
-            stateVersion = message.version
-            lastSyncAt = Date.now()
+            store.setState(message.state as Partial<T>, { silent: true });
+            stateVersion = message.version;
+            lastSyncAt = Date.now();
           }
         }
-        break
+        break;
     }
   }
 
@@ -135,7 +135,7 @@ export function createSyncPlugin<T extends object>(
    * Broadcast state to other tabs
    */
   function broadcastState(type: 'state_update' | 'state_response' = 'state_update'): void {
-    if (!store || !adapter || isPaused) return
+    if (!store || !adapter || isPaused) return;
 
     const message: SyncMessage<T> = {
       type,
@@ -144,58 +144,58 @@ export function createSyncPlugin<T extends object>(
       timestamp: Date.now(),
       state: store.getState(),
       version: stateVersion,
-    }
+    };
 
-    adapter.postMessage(message)
+    adapter.postMessage(message);
   }
 
   /**
    * Schedule debounced broadcast
    */
   function scheduleBroadcast(): void {
-    if (isPaused) return
+    if (isPaused) return;
 
     if (debounceTimer) {
-      clearTimeout(debounceTimer)
+      clearTimeout(debounceTimer);
     }
 
     debounceTimer = setTimeout(() => {
-      debounceTimer = null
-      stateVersion++
-      broadcastState()
-    }, debounce)
+      debounceTimer = null;
+      stateVersion++;
+      broadcastState();
+    }, debounce);
   }
 
   // Public API
   const api: SyncApi = {
     broadcast: () => {
-      stateVersion++
-      broadcastState()
+      stateVersion++;
+      broadcastState();
     },
     requestState: () => {
-      if (!store || !adapter) return
+      if (!store || !adapter) return;
       const message: SyncMessage = {
         type: 'request_state',
         storeName: store.name,
         tabId,
         timestamp: Date.now(),
-      }
-      adapter.postMessage(message)
+      };
+      adapter.postMessage(message);
     },
     pause: () => {
-      isPaused = true
+      isPaused = true;
     },
     resume: () => {
-      isPaused = false
+      isPaused = false;
     },
     disconnect: () => {
-      unsubscribeStore?.()
-      unsubscribeChannel?.()
-      adapter?.close()
-      connected = false
+      unsubscribeStore?.();
+      unsubscribeChannel?.();
+      adapter?.close();
+      connected = false;
     },
     getStatus: () => ({ connected, tabId, lastSyncAt }),
-  }
+  };
 
   // Plugin definition
   const plugin: Plugin<T> = {
@@ -203,24 +203,24 @@ export function createSyncPlugin<T extends object>(
     version: '1.0.0',
 
     onInit: (s: Store<T, object>) => {
-      store = s
+      store = s;
 
       try {
-        adapter = config.adapter ?? getDefaultAdapter(channel)
+        adapter = config.adapter ?? getDefaultAdapter(channel);
       } catch (error) {
-        console.warn('[Sthira Sync] Failed to create adapter:', error)
-        return
+        console.warn('[Sthira Sync] Failed to create adapter:', error);
+        return;
       }
 
-      connected = true
+      connected = true;
 
       // Subscribe to store changes
       unsubscribeStore = store.subscribe(() => {
-        scheduleBroadcast()
-      })
+        scheduleBroadcast();
+      });
 
       // Subscribe to channel messages
-      unsubscribeChannel = adapter.subscribe(handleMessage)
+      unsubscribeChannel = adapter.subscribe(handleMessage);
 
       // Request state from other tabs on connect
       if (syncOnConnect) {
@@ -229,19 +229,19 @@ export function createSyncPlugin<T extends object>(
           storeName: store.name,
           tabId,
           timestamp: Date.now(),
-        }
-        adapter.postMessage(message)
+        };
+        adapter.postMessage(message);
       }
     },
 
     onDestroy: () => {
-      api.disconnect()
+      api.disconnect();
     },
 
     extend: () => ({ sync: api }),
-  }
+  };
 
-  return Object.assign(plugin, { api })
+  return Object.assign(plugin, { api });
 }
 
 // ============================================================================
@@ -259,5 +259,5 @@ export function createNoopSyncApi(): SyncApi {
     resume: () => {},
     disconnect: () => {},
     getStatus: () => ({ connected: false, tabId: 'ssr', lastSyncAt: null }),
-  }
+  };
 }
