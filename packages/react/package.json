@@ -1,0 +1,53 @@
+{
+  "name": "@sthira/react",
+  "version": "0.1.0",
+  "description": "React bindings for Sthira state manager",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest",
+    "lint": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "@sthira/core": ">=0.1.0"
+  },
+  "devDependencies": {
+    "@sthira/core": "workspace:*",
+    "@testing-library/react": "^16.1.0",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "jsdom": "^26.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tsup": "^8.3.5",
+    "vitest": "^2.1.8",
+    "zod": "^3.24.1"
+  },
+  "keywords": [
+    "react",
+    "hooks",
+    "state-management",
+    "sthira"
+  ],
+  "license": "MIT"
+}

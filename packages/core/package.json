@@ -1,0 +1,52 @@
+{
+  "name": "@sthira/core",
+  "version": "0.1.0",
+  "description": "Core state engine for sthira",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest",
+    "lint": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "zod": "^3.0.0"
+  },
+  "devDependencies": {
+    "jotai": "^2.16.0",
+    "tsup": "^8.3.5",
+    "vitest": "^2.1.8",
+    "zod": "^3.24.1",
+    "zustand": "^5.0.9"
+  },
+  "keywords": [
+    "state",
+    "state-management",
+    "reactive",
+    "enterprise",
+    "sthira"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/user/sthira"
+  }
+}

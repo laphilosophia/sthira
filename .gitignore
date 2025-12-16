@@ -1,0 +1,29 @@
+# Helper files
+.DS_Store
+Thumbs.db
+node_modules/
+dist/
+.idea/
+.vscode/
+
+# Build outputs
+/dist
+/coverage
+.turbo/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Framework/Language specific
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.tsbuildinfo
+
+# Project specific
+!packages/*/dist
+!packages/*/coverage

@@ -1,0 +1,40 @@
+{
+  "name": "sthira",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Enterprise-grade state infrastructure for mission-critical applications",
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "test": "turbo test",
+    "lint": "turbo lint",
+    "clean": "turbo clean && rm -rf node_modules",
+    "format": "prettier --write .",
+    "lint:fix": "eslint . --fix",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml}": [
+      "prettier --write"
+    ]
+  },
+  "devDependencies": {
+    "turbo": "^2.3.3",
+    "typescript": "^5.7.2",
+    "eslint": "^9.17.0",
+    "prettier": "^3.4.2",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.2.11",
+    "globals": "^15.14.0",
+    "@eslint/js": "^9.17.0",
+    "typescript-eslint": "^8.18.0"
+  }
+}
