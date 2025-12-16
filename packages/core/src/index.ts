@@ -1,5 +1,5 @@
 // ============================================================================
-// @sthira/core - High-performance state manager
+// @sthirajs/core - High-performance state manager
 // ============================================================================
 
 // Core store

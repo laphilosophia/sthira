@@ -1,5 +1,5 @@
 // ============================================================================
-// @sthira/devtools - DevTools integration for Sthira
+// @sthirajs/devtools - DevTools integration for Sthira
 // ============================================================================
 
 // Plugin

@@ -1,4 +1,4 @@
-# @sthira/core
+# @sthirajs/core
 
 ## 0.2.0
 

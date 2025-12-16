@@ -283,7 +283,7 @@ function createLazyPersistPlugin(config) {
     version: "1.0.0",
     onInit: async (store) => {
       try {
-        const { createPersistPlugin } = await import('@sthira/persist');
+        const { createPersistPlugin } = await import('@sthirajs/persist');
         const pluginInstance = createPersistPlugin({
           key: config.key,
           storage: config.storage,
@@ -296,7 +296,7 @@ function createLazyPersistPlugin(config) {
         await pluginInstance.onInit?.(store);
         hydrated = true;
       } catch {
-        console.warn("[Sthira] @sthira/persist not installed");
+        console.warn("[Sthira] @sthirajs/persist not installed");
       }
     },
     onDestroy: async () => {
@@ -323,7 +323,7 @@ function createLazySyncPlugin(config) {
     version: "1.0.0",
     onInit: async (store) => {
       try {
-        const { createSyncPlugin } = await import('@sthira/cross-tab');
+        const { createSyncPlugin } = await import('@sthirajs/cross-tab');
         const pluginInstance = createSyncPlugin({
           channel: config.channel,
           onConflict: config.onConflict,
@@ -333,7 +333,7 @@ function createLazySyncPlugin(config) {
         await pluginInstance.onInit?.(store);
         connected = true;
       } catch {
-        console.warn("[Sthira] @sthira/cross-tab not installed");
+        console.warn("[Sthira] @sthirajs/cross-tab not installed");
       }
     },
     onDestroy: () => {
@@ -362,7 +362,7 @@ function createLazyDevToolsPlugin(config, storeName) {
     version: "1.0.0",
     onInit: async (store) => {
       try {
-        const { createDevToolsPlugin } = await import('@sthira/devtools');
+        const { createDevToolsPlugin } = await import('@sthirajs/devtools');
         const pluginInstance = createDevToolsPlugin({
           name: config.name ?? storeName,
           maxAge: config.maxAge

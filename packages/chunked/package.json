@@ -1,5 +1,5 @@
 {
-  "name": "@sthira/chunked",
+  "name": "@sthirajs/chunked",
   "version": "1.0.0",
   "description": "Size-aware virtual store chunking for Sthira",
   "type": "module",
@@ -28,12 +28,12 @@
     "lint": "tsc --noEmit"
   },
   "peerDependencies": {
-    "@sthira/core": ">=0.2.0",
-    "@sthira/persist": ">=1.0.0"
+    "@sthirajs/core": ">=0.2.0",
+    "@sthirajs/persist": ">=1.0.0"
   },
   "devDependencies": {
-    "@sthira/core": "workspace:*",
-    "@sthira/persist": "workspace:*",
+    "@sthirajs/core": "workspace:*",
+    "@sthirajs/persist": "workspace:*",
     "tsup": "^8.3.5",
     "vitest": "^2.1.8",
     "zod": "^3.24.1"
@@ -45,5 +45,10 @@
     "virtual",
     "sthira"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/laphilosophia/sthira",
+    "directory": "packages/chunked"
+  }
 }

@@ -1,4 +1,4 @@
-import { createStore } from '@sthira/core';
+import { createStore } from '@sthirajs/core';
 import { act, renderHook } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { z } from 'zod';

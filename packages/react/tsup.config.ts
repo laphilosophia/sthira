@@ -9,5 +9,5 @@ export default defineConfig({
   clean: true,
   sourcemap: true,
   minify: false,
-  external: ['react', '@sthira/core'],
+  external: ['react', '@sthirajs/core'],
 });

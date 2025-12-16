@@ -5,7 +5,7 @@ Persist your state to storage (localStorage, sessionStorage, IndexedDB, etc.) au
 ## Installation
 
 ```bash
-npm install @sthira/persist
+npm install @sthirajs/persist
 ```
 
 ## Basic Usage
@@ -13,8 +13,8 @@ npm install @sthira/persist
 The `createPersistPlugin` automates saving and loading state.
 
 ```typescript
-import { createStore } from '@sthira/core';
-import { createPersistPlugin } from '@sthira/persist';
+import { createStore } from '@sthirajs/core';
+import { createPersistPlugin } from '@sthirajs/persist';
 
 const settingsStore = createStore({
   name: 'settings', // Name is REQUIRED for storage key

@@ -1,5 +1,5 @@
 {
-  "name": "@sthira/devtools",
+  "name": "@sthirajs/devtools",
   "version": "1.0.0",
   "description": "DevTools integration for sthira state manager",
   "type": "module",
@@ -28,10 +28,10 @@
     "lint": "tsc --noEmit"
   },
   "peerDependencies": {
-    "@sthira/core": ">=0.2.0"
+    "@sthirajs/core": ">=0.2.0"
   },
   "devDependencies": {
-    "@sthira/core": "workspace:*",
+    "@sthirajs/core": "workspace:*",
     "tsup": "^8.3.5",
     "vitest": "^2.1.8",
     "zod": "^3.24.1"
@@ -42,5 +42,10 @@
     "redux-devtools",
     "sthira"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/laphilosophia/sthira",
+    "directory": "packages/devtools"
+  }
 }

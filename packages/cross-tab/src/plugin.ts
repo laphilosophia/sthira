@@ -1,8 +1,8 @@
 // ============================================================================
-// @sthira/cross-tab - Cross-Tab Sync Plugin for Sthira
+// @sthirajs/cross-tab - Cross-Tab Sync Plugin for Sthira
 // ============================================================================
 
-import type { Plugin, Store } from '@sthira/core';
+import type { Plugin, Store } from '@sthirajs/core';
 import { getDefaultAdapter } from './channel';
 import type { ChannelAdapter, ConflictStrategy, SyncMessage } from './types';
 

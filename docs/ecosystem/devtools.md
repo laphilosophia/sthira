@@ -5,14 +5,14 @@ Integrate your stores with the Redux DevTools Extension for time-travel debuggin
 ## Installation
 
 ```bash
-npm install @sthira/devtools
+npm install @sthirajs/devtools
 ```
 
 ## Usage
 
 ```typescript
-import { createStore } from '@sthira/core';
-import { createDevToolsPlugin } from '@sthira/devtools';
+import { createStore } from '@sthirajs/core';
+import { createDevToolsPlugin } from '@sthirajs/devtools';
 
 const cartStore = createStore({
   name: 'shopping-cart',

@@ -1,8 +1,8 @@
 // ============================================================================
-// @sthira/persist - Persistence Plugin for Sthira
+// @sthirajs/persist - Persistence Plugin for Sthira
 // ============================================================================
 
-import type { Plugin, Store } from '@sthira/core';
+import type { Plugin, Store } from '@sthirajs/core';
 import { getIndexedDBAdapter } from './adapters/indexeddb';
 import { getLocalStorageAdapter } from './adapters/localstorage';
 import { createMemoryAdapter } from './adapters/memory';

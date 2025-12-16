@@ -1,4 +1,4 @@
-# @sthira/chunked
+# @sthirajs/chunked
 
 ## 1.0.0
 
@@ -9,5 +9,5 @@
 ### Patch Changes
 
 - Updated dependencies [283bb60]
-  - @sthira/core@0.2.0
-  - @sthira/persist@1.0.0
+  - @sthirajs/core@0.2.0
+  - @sthirajs/persist@1.0.0

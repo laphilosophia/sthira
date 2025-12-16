@@ -1,4 +1,4 @@
-import { Plugin } from '@sthira/core';
+import { Plugin } from '@sthirajs/core';
 
 /**
  * Sync message types

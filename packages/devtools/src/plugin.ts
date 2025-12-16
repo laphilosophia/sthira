@@ -1,8 +1,8 @@
 // ============================================================================
-// @sthira/devtools - DevTools Plugin for Sthira
+// @sthirajs/devtools - DevTools Plugin for Sthira
 // ============================================================================
 
-import type { Plugin, Store } from '@sthira/core';
+import type { Plugin, Store } from '@sthirajs/core';
 import type {
   ActionLogEntry,
   DevToolsConnection,

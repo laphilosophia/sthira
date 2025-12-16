@@ -1,5 +1,5 @@
 // ============================================================================
-// @sthira/cross-tab - Cross-tab state synchronization for Sthira
+// @sthirajs/cross-tab - Cross-tab state synchronization for Sthira
 // ============================================================================
 
 // Plugin

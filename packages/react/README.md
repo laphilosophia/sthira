@@ -1,18 +1,18 @@
-# @sthira/react
+# @sthirajs/react
 
 React bindings for sthira state management.
 
 ## Installation
 
 ```bash
-pnpm add @sthira/core @sthira/react zod
+pnpm add @sthirajs/core @sthirajs/react zod
 ```
 
 ## Quick Start
 
 ```typescript
-import { createStore } from '@sthira/core'
-import { useStore } from '@sthira/react'
+import { createStore } from '@sthirajs/core'
+import { useStore } from '@sthirajs/react'
 import { z } from 'zod'
 
 const counterStore = createStore({
@@ -84,7 +84,7 @@ function Component() {
 Context-based store injection:
 
 ```typescript
-import { StoreProvider, useStoreContext } from '@sthira/react'
+import { StoreProvider, useStoreContext } from '@sthirajs/react'
 
 function App() {
   return (
@@ -116,7 +116,7 @@ useSelector(store, selectActive);
 ### Shallow Equality
 
 ```typescript
-import { shallowEqual } from '@sthira/react';
+import { shallowEqual } from '@sthirajs/react';
 
 // Only re-render if array contents change
 const items = useSelector(store, (s) => s.items, shallowEqual);

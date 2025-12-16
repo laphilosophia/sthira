@@ -392,7 +392,7 @@ export interface ValidationResult<T> {
 }
 
 // ============================================================================
-// DataSource Types (for @sthira/fetch)
+// DataSource Types (for @sthirajs/fetch)
 // ============================================================================
 
 export interface DataSource<T> {

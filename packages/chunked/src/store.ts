@@ -1,4 +1,4 @@
-import type { StorageAdapter } from '@sthira/persist';
+import type { StorageAdapter } from '@sthirajs/persist';
 import { LRUCache } from './lru';
 import type { ChunkedStoreApi, ChunkedStoreConfig, ChunkedStoreState, ChunkMeta } from './types';
 

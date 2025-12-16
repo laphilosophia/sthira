@@ -7,7 +7,7 @@ Let's build a simple but reactive Counter to demonstrate the basics of Sthira.
 A Sthira store consists of a **name**, a **schema** (optional but recommended), **state**, and **actions**.
 
 ```tsx
-import { createStore } from '@sthira/core';
+import { createStore } from '@sthirajs/core';
 import { z } from 'zod';
 
 // Define the shape of your state
@@ -33,8 +33,8 @@ export const counterStore = createStore({
 Use the `useStore` hook to subscribe to the store.
 
 ```tsx
-import { createStore } from '@sthira/core';
-import { useStore } from '@sthira/react';
+import { createStore } from '@sthirajs/core';
+import { useStore } from '@sthirajs/react';
 
 const counter = createStore({
   name: 'quick-start-counter',

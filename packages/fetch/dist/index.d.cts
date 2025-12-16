@@ -1,4 +1,4 @@
-import { Unsubscribe } from '@sthira/core';
+import { Unsubscribe } from '@sthirajs/core';
 
 /**
  * DataSource type

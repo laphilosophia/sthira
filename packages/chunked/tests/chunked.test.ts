@@ -1,4 +1,4 @@
-import { createMemoryAdapter } from '@sthira/persist';
+import { createMemoryAdapter } from '@sthirajs/persist';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { LRUCache } from '../src/lru';
 import { createChunkedStore } from '../src/store';

@@ -1,4 +1,4 @@
-import { createStore } from '@sthira/core';
+import { createStore } from '@sthirajs/core';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { z } from 'zod';
 import { createMemoryAdapter } from '../src/adapters/memory';

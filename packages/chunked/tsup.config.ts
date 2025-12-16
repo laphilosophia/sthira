@@ -9,5 +9,5 @@ export default defineConfig({
   clean: true,
   sourcemap: true,
   minify: false,
-  external: ['@sthira/core', '@sthira/persist'],
+  external: ['@sthirajs/core', '@sthirajs/persist'],
 });

@@ -1,4 +1,4 @@
-import type { Store } from '@sthira/core';
+import type { Store } from '@sthirajs/core';
 import { useCallback, useMemo, useRef, useSyncExternalStore } from 'react';
 import type { EqualityFn, Selector, UseStoreReturn } from './types';
 

@@ -5,14 +5,14 @@ Performance monitoring and metrics for your state infrastructure.
 ## Installation
 
 ```bash
-npm install @sthira/perf
+npm install @sthirajs/perf
 ```
 
 ## Usage
 
 ```typescript
-import { createStore } from '@sthira/core';
-import { createPerfPlugin } from '@sthira/perf';
+import { createStore } from '@sthirajs/core';
+import { createPerfPlugin } from '@sthirajs/perf';
 
 const dataStore = createStore({
   name: 'big-data',

@@ -1,5 +1,5 @@
 // ============================================================================
-// @sthira/fetch - REST data adapter for Sthira
+// @sthirajs/fetch - REST data adapter for Sthira
 // ============================================================================
 
 // Fetch sources

@@ -1,4 +1,4 @@
-import { Plugin } from '@sthira/core';
+import { Plugin } from '@sthirajs/core';
 
 /**
  * Storage adapter interface

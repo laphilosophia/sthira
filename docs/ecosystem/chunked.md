@@ -5,7 +5,7 @@ Virtual pagination and chunking for large array states.
 ## Installation
 
 ```bash
-npm install @sthira/chunked
+npm install @sthirajs/chunked
 ```
 
 ## Usage
@@ -13,8 +13,8 @@ npm install @sthira/chunked
 Ideal for handling lists with thousands of items without freezing the UI.
 
 ```typescript
-import { createStore } from '@sthira/core';
-import { createChunkedPlugin } from '@sthira/chunked';
+import { createStore } from '@sthirajs/core';
+import { createChunkedPlugin } from '@sthirajs/chunked';
 
 const listStore = createStore({
   name: 'large-list',

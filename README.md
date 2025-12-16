@@ -4,7 +4,7 @@
 
 **Enterprise-grade state infrastructure for mission-critical React applications.**
 
-[![npm version](https://img.shields.io/npm/v/@sthira/core.svg)](https://www.npmjs.com/package/@sthira/core)
+[![npm version](https://img.shields.io/npm/v/@sthirajs/core.svg)](https://www.npmjs.com/package/@sthirajs/core)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ---
@@ -24,14 +24,14 @@ Sthira is a monorepo containing a modular set of packages designed to work toget
 
 | Package                 | Purpose                                                      | Size   | Documentation                           |
 | :---------------------- | :----------------------------------------------------------- | :----- | :-------------------------------------- |
-| **`@sthira/core`**      | The infrastructure engine. Store creation, actions, plugins. | ~2KB   | [Core Concepts](docs/core-concepts.md)  |
-| **`@sthira/react`**     | Official React hooks (`useStore`).                           | ~1KB   | [API Reference](docs/packages/react.md) |
-| **`@sthira/persist`**   | Automated storage persistence (Local/Session/IndexedDB).     | ~0.5KB | [Docs](docs/ecosystem/persistence.md)   |
-| **`@sthira/cross-tab`** | Instant state synchronization between detailed tabs.         | ~0.3KB | [Docs](docs/ecosystem/sync.md)          |
-| **`@sthira/devtools`**  | Redux DevTools integration for time-travel debugging.        | ~0.4KB | [Docs](docs/ecosystem/devtools.md)      |
-| **`@sthira/fetch`**     | Managed async data fetching with loading/error states.       | ~0.8KB | [Docs](docs/ecosystem/fetch.md)         |
-| **`@sthira/perf`**      | Performance metrics and slow action logging.                 | ~0.3KB | [Docs](docs/ecosystem/perf.md)          |
-| **`@sthira/chunked`**   | Virtual pagination for managing massive arrays.              | ~0.5KB | [Docs](docs/ecosystem/chunked.md)       |
+| **`@sthirajs/core`**      | The infrastructure engine. Store creation, actions, plugins. | ~2KB   | [Core Concepts](docs/core-concepts.md)  |
+| **`@sthirajs/react`**     | Official React hooks (`useStore`).                           | ~1KB   | [API Reference](docs/packages/react.md) |
+| **`@sthirajs/persist`**   | Automated storage persistence (Local/Session/IndexedDB).     | ~0.5KB | [Docs](docs/ecosystem/persistence.md)   |
+| **`@sthirajs/cross-tab`** | Instant state synchronization between detailed tabs.         | ~0.3KB | [Docs](docs/ecosystem/sync.md)          |
+| **`@sthirajs/devtools`**  | Redux DevTools integration for time-travel debugging.        | ~0.4KB | [Docs](docs/ecosystem/devtools.md)      |
+| **`@sthirajs/fetch`**     | Managed async data fetching with loading/error states.       | ~0.8KB | [Docs](docs/ecosystem/fetch.md)         |
+| **`@sthirajs/perf`**      | Performance metrics and slow action logging.                 | ~0.3KB | [Docs](docs/ecosystem/perf.md)          |
+| **`@sthirajs/chunked`**   | Virtual pagination for managing massive arrays.              | ~0.5KB | [Docs](docs/ecosystem/chunked.md)       |
 
 ## 📚 Documentation
 
@@ -48,15 +48,15 @@ Detailed guides are available in the **[docs/](docs/)** folder:
 Unlike simple counters, real-world apps need **persistence**, **debugging**, and **sync** out of the box.
 
 ```bash
-npm install @sthira/core @sthira/react @sthira/persist @sthira/devtools @sthira/cross-tab zod
+npm install @sthirajs/core @sthirajs/react @sthirajs/persist @sthirajs/devtools @sthirajs/cross-tab zod
 ```
 
 ```tsx
-import { createStore } from '@sthira/core';
-import { useStore } from '@sthira/react';
-import { createPersistPlugin } from '@sthira/persist';
-import { createDevToolsPlugin } from '@sthira/devtools';
-import { createSyncPlugin } from '@sthira/cross-tab';
+import { createStore } from '@sthirajs/core';
+import { useStore } from '@sthirajs/react';
+import { createPersistPlugin } from '@sthirajs/persist';
+import { createDevToolsPlugin } from '@sthirajs/devtools';
+import { createSyncPlugin } from '@sthirajs/cross-tab';
 import { z } from 'zod';
 
 // 1. Define strict schema

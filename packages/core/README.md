@@ -1,17 +1,17 @@
-# @sthira/core
+# @sthirajs/core
 
 Core state management engine for sthira.
 
 ## Installation
 
 ```bash
-pnpm add @sthira/core zod
+pnpm add @sthirajs/core zod
 ```
 
 ## Quick Start
 
 ```typescript
-import { createStore } from '@sthira/core';
+import { createStore } from '@sthirajs/core';
 import { z } from 'zod';
 
 const store = createStore({
@@ -70,7 +70,7 @@ store.getComputed('total'); // 20
 Predictable async state transitions:
 
 ```typescript
-import { createStore, createAsyncState, AsyncStateMachine } from '@sthira/core';
+import { createStore, createAsyncState, AsyncStateMachine } from '@sthirajs/core';
 
 const store = createStore({
   name: 'users',
@@ -120,7 +120,7 @@ const store = createStore({
 Optimized state selection:
 
 ```typescript
-import { createSelector } from '@sthira/core';
+import { createSelector } from '@sthirajs/core';
 
 const selectTotal = createSelector(
   (state) => state.items,

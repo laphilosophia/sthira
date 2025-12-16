@@ -5,14 +5,14 @@ Managed async data fetching for Sthira stores. Handles loading states, errors, a
 ## Installation
 
 ```bash
-npm install @sthira/fetch
+npm install @sthirajs/fetch
 ```
 
 ## Usage
 
 ```typescript
-import { createStore } from '@sthira/core';
-import { createFetchPlugin } from '@sthira/fetch';
+import { createStore } from '@sthirajs/core';
+import { createFetchPlugin } from '@sthirajs/fetch';
 
 const userStore = createStore({
   name: 'user',

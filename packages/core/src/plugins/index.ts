@@ -1,5 +1,5 @@
 // ============================================================================
-// @sthira/core - Plugin Exports
+// @sthirajs/core - Plugin Exports
 // ============================================================================
 
 export { getAllPlugins, resolvePlugins } from './resolver';

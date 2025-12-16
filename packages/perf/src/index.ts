@@ -1,5 +1,5 @@
 // ============================================================================
-// @sthira/perf - Performance utilities for Sthira
+// @sthirajs/perf - Performance utilities for Sthira
 // ============================================================================
 
 // Batching

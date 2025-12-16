@@ -20,8 +20,8 @@ Sthira is built on three pillars:
 ## Quick Example
 
 ```tsx
-import { createStore } from '@sthira/core';
-import { useStore } from '@sthira/react';
+import { createStore } from '@sthirajs/core';
+import { useStore } from '@sthirajs/react';
 
 // 1. Create a specialized store
 const counterStore = createStore({

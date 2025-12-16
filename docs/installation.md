@@ -4,7 +4,7 @@ Sthira is designed as a modular infrastructure. You only install what you need.
 
 ## Prerequisites
 
-- React 18+ (for `@sthira/react`)
+- React 18+ (for `@sthirajs/react`)
 - TypeScript 4.7+ (recommended)
 
 ## Core Installation
@@ -12,7 +12,7 @@ Sthira is designed as a modular infrastructure. You only install what you need.
 To get started with the core engine and React bindings:
 
 ```bash
-npm install @sthira/core @sthira/react zod
+npm install @sthirajs/core @sthirajs/react zod
 ```
 
 > **Why Zod?**
@@ -23,7 +23,7 @@ npm install @sthira/core @sthira/react zod
 For a complete enterprise setup (Persistence + DevTools + Sync), we recommend installing the full suite:
 
 ```bash
-npm install @sthira/persist @sthira/devtools @sthira/cross-tab
+npm install @sthirajs/persist @sthirajs/devtools @sthirajs/cross-tab
 ```
 
 ## TypeScript Setup

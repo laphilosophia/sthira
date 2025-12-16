@@ -1,4 +1,4 @@
-import { StorageAdapter } from '@sthira/persist';
+import { StorageAdapter } from '@sthirajs/persist';
 
 /**
  * Chunk state

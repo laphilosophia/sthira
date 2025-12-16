@@ -1,18 +1,18 @@
-# @sthira/devtools
+# @sthirajs/devtools
 
 DevTools plugin for sthira with Redux DevTools integration.
 
 ## Installation
 
 ```bash
-pnpm add @sthira/devtools
+pnpm add @sthirajs/devtools
 ```
 
 ## Quick Start
 
 ```typescript
-import { createStore } from '@sthira/core';
-import { createDevToolsPlugin } from '@sthira/devtools';
+import { createStore } from '@sthirajs/core';
+import { createDevToolsPlugin } from '@sthirajs/devtools';
 
 const store = createStore({
   name: 'app',
@@ -59,7 +59,7 @@ interface DevToolsApi {
 Standalone state inspector:
 
 ```typescript
-import { createInspector } from '@sthira/devtools';
+import { createInspector } from '@sthirajs/devtools';
 
 const inspector = createInspector(store);
 

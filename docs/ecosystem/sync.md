@@ -5,7 +5,7 @@ Synchronize state across multiple browser tabs/windows instantly using the Broad
 ## Installation
 
 ```bash
-npm install @sthira/cross-tab
+npm install @sthirajs/cross-tab
 ```
 
 ## Usage
@@ -13,8 +13,8 @@ npm install @sthira/cross-tab
 Simply add the plugin to your store. Sthira handles the rest.
 
 ```typescript
-import { createStore } from '@sthira/core';
-import { createSyncPlugin } from '@sthira/cross-tab';
+import { createStore } from '@sthirajs/core';
+import { createSyncPlugin } from '@sthirajs/cross-tab';
 
 const authStore = createStore({
   name: 'auth',

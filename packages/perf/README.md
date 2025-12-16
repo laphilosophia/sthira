@@ -1,17 +1,17 @@
-# @Sthira/perf
+# @sthirajs/perf
 
 Performance utilities for Sthira: batching, scheduling, and memory monitoring.
 
 ## Installation
 
 ```bash
-pnpm add @Sthira/perf
+pnpm add @sthirajs/perf
 ```
 
 ## Quick Start
 
 ```typescript
-import { createBatcher, getScheduler, MemoryMonitor } from '@Sthira/perf';
+import { createBatcher, getScheduler, MemoryMonitor } from '@sthirajs/perf';
 
 // Batch rapid state updates
 const batcher = createBatcher(store, { maxWait: 16 });
@@ -48,7 +48,7 @@ batcher.flush(); // Force flush immediately
 Priority-based task scheduling:
 
 ```typescript
-import { TaskScheduler, getScheduler } from '@Sthira/perf';
+import { TaskScheduler, getScheduler } from '@sthirajs/perf';
 
 const scheduler = getScheduler();
 
@@ -73,7 +73,7 @@ scheduler.schedule({
 Process large arrays in chunks to avoid blocking:
 
 ```typescript
-import { chunked } from '@Sthira/perf';
+import { chunked } from '@sthirajs/perf';
 
 const items = Array.from({ length: 10000 }, (_, i) => i);
 
@@ -90,7 +90,7 @@ await chunked(items, 100, async (chunk) => {
 Yield control to main thread:
 
 ```typescript
-import { yieldToMain } from '@Sthira/perf';
+import { yieldToMain } from '@sthirajs/perf';
 
 async function heavyTask() {
   for (let i = 0; i < 1000; i++) {
@@ -105,7 +105,7 @@ async function heavyTask() {
 Monitor memory pressure:
 
 ```typescript
-import { MemoryMonitor, getMemoryMonitor } from '@Sthira/perf';
+import { MemoryMonitor, getMemoryMonitor } from '@sthirajs/perf';
 
 const monitor = getMemoryMonitor();
 
@@ -126,7 +126,7 @@ const info = monitor.getInfo(); // { usedJSHeapSize, totalJSHeapSize, ... }
 Debounce function calls:
 
 ```typescript
-import { createDebounced } from '@Sthira/perf';
+import { createDebounced } from '@sthirajs/perf';
 
 const debouncedSearch = createDebounced((query: string) => api.search(query), 300);
 
@@ -144,7 +144,7 @@ debouncedSearch.cancel();
 Create pausable async operations:
 
 ```typescript
-import { createPausable } from '@Sthira/perf';
+import { createPausable } from '@sthirajs/perf';
 
 const pausable = createPausable(async () => {
   for (const item of items) {
@@ -161,7 +161,7 @@ pausable.cancel(); // Cancel entirely
 ## React Integration
 
 ```typescript
-import { createReactBatcher } from '@Sthira/perf';
+import { createReactBatcher } from '@sthirajs/perf';
 
 // Uses React's scheduler for optimal batching
 const batcher = createReactBatcher(store);

@@ -1,17 +1,17 @@
-# @sthira/fetch
+# @sthirajs/fetch
 
 REST data adapter with SWR-like caching for sthira.
 
 ## Installation
 
 ```bash
-pnpm add @sthira/fetch
+pnpm add @sthirajs/fetch
 ```
 
 ## Quick Start
 
 ```typescript
-import { createFetchSource, createMutation } from '@sthira/fetch';
+import { createFetchSource, createMutation } from '@sthirajs/fetch';
 
 // Fetch source with SWR
 const usersSource = createFetchSource({
@@ -86,7 +86,7 @@ const result = await createUser.mutate({ name: 'John' });
 Simplified API for quick usage:
 
 ```typescript
-import { sthira } from '@sthira/fetch';
+import { sthira } from '@sthirajs/fetch';
 
 // Query
 const { data, status } = await sthira.query('/api/users');
@@ -101,7 +101,7 @@ sthira.invalidate('/api/users');
 ### Cache Management
 
 ```typescript
-import { getQueryCache, resetQueryCache } from '@sthira/fetch';
+import { getQueryCache, resetQueryCache } from '@sthirajs/fetch';
 
 // Access cache
 const cache = getQueryCache();

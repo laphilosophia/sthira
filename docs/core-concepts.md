@@ -60,7 +60,7 @@ actions: {
 
 ### Async Operations
 
-Sthira actions are synchronous transaction units. For async operations (fetching data), you simply call actions _after_ the async operation completes, or use the `@sthira/fetch` plugin for managed async state.
+Sthira actions are synchronous transaction units. For async operations (fetching data), you simply call actions _after_ the async operation completes, or use the `@sthirajs/fetch` plugin for managed async state.
 
 ```typescript
 // Pattern: Async Controller

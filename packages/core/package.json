@@ -1,5 +1,5 @@
 {
-  "name": "@sthira/core",
+  "name": "@sthirajs/core",
   "version": "0.2.0",
   "description": "Core state engine for sthira",
   "type": "module",
@@ -47,6 +47,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/user/sthira"
+    "url": "https://github.com/laphilosophia/sthira",
+    "directory": "packages/core"
   }
 }

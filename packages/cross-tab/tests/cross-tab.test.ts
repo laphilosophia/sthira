@@ -1,4 +1,4 @@
-import { createStore } from '@sthira/core';
+import { createStore } from '@sthirajs/core';
 import { describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
 import { createSyncPlugin } from '../src/plugin';

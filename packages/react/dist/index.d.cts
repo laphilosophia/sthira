@@ -1,4 +1,4 @@
-import { Store } from '@sthira/core';
+import { Store } from '@sthirajs/core';
 import { ReactNode } from 'react';
 
 /**

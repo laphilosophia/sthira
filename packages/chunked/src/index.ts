@@ -1,5 +1,5 @@
 // ============================================================================
-// @sthira/chunked - Size-aware virtual store chunking for Sthira
+// @sthirajs/chunked - Size-aware virtual store chunking for Sthira
 // ============================================================================
 
 // Store

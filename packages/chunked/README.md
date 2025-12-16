@@ -1,17 +1,17 @@
-# @sthira/chunked
+# @sthirajs/chunked
 
 Size-aware virtual store with LRU caching for large datasets.
 
 ## Installation
 
 ```bash
-pnpm add @sthira/chunked
+pnpm add @sthirajs/chunked
 ```
 
 ## Quick Start
 
 ```typescript
-import { createChunkedStore } from '@sthira/chunked';
+import { createChunkedStore } from '@sthirajs/chunked';
 
 const store = createChunkedStore({
   name: 'large-dataset',
@@ -61,7 +61,7 @@ store.getStats(); // { totalChunks, memoryUsage, ... }
 Standalone LRU cache:
 
 ```typescript
-import { LRUCache } from '@sthira/chunked';
+import { LRUCache } from '@sthirajs/chunked';
 
 const cache = new LRUCache<string, User[]>({
   maxSize: 10,

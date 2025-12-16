@@ -1,18 +1,18 @@
-# @Sthira/persist
+# @sthirajs/persist
 
 Persistence plugin for Sthira with IndexedDB, localStorage, and memory adapters.
 
 ## Installation
 
 ```bash
-pnpm add @Sthira/persist
+pnpm add @sthirajs/persist
 ```
 
 ## Quick Start
 
 ```typescript
-import { createStore } from '@Sthira/core';
-import { createPersistPlugin } from '@Sthira/persist';
+import { createStore } from '@sthirajs/core';
+import { createPersistPlugin } from '@sthirajs/persist';
 
 const store = createStore({
   name: 'settings',
@@ -58,7 +58,7 @@ interface PersistApi {
 ### IndexedDB (Recommended)
 
 ```typescript
-import { createIndexedDBAdapter } from '@Sthira/persist';
+import { createIndexedDBAdapter } from '@sthirajs/persist';
 
 const adapter = createIndexedDBAdapter({
   dbName: 'my-app',
@@ -71,7 +71,7 @@ createPersistPlugin({ key: 'my-store', adapter });
 ### localStorage
 
 ```typescript
-import { createLocalStorageAdapter } from '@Sthira/persist';
+import { createLocalStorageAdapter } from '@sthirajs/persist';
 
 const adapter = createLocalStorageAdapter({ prefix: 'app_' });
 ```
@@ -79,7 +79,7 @@ const adapter = createLocalStorageAdapter({ prefix: 'app_' });
 ### Memory (Testing)
 
 ```typescript
-import { createMemoryAdapter } from '@Sthira/persist';
+import { createMemoryAdapter } from '@sthirajs/persist';
 
 const adapter = createMemoryAdapter();
 ```
@@ -118,7 +118,7 @@ createPersistPlugin({
 ## Wait for Hydration
 
 ```typescript
-import { waitForHydration } from '@Sthira/persist'
+import { waitForHydration } from '@sthirajs/persist'
 
 function App() {
   const [ready, setReady] = useState(false)

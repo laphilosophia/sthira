@@ -1,5 +1,5 @@
 {
-  "name": "@sthira/persist",
+  "name": "@sthirajs/persist",
   "version": "1.0.0",
   "description": "Persistence layer for Sthira state manager",
   "type": "module",
@@ -28,10 +28,10 @@
     "lint": "tsc --noEmit"
   },
   "peerDependencies": {
-    "@sthira/core": ">=0.2.0"
+    "@sthirajs/core": ">=0.2.0"
   },
   "devDependencies": {
-    "@sthira/core": "workspace:*",
+    "@sthirajs/core": "workspace:*",
     "fake-indexeddb": "^6.0.0",
     "tsup": "^8.3.5",
     "vitest": "^2.1.8",
@@ -44,5 +44,10 @@
     "storage",
     "sthira"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/laphilosophia/sthira",
+    "directory": "packages/persist"
+  }
 }

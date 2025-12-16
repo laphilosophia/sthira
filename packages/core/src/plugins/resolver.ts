@@ -1,5 +1,5 @@
 // ============================================================================
-// @sthira/core - Plugin Resolver
+// @sthirajs/core - Plugin Resolver
 // ============================================================================
 
  
@@ -64,7 +64,7 @@ function createLazyPersistPlugin<T extends object>(
     onInit: async (store: Store<T, object>) => {
       try {
         // @ts-expect-error - Optional dependency
-        const { createPersistPlugin } = await import('@sthira/persist');
+        const { createPersistPlugin } = await import('@sthirajs/persist');
         const pluginInstance = createPersistPlugin({
           key: config.key,
           storage: config.storage,
@@ -77,7 +77,7 @@ function createLazyPersistPlugin<T extends object>(
         await pluginInstance.onInit?.(store);
         hydrated = true;
       } catch {
-        console.warn('[Sthira] @sthira/persist not installed');
+        console.warn('[Sthira] @sthirajs/persist not installed');
       }
     },
     onDestroy: async () => {
@@ -111,7 +111,7 @@ function createLazySyncPlugin<T extends object>(
     onInit: async (store: Store<T, object>) => {
       try {
         // @ts-expect-error - Optional dependency
-        const { createSyncPlugin } = await import('@sthira/cross-tab');
+        const { createSyncPlugin } = await import('@sthirajs/cross-tab');
         const pluginInstance = createSyncPlugin({
           channel: config.channel,
           onConflict: config.onConflict,
@@ -121,7 +121,7 @@ function createLazySyncPlugin<T extends object>(
         await pluginInstance.onInit?.(store);
         connected = true;
       } catch {
-        console.warn('[Sthira] @sthira/cross-tab not installed');
+        console.warn('[Sthira] @sthirajs/cross-tab not installed');
       }
     },
     onDestroy: () => {
@@ -158,7 +158,7 @@ function createLazyDevToolsPlugin<T extends object>(
     onInit: async (store: Store<T, object>) => {
       try {
         // @ts-expect-error - Optional dependency
-        const { createDevToolsPlugin } = await import('@sthira/devtools');
+        const { createDevToolsPlugin } = await import('@sthirajs/devtools');
         const pluginInstance = createDevToolsPlugin({
           name: config.name ?? storeName,
           maxAge: config.maxAge,

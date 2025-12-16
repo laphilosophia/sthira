@@ -90,10 +90,10 @@ importers:
 
   packages/chunked:
     devDependencies:
-      '@sthira/core':
+      '@sthirajs/core':
         specifier: workspace:*
         version: link:../core
-      '@sthira/persist':
+      '@sthirajs/persist':
         specifier: workspace:*
         version: link:../persist
       tsup:
@@ -126,7 +126,7 @@ importers:
 
   packages/cross-tab:
     devDependencies:
-      '@sthira/core':
+      '@sthirajs/core':
         specifier: workspace:*
         version: link:../core
       tsup:
@@ -141,7 +141,7 @@ importers:
 
   packages/devtools:
     devDependencies:
-      '@sthira/core':
+      '@sthirajs/core':
         specifier: workspace:*
         version: link:../core
       tsup:
@@ -156,7 +156,7 @@ importers:
 
   packages/fetch:
     devDependencies:
-      '@sthira/core':
+      '@sthirajs/core':
         specifier: workspace:*
         version: link:../core
       tsup:
@@ -168,7 +168,7 @@ importers:
 
   packages/perf:
     devDependencies:
-      '@sthira/core':
+      '@sthirajs/core':
         specifier: workspace:*
         version: link:../core
       tsup:
@@ -180,7 +180,7 @@ importers:
 
   packages/persist:
     devDependencies:
-      '@sthira/core':
+      '@sthirajs/core':
         specifier: workspace:*
         version: link:../core
       fake-indexeddb:
@@ -198,7 +198,7 @@ importers:
 
   packages/react:
     devDependencies:
-      '@sthira/core':
+      '@sthirajs/core':
         specifier: workspace:*
         version: link:../core
       '@testing-library/react':

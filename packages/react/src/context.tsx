@@ -1,4 +1,4 @@
-import type { Store } from '@sthira/core';
+import type { Store } from '@sthirajs/core';
 import { createContext, useContext, type ReactNode } from 'react';
 
 /**

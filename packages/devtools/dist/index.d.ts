@@ -1,4 +1,4 @@
-import { Plugin, Store } from '@sthira/core';
+import { Plugin, Store } from '@sthirajs/core';
 
 /**
  * DevTools configuration

@@ -1,5 +1,5 @@
 // ============================================================================
-// @sthira/persist - Persistence layer for Sthira
+// @sthirajs/persist - Persistence layer for Sthira
 // ============================================================================
 
 // Plugin

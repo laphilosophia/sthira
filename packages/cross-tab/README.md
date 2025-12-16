@@ -1,18 +1,18 @@
-# @sthira/cross-tab
+# @sthirajs/cross-tab
 
 Cross-tab synchronization plugin for sthira using BroadcastChannel.
 
 ## Installation
 
 ```bash
-pnpm add @sthira/cross-tab
+pnpm add @sthirajs/cross-tab
 ```
 
 ## Quick Start
 
 ```typescript
-import { createStore } from '@sthira/core';
-import { createSyncPlugin } from '@sthira/cross-tab';
+import { createStore } from '@sthirajs/core';
+import { createSyncPlugin } from '@sthirajs/cross-tab';
 
 const store = createStore({
   name: 'app',
