@@ -1,6 +1,6 @@
 {
   "name": "@sthira/fetch",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "REST data adapter for Sthira state manager",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -28,7 +28,7 @@
     "lint": "tsc --noEmit"
   },
   "peerDependencies": {
-    "@sthira/core": ">=0.1.0"
+    "@sthira/core": ">=0.2.0"
   },
   "devDependencies": {
     "@sthira/core": "workspace:*",
