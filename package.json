@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "description": "Enterprise-grade state infrastructure for mission-critical applications",
+  "author": "Erdem Arslan <erdemarslan@ymail.com>",
+  "license": "MIT",
   "packageManager": "pnpm@9.15.0",
   "engines": {
     "node": ">=18"
