@@ -1,6 +1,6 @@
 {
   "name": "@sthirajs/fetch",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "REST data adapter for Sthira state manager",
   "type": "module",
   "main": "./dist/index.cjs",

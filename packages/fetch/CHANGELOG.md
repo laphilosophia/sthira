@@ -1,5 +1,16 @@
 # @sthirajs/fetch
 
+## 1.1.0
+
+### Minor Changes
+
+- Add AbortController enhancements with timeout and request cancellation support
+  - Add `timeout` option for automatic request timeout
+  - Add `cancelOnNewRequest` option to cancel previous in-flight requests (default: true)
+  - Add `abort()` method to both queries and mutations for manual cancellation
+  - Support external `AbortSignal` for integration with existing abort controllers
+  - Auto-cancel previous mutations when a new mutation starts
+
 ## 1.0.0
 
 ### Minor Changes

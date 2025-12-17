@@ -290,3 +290,241 @@ describe('sthira global API', () => {
     expect(result).toEqual([{ loaded: true }]);
   });
 });
+
+describe('Abort and Timeout functionality', () => {
+  beforeEach(() => {
+    resetQueryCache();
+    mockFetch.mockReset();
+  });
+
+  it('should abort request when timeout expires', async () => {
+    // Mock fetch that takes longer than timeout
+    mockFetch.mockImplementation(
+      (_url: string, init: RequestInit) =>
+        new Promise((resolve, reject) => {
+          const timeoutId = setTimeout(
+            () => resolve({ ok: true, json: () => Promise.resolve({}) }),
+            2000,
+          );
+          init.signal?.addEventListener('abort', () => {
+            clearTimeout(timeoutId);
+            reject(init.signal?.reason || new Error('Aborted'));
+          });
+        }),
+    );
+
+    const source = createFetchSource({
+      url: '/api/slow',
+      fetcher: mockFetch,
+      timeout: 50, // Very short timeout
+      retry: false,
+    });
+
+    await expect(source.fetch()).rejects.toThrow();
+  });
+
+  it('should abort request manually', async () => {
+    mockFetch.mockImplementation(
+      (_url: string, init: RequestInit) =>
+        new Promise((resolve, reject) => {
+          const timeoutId = setTimeout(
+            () => resolve({ ok: true, json: () => Promise.resolve({}) }),
+            2000,
+          );
+          init.signal?.addEventListener('abort', () => {
+            clearTimeout(timeoutId);
+            reject(init.signal?.reason || new Error('Aborted'));
+          });
+        }),
+    );
+
+    const source = createFetchSource({
+      url: '/api/users',
+      fetcher: mockFetch,
+      retry: false,
+    });
+
+    const fetchPromise = source.fetch();
+
+    // Abort immediately
+    setTimeout(() => source.abort(), 10);
+
+    await expect(fetchPromise).rejects.toThrow();
+  });
+
+  it('should cancel previous request when cancelOnNewRequest is true', async () => {
+    let requestCount = 0;
+    mockFetch.mockImplementation((_url: string, init: RequestInit) => {
+      requestCount++;
+      const currentRequest = requestCount;
+      return new Promise((resolve, reject) => {
+        const timeoutId = setTimeout(
+          () =>
+            resolve({
+              ok: true,
+              json: () => Promise.resolve({ request: currentRequest }),
+            }),
+          100,
+        );
+        init.signal?.addEventListener('abort', () => {
+          clearTimeout(timeoutId);
+          reject(init.signal?.reason || new Error('Aborted'));
+        });
+      });
+    });
+
+    const source = createFetchSource({
+      url: '/api/users',
+      fetcher: mockFetch,
+      cancelOnNewRequest: true,
+      staleTime: 0,
+      retry: false,
+    });
+
+    // Start first request
+    const firstRequest = source.fetch();
+
+    // Start second request immediately (should cancel first)
+    const secondRequest = source.fetch();
+
+    // First request should be aborted
+    await expect(firstRequest).rejects.toThrow();
+
+    // Second request should succeed
+    const result = (await secondRequest) as { request: number };
+    expect(result.request).toBe(2);
+  });
+
+  it('should support external AbortSignal', async () => {
+    mockFetch.mockImplementation(
+      (_url: string, init: RequestInit) =>
+        new Promise((resolve, reject) => {
+          const timeoutId = setTimeout(
+            () => resolve({ ok: true, json: () => Promise.resolve({}) }),
+            2000,
+          );
+          init.signal?.addEventListener('abort', () => {
+            clearTimeout(timeoutId);
+            reject(init.signal?.reason || new Error('Aborted'));
+          });
+        }),
+    );
+
+    const controller = new AbortController();
+
+    const source = createFetchSource({
+      url: '/api/users',
+      fetcher: mockFetch,
+      signal: controller.signal,
+      retry: false,
+    });
+
+    const fetchPromise = source.fetch();
+
+    // Abort via external controller
+    setTimeout(() => controller.abort(), 10);
+
+    await expect(fetchPromise).rejects.toThrow();
+  });
+});
+
+describe('Mutation abort functionality', () => {
+  beforeEach(() => {
+    mockFetch.mockReset();
+  });
+
+  it('should abort mutation manually', async () => {
+    mockFetch.mockImplementation(
+      (_url: string, init: RequestInit) =>
+        new Promise((resolve, reject) => {
+          const timeoutId = setTimeout(
+            () => resolve({ ok: true, json: () => Promise.resolve({}) }),
+            2000,
+          );
+          init.signal?.addEventListener('abort', () => {
+            clearTimeout(timeoutId);
+            reject(init.signal?.reason || new Error('Aborted'));
+          });
+        }),
+    );
+
+    const mutation = createMutation<{ id: number }, { name: string }>({
+      url: '/api/users',
+      method: 'POST',
+      fetcher: mockFetch,
+    });
+
+    const mutatePromise = mutation.mutate({ name: 'Test' });
+
+    // Manually abort
+    setTimeout(() => mutation.abort(), 10);
+
+    await expect(mutatePromise).rejects.toThrow();
+  });
+
+  it('should abort previous mutation when new one starts', async () => {
+    let mutationCount = 0;
+    mockFetch.mockImplementation((_url: string, init: RequestInit) => {
+      mutationCount++;
+      const currentMutation = mutationCount;
+      return new Promise((resolve, reject) => {
+        const timeoutId = setTimeout(
+          () =>
+            resolve({
+              ok: true,
+              json: () => Promise.resolve({ id: currentMutation }),
+            }),
+          100,
+        );
+        init.signal?.addEventListener('abort', () => {
+          clearTimeout(timeoutId);
+          reject(init.signal?.reason || new Error('Aborted'));
+        });
+      });
+    });
+
+    const mutation = createMutation<{ id: number }, { name: string }>({
+      url: '/api/users',
+      method: 'POST',
+      fetcher: mockFetch,
+    });
+
+    // Start first mutation
+    const firstMutation = mutation.mutate({ name: 'First' });
+
+    // Start second mutation (should cancel first)
+    const secondMutation = mutation.mutate({ name: 'Second' });
+
+    // First mutation should be aborted
+    await expect(firstMutation).rejects.toThrow();
+
+    // Second mutation should succeed
+    const result = await secondMutation;
+    expect(result.id).toBe(2);
+  });
+
+  it('should respect timeout in mutations', async () => {
+    mockFetch.mockImplementation(
+      (_url: string, init: RequestInit) =>
+        new Promise((resolve, reject) => {
+          const timeoutId = setTimeout(
+            () => resolve({ ok: true, json: () => Promise.resolve({}) }),
+            2000,
+          );
+          init.signal?.addEventListener('abort', () => {
+            clearTimeout(timeoutId);
+            reject(init.signal?.reason || new Error('Aborted'));
+          });
+        }),
+    );
+
+    const mutation = createMutation<{ id: number }, { name: string }>({
+      url: '/api/users',
+      method: 'POST',
+      fetcher: mockFetch,
+      timeout: 50, // Very short timeout
+    });
+
+    await expect(mutation.mutate({ name: 'Test' })).rejects.toThrow();
+  });
+});

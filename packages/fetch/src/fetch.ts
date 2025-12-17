@@ -48,11 +48,48 @@ function sleep(ms: number): Promise<void> {
 }
 
 /**
+ * Create AbortSignal with timeout support
+ * Combines external signal with internal timeout
+ */
+function createAbortSignal(
+  timeout?: number,
+  externalSignal?: AbortSignal,
+): { signal: AbortSignal; controller: AbortController; cleanup: () => void } {
+  const controller = new AbortController();
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
+  // Setup timeout
+  if (timeout && timeout > 0) {
+    timeoutId = setTimeout(() => {
+      controller.abort(new DOMException(`Request timeout after ${timeout}ms`, 'TimeoutError'));
+    }, timeout);
+  }
+
+  // Link external signal
+  if (externalSignal) {
+    if (externalSignal.aborted) {
+      controller.abort(externalSignal.reason);
+    } else {
+      const onAbort = () => controller.abort(externalSignal.reason);
+      externalSignal.addEventListener('abort', onAbort, { once: true });
+    }
+  }
+
+  const cleanup = () => {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+  };
+
+  return { signal: controller.signal, controller, cleanup };
+}
+
+/**
  * Create a fetch-based data source for queries
  */
 export function createFetchSource<T>(
   config: FetchSourceConfig<T>,
-): DataSource<T> & { refetch: () => Promise<T> } {
+): DataSource<T> & { refetch: () => Promise<T>; abort: () => void } {
   const {
     url,
     method = 'GET',
@@ -65,7 +102,9 @@ export function createFetchSource<T>(
     retry = 3,
     retryDelay = 1000,
     fetcher = fetch,
-    signal,
+    signal: externalSignal,
+    timeout,
+    cancelOnNewRequest = true,
     onSuccess,
     onError,
   } = config;
@@ -74,11 +113,18 @@ export function createFetchSource<T>(
   const cache = getQueryCache();
 
   let inFlightRequest: Promise<T> | null = null;
+  let currentController: AbortController | null = null;
 
-  async function fetchData(): Promise<T> {
+  async function fetchData(abortContext?: {
+    signal: AbortSignal;
+    cleanup: () => void;
+  }): Promise<T> {
     const finalUrl = buildUrl(url, params);
     const finalHeaders = typeof headers === 'function' ? headers() : headers;
     const finalBody = typeof body === 'function' ? body() : body;
+
+    // Use provided abort context or create new one
+    const { signal, cleanup } = abortContext ?? createAbortSignal(timeout, externalSignal);
 
     const requestInit: RequestInit = {
       method,
@@ -97,44 +143,53 @@ export function createFetchSource<T>(
     let lastError: Error | null = null;
     const maxRetries = retry === false ? 0 : retry;
 
-    for (let attempt = 0; attempt <= maxRetries; attempt++) {
-      try {
-        const response = await fetcher(finalUrl, requestInit);
+    try {
+      for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        try {
+          const response = await fetcher(finalUrl, requestInit);
 
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
 
-        const rawData = await response.json();
-        const data = transform ? transform(rawData) : (rawData as T);
+          const rawData = await response.json();
+          const data = transform ? transform(rawData) : (rawData as T);
 
-        // Cache the result
-        cache.set(cacheKey, data, { staleTime, cacheTime });
+          // Cache the result
+          cache.set(cacheKey, data, { staleTime, cacheTime });
 
-        onSuccess?.(data);
-        return data;
-      } catch (error) {
-        lastError = error as Error;
+          onSuccess?.(data);
+          return data;
+        } catch (error) {
+          lastError = error as Error;
 
-        // Don't retry on abort
-        if (signal?.aborted) {
-          throw lastError;
-        }
+          // Don't retry on abort
+          if (signal.aborted) {
+            throw lastError;
+          }
 
-        // Retry with delay
-        if (attempt < maxRetries) {
-          await sleep(retryDelay * (attempt + 1));
+          // Retry with delay
+          if (attempt < maxRetries) {
+            await sleep(retryDelay * (attempt + 1));
+          }
         }
       }
-    }
 
-    onError?.(lastError!);
-    throw lastError;
+      onError?.(lastError!);
+      throw lastError;
+    } finally {
+      cleanup();
+    }
   }
 
   async function fetchWithDedup(): Promise<T> {
-    // Return in-flight request if exists (deduplication)
-    if (inFlightRequest) {
+    // Cancel previous in-flight request if configured
+    if (cancelOnNewRequest && currentController) {
+      currentController.abort(new DOMException('Request superseded', 'AbortError'));
+    }
+
+    // Return in-flight request if exists and not canceling (deduplication)
+    if (!cancelOnNewRequest && inFlightRequest) {
       return inFlightRequest;
     }
 
@@ -144,9 +199,14 @@ export function createFetchSource<T>(
       return cached.data;
     }
 
+    // Create new abort context
+    const abortContext = createAbortSignal(timeout, externalSignal);
+    currentController = abortContext.controller;
+
     // Start new request
-    inFlightRequest = fetchData().finally(() => {
+    inFlightRequest = fetchData(abortContext).finally(() => {
       inFlightRequest = null;
+      currentController = null;
     });
 
     // If we have stale data, return it while revalidating
@@ -161,6 +221,13 @@ export function createFetchSource<T>(
     return inFlightRequest;
   }
 
+  function abort(): void {
+    if (currentController) {
+      currentController.abort(new DOMException('Request aborted', 'AbortError'));
+      currentController = null;
+    }
+  }
+
   return {
     type: 'query',
     cacheKey,
@@ -168,13 +235,20 @@ export function createFetchSource<T>(
     fetch: fetchWithDedup,
 
     refetch: async () => {
+      abort(); // Cancel any in-flight request
       cache.invalidate(cacheKey);
-      return fetchData();
+      const abortContext = createAbortSignal(timeout, externalSignal);
+      currentController = abortContext.controller;
+      return fetchData(abortContext).finally(() => {
+        currentController = null;
+      });
     },
 
     invalidate: () => {
       cache.invalidate(cacheKey);
     },
+
+    abort,
   };
 }
 
@@ -186,6 +260,7 @@ export function createMutation<T, V = void>(
 ): {
   mutate: (variables: V) => Promise<T>;
   reset: () => void;
+  abort: () => void;
 } {
   const {
     url,
@@ -197,20 +272,31 @@ export function createMutation<T, V = void>(
     retry = 0,
     retryDelay = 1000,
     fetcher = fetch,
-    signal,
+    signal: externalSignal,
+    timeout,
     onSuccess,
     onError,
   } = config;
 
   let _lastData: T | undefined;
   let _lastError: Error | undefined;
+  let currentController: AbortController | null = null;
   // Track state for potential future use (status exposure)
   void _lastData;
 
   async function mutate(variables: V): Promise<T> {
+    // Cancel any previous mutation
+    if (currentController) {
+      currentController.abort(new DOMException('Mutation superseded', 'AbortError'));
+    }
+
     const finalUrl = buildUrl(url, params);
     const finalHeaders = typeof headers === 'function' ? headers() : headers;
     const finalBody = body ? body(variables) : variables;
+
+    // Create abort context with timeout
+    const { signal, controller, cleanup } = createAbortSignal(timeout, externalSignal);
+    currentController = controller;
 
     const requestInit: RequestInit = {
       method,
@@ -225,37 +311,42 @@ export function createMutation<T, V = void>(
     let lastMutationError: Error | null = null;
     const maxRetries = retry === false ? 0 : retry;
 
-    for (let attempt = 0; attempt <= maxRetries; attempt++) {
-      try {
-        const response = await fetcher(finalUrl, requestInit);
+    try {
+      for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        try {
+          const response = await fetcher(finalUrl, requestInit);
 
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
 
-        const rawData = await response.json();
-        const data = transform ? transform(rawData) : (rawData as T);
+          const rawData = await response.json();
+          const data = transform ? transform(rawData) : (rawData as T);
 
-        _lastData = data;
-        _lastError = undefined;
-        onSuccess?.(data);
-        return data;
-      } catch (error) {
-        lastMutationError = error as Error;
+          _lastData = data;
+          _lastError = undefined;
+          onSuccess?.(data);
+          return data;
+        } catch (error) {
+          lastMutationError = error as Error;
 
-        if (signal?.aborted) {
-          throw lastMutationError;
-        }
+          if (signal.aborted) {
+            throw lastMutationError;
+          }
 
-        if (attempt < maxRetries) {
-          await sleep(retryDelay * (attempt + 1));
+          if (attempt < maxRetries) {
+            await sleep(retryDelay * (attempt + 1));
+          }
         }
       }
-    }
 
-    _lastError = lastMutationError!;
-    onError?.(_lastError);
-    throw _lastError;
+      _lastError = lastMutationError!;
+      onError?.(_lastError);
+      throw _lastError;
+    } finally {
+      cleanup();
+      currentController = null;
+    }
   }
 
   function reset(): void {
@@ -263,5 +354,12 @@ export function createMutation<T, V = void>(
     _lastError = undefined;
   }
 
-  return { mutate, reset };
+  function abort(): void {
+    if (currentController) {
+      currentController.abort(new DOMException('Mutation aborted', 'AbortError'));
+      currentController = null;
+    }
+  }
+
+  return { mutate, reset, abort };
 }

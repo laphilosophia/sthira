@@ -57,6 +57,10 @@ interface FetchSourceConfig<T> {
     fetcher?: typeof fetch;
     /** Abort signal */
     signal?: AbortSignal;
+    /** Request timeout in milliseconds */
+    timeout?: number;
+    /** Cancel previous in-flight request when new one starts (default: true for queries) */
+    cancelOnNewRequest?: boolean;
     /** Success callback */
     onSuccess?: (data: T) => void;
     /** Error callback */
@@ -94,6 +98,7 @@ interface MutationResult<T, V = void> {
  */
 declare function createFetchSource<T>(config: FetchSourceConfig<T>): DataSource<T> & {
     refetch: () => Promise<T>;
+    abort: () => void;
 };
 /**
  * Create a fetch-based data source for mutations
@@ -101,6 +106,7 @@ declare function createFetchSource<T>(config: FetchSourceConfig<T>): DataSource<
 declare function createMutation<T, V = void>(config: MutationConfig<T, V>): {
     mutate: (variables: V) => Promise<T>;
     reset: () => void;
+    abort: () => void;
 };
 
 /**

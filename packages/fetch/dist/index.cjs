@@ -148,6 +148,29 @@ function generateCacheKey(config) {
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+function createAbortSignal(timeout, externalSignal) {
+  const controller = new AbortController();
+  let timeoutId;
+  if (timeout && timeout > 0) {
+    timeoutId = setTimeout(() => {
+      controller.abort(new DOMException(`Request timeout after ${timeout}ms`, "TimeoutError"));
+    }, timeout);
+  }
+  if (externalSignal) {
+    if (externalSignal.aborted) {
+      controller.abort(externalSignal.reason);
+    } else {
+      const onAbort = () => controller.abort(externalSignal.reason);
+      externalSignal.addEventListener("abort", onAbort, { once: true });
+    }
+  }
+  const cleanup = () => {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+  };
+  return { signal: controller.signal, controller, cleanup };
+}
 function createFetchSource(config) {
   const {
     url,
@@ -161,17 +184,21 @@ function createFetchSource(config) {
     retry = 3,
     retryDelay = 1e3,
     fetcher = fetch,
-    signal,
+    signal: externalSignal,
+    timeout,
+    cancelOnNewRequest = true,
     onSuccess,
     onError
   } = config;
   const cacheKey = generateCacheKey(config);
   const cache = getQueryCache();
   let inFlightRequest = null;
-  async function fetchData() {
+  let currentController = null;
+  async function fetchData(abortContext) {
     const finalUrl = buildUrl(url, params);
     const finalHeaders = typeof headers === "function" ? headers() : headers;
     const finalBody = typeof body === "function" ? body() : body;
+    const { signal, cleanup } = abortContext ?? createAbortSignal(timeout, externalSignal);
     const requestInit = {
       method,
       headers: finalHeaders,
@@ -186,40 +213,50 @@ function createFetchSource(config) {
     }
     let lastError = null;
     const maxRetries = retry === false ? 0 : retry;
-    for (let attempt = 0; attempt <= maxRetries; attempt++) {
-      try {
-        const response = await fetcher(finalUrl, requestInit);
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        const rawData = await response.json();
-        const data = transform ? transform(rawData) : rawData;
-        cache.set(cacheKey, data, { staleTime, cacheTime });
-        onSuccess?.(data);
-        return data;
-      } catch (error) {
-        lastError = error;
-        if (signal?.aborted) {
-          throw lastError;
-        }
-        if (attempt < maxRetries) {
-          await sleep(retryDelay * (attempt + 1));
+    try {
+      for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        try {
+          const response = await fetcher(finalUrl, requestInit);
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+          const rawData = await response.json();
+          const data = transform ? transform(rawData) : rawData;
+          cache.set(cacheKey, data, { staleTime, cacheTime });
+          onSuccess?.(data);
+          return data;
+        } catch (error) {
+          lastError = error;
+          if (signal.aborted) {
+            throw lastError;
+          }
+          if (attempt < maxRetries) {
+            await sleep(retryDelay * (attempt + 1));
+          }
         }
       }
+      onError?.(lastError);
+      throw lastError;
+    } finally {
+      cleanup();
     }
-    onError?.(lastError);
-    throw lastError;
   }
   async function fetchWithDedup() {
-    if (inFlightRequest) {
+    if (cancelOnNewRequest && currentController) {
+      currentController.abort(new DOMException("Request superseded", "AbortError"));
+    }
+    if (!cancelOnNewRequest && inFlightRequest) {
       return inFlightRequest;
     }
     const cached = cache.get(cacheKey);
     if (cached && !cache.isStale(cacheKey)) {
       return cached.data;
     }
-    inFlightRequest = fetchData().finally(() => {
+    const abortContext = createAbortSignal(timeout, externalSignal);
+    currentController = abortContext.controller;
+    inFlightRequest = fetchData(abortContext).finally(() => {
       inFlightRequest = null;
+      currentController = null;
     });
     if (cached) {
       inFlightRequest.catch(() => {
@@ -228,17 +265,29 @@ function createFetchSource(config) {
     }
     return inFlightRequest;
   }
+  function abort() {
+    if (currentController) {
+      currentController.abort(new DOMException("Request aborted", "AbortError"));
+      currentController = null;
+    }
+  }
   return {
     type: "query",
     cacheKey,
     fetch: fetchWithDedup,
     refetch: async () => {
+      abort();
       cache.invalidate(cacheKey);
-      return fetchData();
+      const abortContext = createAbortSignal(timeout, externalSignal);
+      currentController = abortContext.controller;
+      return fetchData(abortContext).finally(() => {
+        currentController = null;
+      });
     },
     invalidate: () => {
       cache.invalidate(cacheKey);
-    }
+    },
+    abort
   };
 }
 function createMutation(config) {
@@ -252,16 +301,23 @@ function createMutation(config) {
     retry = 0,
     retryDelay = 1e3,
     fetcher = fetch,
-    signal,
+    signal: externalSignal,
+    timeout,
     onSuccess,
     onError
   } = config;
   let _lastData;
   let _lastError;
+  let currentController = null;
   async function mutate(variables) {
+    if (currentController) {
+      currentController.abort(new DOMException("Mutation superseded", "AbortError"));
+    }
     const finalUrl = buildUrl(url, params);
     const finalHeaders = typeof headers === "function" ? headers() : headers;
     const finalBody = body ? body(variables) : variables;
+    const { signal, controller, cleanup } = createAbortSignal(timeout, externalSignal);
+    currentController = controller;
     const requestInit = {
       method,
       headers: {
@@ -273,37 +329,48 @@ function createMutation(config) {
     };
     let lastMutationError = null;
     const maxRetries = retry === false ? 0 : retry;
-    for (let attempt = 0; attempt <= maxRetries; attempt++) {
-      try {
-        const response = await fetcher(finalUrl, requestInit);
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        const rawData = await response.json();
-        const data = transform ? transform(rawData) : rawData;
-        _lastData = data;
-        _lastError = void 0;
-        onSuccess?.(data);
-        return data;
-      } catch (error) {
-        lastMutationError = error;
-        if (signal?.aborted) {
-          throw lastMutationError;
-        }
-        if (attempt < maxRetries) {
-          await sleep(retryDelay * (attempt + 1));
+    try {
+      for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        try {
+          const response = await fetcher(finalUrl, requestInit);
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+          const rawData = await response.json();
+          const data = transform ? transform(rawData) : rawData;
+          _lastData = data;
+          _lastError = void 0;
+          onSuccess?.(data);
+          return data;
+        } catch (error) {
+          lastMutationError = error;
+          if (signal.aborted) {
+            throw lastMutationError;
+          }
+          if (attempt < maxRetries) {
+            await sleep(retryDelay * (attempt + 1));
+          }
         }
       }
+      _lastError = lastMutationError;
+      onError?.(_lastError);
+      throw _lastError;
+    } finally {
+      cleanup();
+      currentController = null;
     }
-    _lastError = lastMutationError;
-    onError?.(_lastError);
-    throw _lastError;
   }
   function reset() {
     _lastData = void 0;
     _lastError = void 0;
   }
-  return { mutate, reset };
+  function abort() {
+    if (currentController) {
+      currentController.abort(new DOMException("Mutation aborted", "AbortError"));
+      currentController = null;
+    }
+  }
+  return { mutate, reset, abort };
 }
 
 // src/sthira.ts

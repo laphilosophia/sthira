@@ -90,6 +90,12 @@ export interface FetchSourceConfig<T> {
   /** Abort signal */
   signal?: AbortSignal;
 
+  /** Request timeout in milliseconds */
+  timeout?: number;
+
+  /** Cancel previous in-flight request when new one starts (default: true for queries) */
+  cancelOnNewRequest?: boolean;
+
   /** Success callback */
   onSuccess?: (data: T) => void;
 

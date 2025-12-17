@@ -45,20 +45,22 @@ interface FetchSourceConfig {
   cacheTime?: number; // Garbage collection time
   retry?: number; // Retry attempts
   retryDelay?: number; // Delay between retries
+  timeout?: number; // Request timeout (ms)
+  cancelOnNewRequest?: boolean; // Cancel previous request (default: true)
+  signal?: AbortSignal; // External abort signal
 }
 
 const source = createFetchSource({
-  key: 'user-123',
   url: '/api/users/123',
   staleTime: 5 * 60 * 1000,
+  timeout: 10000, // 10 second timeout
 });
 
 // API
 source.fetch(); // Trigger fetch
 source.refetch(); // Force refetch (ignore cache)
-source.getState(); // Get current state
-source.subscribe(fn); // Subscribe to changes
 source.invalidate(); // Mark as stale
+source.abort(); // Cancel in-flight request
 ```
 
 ### `createMutation(config)`
@@ -69,6 +71,7 @@ Creates a mutation handler:
 const createUser = createMutation({
   url: '/api/users',
   method: 'POST',
+  timeout: 30000, // 30 second timeout
   onSuccess: (data) => {
     usersSource.invalidate(); // Refetch users list
   },
@@ -79,6 +82,8 @@ const createUser = createMutation({
 
 // Usage
 const result = await createUser.mutate({ name: 'John' });
+createUser.abort(); // Cancel in-flight mutation
+createUser.reset(); // Reset mutation state
 ```
 
 ### `sthira` Global API
