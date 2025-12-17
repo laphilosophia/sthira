@@ -1,6 +1,6 @@
 # Fetch Plugin
 
-Managed async data fetching with automatic loading states, caching, and error handling.
+SWR-like data fetching with caching, deduplication, and request cancellation.
 
 ## Installation
 
@@ -11,54 +11,44 @@ npm install @sthirajs/fetch
 ## Quick Start
 
 ```typescript
-import { createFetch } from '@sthirajs/fetch';
+import { createFetchSource, createMutation } from '@sthirajs/fetch';
 
-const api = createFetch({
-  baseUrl: 'https://api.example.com',
-  headers: {
-    'Content-Type': 'application/json',
-  },
+// Create a fetch source for queries
+const usersSource = createFetchSource({
+  url: '/api/users',
+  staleTime: 5 * 60 * 1000, // 5 minutes
 });
 
-// Make requests
-const users = await api.get('/users');
-const user = await api.get('/users/:id', { params: { id: '123' } });
-const newUser = await api.post('/users', { body: { name: 'John' } });
+// Fetch data
+const users = await usersSource.fetch();
+
+// Create mutations
+const createUser = createMutation({
+  url: '/api/users',
+  method: 'POST',
+});
+
+await createUser.mutate({ name: 'John' });
 ```
 
 ## Core Features
 
-### Type-Safe Requests
+### SWR Pattern (Stale-While-Revalidate)
 
 ```typescript
-interface User {
-  id: string;
-  name: string;
-  email: string;
-}
-
-// Fully typed responses
-const user = await api.get<User>('/users/123');
-console.log(user.name); // TypeScript knows this is a string
-```
-
-### Automatic Caching
-
-```typescript
-const api = createFetch({
-  baseUrl: 'https://api.example.com',
-  cache: {
-    enabled: true,
-    ttl: 5 * 60 * 1000, // Cache for 5 minutes
-    maxSize: 100, // Max 100 cached entries
-  },
+const source = createFetchSource({
+  url: '/api/users',
+  staleTime: 5 * 60 * 1000, // Data fresh for 5 minutes
+  cacheTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
 });
 
-// First call hits the network
-const users = await api.get('/users');
+// First call: fetches from network
+const users = await source.fetch();
 
-// Second call within TTL returns cached data
-const cachedUsers = await api.get('/users'); // Instant!
+// Second call within staleTime: returns cached data instantly
+const cachedUsers = await source.fetch();
+
+// After staleTime: returns stale data, revalidates in background
 ```
 
 ### Request Deduplication
@@ -68,296 +58,197 @@ Simultaneous identical requests are automatically deduplicated:
 ```typescript
 // These trigger only ONE network request
 const [users1, users2, users3] = await Promise.all([
-  api.get('/users'),
-  api.get('/users'),
-  api.get('/users'),
+  source.fetch(),
+  source.fetch(),
+  source.fetch(),
 ]);
 ```
 
-## Configuration
+### Request Cancellation
+
+Cancel requests with timeout or manual abort:
 
 ```typescript
-const api = createFetch({
-  baseUrl: 'https://api.example.com',
+// Automatic timeout
+const source = createFetchSource({
+  url: '/api/users',
+  timeout: 5000, // Cancel after 5 seconds
+});
 
-  // Default headers for all requests
-  headers: {
-    'Content-Type': 'application/json',
-    Authorization: `Bearer ${token}`,
-  },
+// Manual abort
+source.abort();
 
-  // Timeout in milliseconds
-  timeout: 10000,
+// Cancel previous request when new one starts (default: true)
+const source = createFetchSource({
+  url: '/api/users',
+  cancelOnNewRequest: true,
+});
 
-  // Retry configuration
-  retry: {
-    count: 3,
-    delay: 1000,
-    backoff: 'exponential', // 1s, 2s, 4s
-  },
+// External AbortController
+const controller = new AbortController();
+const source = createFetchSource({
+  url: '/api/users',
+  signal: controller.signal,
+});
+controller.abort();
+```
 
-  // Caching
-  cache: {
-    enabled: true,
-    ttl: 60000,
-    maxSize: 50,
-  },
+## createFetchSource Configuration
 
-  // Interceptors
-  onRequest: (config) => {
-    console.log('Request:', config.url);
-    return config;
-  },
-  onResponse: (response) => {
-    console.log('Response:', response.status);
-    return response;
+```typescript
+interface FetchSourceConfig {
+  url: string | (() => string); // API endpoint
+  method?: HttpMethod; // 'GET' (default)
+  headers?: HeadersInit; // Request headers
+  params?: Record<string, string>; // Query parameters
+  body?: unknown; // Request body
+  transform?: (data: unknown) => T; // Transform response
+  cacheKey?: string; // Custom cache key
+  staleTime?: number; // Cache duration (default: 5 min)
+  cacheTime?: number; // GC time (default: 10 min)
+  retry?: number | false; // Retry attempts (default: 3)
+  retryDelay?: number; // Retry delay (default: 1000ms)
+  timeout?: number; // Request timeout in ms
+  cancelOnNewRequest?: boolean; // Cancel previous (default: true)
+  signal?: AbortSignal; // External abort signal
+  fetcher?: typeof fetch; // Custom fetch function
+  onSuccess?: (data: T) => void; // Success callback
+  onError?: (error: Error) => void; // Error callback
+}
+```
+
+## FetchSource API
+
+```typescript
+const source = createFetchSource({ url: '/api/users' });
+
+// Methods
+source.fetch(); // Fetch with SWR (returns cached if fresh)
+source.refetch(); // Force refetch (ignore cache)
+source.invalidate(); // Mark cache as stale
+source.abort(); // Cancel in-flight request
+
+// Properties
+source.cacheKey; // Cache key for this source
+source.type; // 'query'
+```
+
+## createMutation
+
+```typescript
+const updateUser = createMutation<ResponseType, VariablesType>({
+  url: '/api/users/:id',
+  method: 'PUT',
+  timeout: 30000,
+  onSuccess: (data) => {
+    usersSource.invalidate(); // Refetch users after update
   },
   onError: (error) => {
-    console.error('Error:', error.message);
-    throw error;
+    console.error('Update failed:', error);
   },
 });
+
+// Usage
+const result = await updateUser.mutate({ id: '123', name: 'John' });
+updateUser.abort(); // Cancel in-flight mutation
+updateUser.reset(); // Reset mutation state
 ```
 
-### Options Reference
-
-| Option          | Type                          | Default    | Description               |
-| --------------- | ----------------------------- | ---------- | ------------------------- |
-| `baseUrl`       | `string`                      | —          | Base URL for all requests |
-| `headers`       | `Record<string, string>`      | `{}`       | Default headers           |
-| `timeout`       | `number`                      | `30000`    | Request timeout (ms)      |
-| `retry.count`   | `number`                      | `0`        | Retry attempts            |
-| `retry.delay`   | `number`                      | `1000`     | Initial retry delay (ms)  |
-| `retry.backoff` | `'linear'` \| `'exponential'` | `'linear'` | Backoff strategy          |
-| `cache.enabled` | `boolean`                     | `false`    | Enable response caching   |
-| `cache.ttl`     | `number`                      | `60000`    | Cache time-to-live (ms)   |
-| `cache.maxSize` | `number`                      | `100`      | Max cached entries        |
-
-## HTTP Methods
+## Global API
 
 ```typescript
-// GET
-const users = await api.get('/users');
-const user = await api.get('/users/:id', { params: { id: '123' } });
+import { sthira } from '@sthirajs/fetch';
 
-// POST
-const newUser = await api.post('/users', {
-  body: { name: 'John', email: 'john@example.com' },
-});
+// Prefetch data sources
+await sthira.prefetch(usersSource);
+await sthira.prefetchAll([usersSource, postsSource]);
 
-// PUT
-const updated = await api.put('/users/:id', {
-  params: { id: '123' },
-  body: { name: 'John Doe' },
-});
+// Ensure data exists
+const users = await sthira.ensureData(usersSource);
 
-// PATCH
-const patched = await api.patch('/users/:id', {
-  params: { id: '123' },
-  body: { name: 'John Doe' },
-});
+// Invalidation
+sthira.invalidate(usersSource);
+sthira.invalidatePrefix('GET:/api/users');
+sthira.invalidateAll();
 
-// DELETE
-await api.delete('/users/:id', { params: { id: '123' } });
+// Create router loader
+const loader = sthira.createLoader([usersSource, postsSource]);
+const [users, posts] = await loader();
 ```
 
-## Path Parameters
-
-Use `:param` syntax for URL parameters:
+## Cache Management
 
 ```typescript
-// URL: /users/123/posts/456
-const post = await api.get('/users/:userId/posts/:postId', {
-  params: {
-    userId: '123',
-    postId: '456',
-  },
-});
-```
+import { getQueryCache, resetQueryCache } from '@sthirajs/fetch';
 
-## Query Parameters
+const cache = getQueryCache();
 
-```typescript
-// URL: /users?status=active&limit=10
-const activeUsers = await api.get('/users', {
-  query: {
-    status: 'active',
-    limit: 10,
-  },
-});
-```
+cache.get('key'); // Get cached entry
+cache.has('key'); // Check if cached
+cache.set('key', data); // Set cache entry
+cache.delete('key'); // Remove entry
+cache.clear(); // Clear all
+cache.invalidate('key'); // Mark as stale
+cache.invalidatePrefix('GET:/api/users'); // Invalidate by prefix
+cache.isStale('key'); // Check if stale
 
-## Request Body
-
-```typescript
-// JSON body (default)
-await api.post('/users', {
-  body: { name: 'John', email: 'john@example.com' },
-});
-
-// FormData
-const formData = new FormData();
-formData.append('file', file);
-await api.post('/upload', {
-  body: formData,
-  headers: { 'Content-Type': 'multipart/form-data' },
-});
+resetQueryCache(); // Reset entire cache
 ```
 
 ## Error Handling
 
 ```typescript
 try {
-  const user = await api.get('/users/999');
+  const users = await source.fetch();
 } catch (error) {
-  if (error.status === 404) {
-    console.log('User not found');
-  } else if (error.status >= 500) {
-    console.log('Server error');
-  } else if (error.name === 'TimeoutError') {
+  if (error.name === 'TimeoutError') {
     console.log('Request timed out');
+  } else if (error.name === 'AbortError') {
+    console.log('Request was cancelled');
+  } else {
+    console.log('HTTP error:', error.message);
   }
 }
 ```
 
-### Error Object
+## React Integration
 
 ```typescript
-interface FetchError extends Error {
-  status: number; // HTTP status code
-  statusText: string; // HTTP status text
-  url: string; // Request URL
-  data: unknown; // Response body (if any)
-}
-```
+import { useEffect, useState } from 'react';
+import { createFetchSource } from '@sthirajs/fetch';
 
-## Integration with Sthira Stores
-
-### Pattern 1: Async Controller
-
-```typescript
-const userStore = createStore({
-  name: 'user',
-  state: {
-    data: null as User | null,
-    loading: false,
-    error: null as string | null,
-  },
-  actions: (set) => ({
-    setLoading: (loading: boolean) => set({ loading }),
-    setData: (data: User) => set({ data, error: null }),
-    setError: (error: string) => set({ error, data: null }),
-  }),
+const usersSource = createFetchSource({
+  url: '/api/users',
+  staleTime: 60000,
 });
 
-async function fetchUser(id: string) {
-  userStore.actions.setLoading(true);
-  try {
-    const user = await api.get<User>(`/users/${id}`);
-    userStore.actions.setData(user);
-  } catch (error) {
-    userStore.actions.setError(error.message);
-  } finally {
-    userStore.actions.setLoading(false);
-  }
-}
-```
-
-### Pattern 2: React Hook
-
-```typescript
-import { useState, useEffect } from 'react';
-
-function useUser(id: string) {
-  const [state, setState] = useState({
-    data: null,
-    loading: true,
-    error: null,
-  });
+function UserList() {
+  const [state, setState] = useState({ data: null, loading: true, error: null });
 
   useEffect(() => {
-    let cancelled = false;
+    usersSource.fetch()
+      .then(data => setState({ data, loading: false, error: null }))
+      .catch(error => setState({ data: null, loading: false, error }));
 
-    api
-      .get<User>(`/users/${id}`)
-      .then((data) => !cancelled && setState({ data, loading: false, error: null }))
-      .catch(
-        (error) => !cancelled && setState({ data: null, loading: false, error: error.message }),
-      );
+    // Cleanup: abort on unmount
+    return () => usersSource.abort();
+  }, []);
 
-    return () => {
-      cancelled = true;
-    };
-  }, [id]);
-
-  return state;
+  if (state.loading) return <div>Loading...</div>;
+  if (state.error) return <div>Error: {state.error.message}</div>;
+  return <ul>{state.data.map(user => <li key={user.id}>{user.name}</li>)}</ul>;
 }
-```
-
-## Cache Management
-
-```typescript
-// Clear entire cache
-api.cache.clear();
-
-// Clear specific URL
-api.cache.delete('/users');
-
-// Check if URL is cached
-const isCached = api.cache.has('/users');
-
-// Get cached data directly
-const cachedData = api.cache.get('/users');
-```
-
-## Interceptors
-
-### Authentication
-
-```typescript
-const api = createFetch({
-  baseUrl: 'https://api.example.com',
-  onRequest: (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers = {
-        ...config.headers,
-        Authorization: `Bearer ${token}`,
-      };
-    }
-    return config;
-  },
-});
-```
-
-### Token Refresh
-
-```typescript
-const api = createFetch({
-  baseUrl: 'https://api.example.com',
-  onError: async (error) => {
-    if (error.status === 401) {
-      // Refresh token
-      const newToken = await refreshToken();
-      localStorage.setItem('token', newToken);
-
-      // Retry original request
-      return api.request(error.config);
-    }
-    throw error;
-  },
-});
 ```
 
 ## Best Practices
 
-1. **Create one api instance** per base URL
-2. **Enable caching** for GET requests that don't change often
-3. **Set appropriate timeouts** for your use case
-4. **Handle errors** at the component level for UI feedback
-5. **Use interceptors** for cross-cutting concerns (auth, logging)
+1. **Use appropriate staleTime**: Short for frequently changing data, long for static data
+2. **Set timeouts**: Prevent hanging requests with reasonable timeout values
+3. **Handle abort errors**: Users may navigate away before requests complete
+4. **Invalidate after mutations**: Keep data fresh after changes
+5. **Use prefetch for routes**: Load data before navigation for instant pages
 
 ## Next Steps
 
 - **[Persistence](./persistence.md)**: Save state to storage
-- **[Performance](./perf.md)**: Monitor performance
+- **[Cross-Tab Sync](./sync.md)**: Sync across tabs
