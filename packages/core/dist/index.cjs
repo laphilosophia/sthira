@@ -1171,6 +1171,9 @@ var SignalImpl = class {
       return;
     }
     this.value = newValue;
+    for (const subscriber of this.subscribers) {
+      subscriber.invalidate();
+    }
     addPendingSignal(this);
     scheduleBatchFlush();
   }
@@ -1190,14 +1193,12 @@ var SignalImpl = class {
     };
   }
   /**
-   * Notify all subscribers that value has changed.
+   * Notify value subscribers that value has changed.
    * Called by the batch system.
+   * Reactive subscribers (computed/effects) are already invalidated synchronously in set().
    * @internal
    */
   _notify() {
-    for (const subscriber of this.subscribers) {
-      subscriber.invalidate();
-    }
     for (const fn of this.valueSubscribers) {
       try {
         fn(this.value);
@@ -1292,13 +1293,11 @@ var ComputedImpl = class {
     }
   }
   /**
-   * Notify subscribers (called by batch system)
+   * Notify value subscribers (called by batch system).
+   * Downstream computed/effects are already invalidated synchronously in invalidate().
    * @internal
    */
   _notify() {
-    for (const subscriber of this.subscribers) {
-      subscriber.invalidate();
-    }
     for (const fn of this.valueSubscribers) {
       try {
         fn(this.get());

@@ -1,6 +1,6 @@
 {
   "name": "@sthirajs/core",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Core state engine for sthira",
   "type": "module",
   "main": "./dist/index.cjs",

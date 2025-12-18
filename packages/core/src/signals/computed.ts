@@ -101,15 +101,11 @@ class ComputedImpl<T> implements ComputedSignal<T>, Subscriber, NotifiableSignal
   }
 
   /**
-   * Notify subscribers (called by batch system)
+   * Notify value subscribers (called by batch system).
+   * Downstream computed/effects are already invalidated synchronously in invalidate().
    * @internal
    */
   _notify(): void {
-    // Propagate to downstream computed/effects
-    for (const subscriber of this.subscribers) {
-      subscriber.invalidate();
-    }
-
     // Notify value subscribers
     for (const fn of this.valueSubscribers) {
       try {

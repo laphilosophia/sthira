@@ -124,6 +124,23 @@ describe('Signal Primitives', () => {
       });
     });
 
+    it('should recompute synchronously on .get() after source .set()', () => {
+      // This tests the synchronous invalidation fix
+      // Previously, computed.get() after signal.set() would return stale value
+      // because dirty flag was only set in async microtask
+      const count = signal(5);
+      const double = computed(() => count.get() * 2);
+
+      expect(double.get()).toBe(10);
+
+      count.set(10);
+      // Immediately call .get() - should see updated value without waiting
+      expect(double.get()).toBe(20);
+
+      count.set(15);
+      expect(double.get()).toBe(30);
+    });
+
     it('should track multiple dependencies', () => {
       const a = signal(2);
       const b = signal(3);

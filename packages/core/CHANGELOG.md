@@ -1,5 +1,11 @@
 # @sthirajs/core
 
+## 0.3.2
+
+### Patch Changes
+
+- Fix: Computed signals now recompute synchronously after signal.set() - dirty flag is set immediately instead of waiting for microtask
+
 ## 0.3.1
 
 ### Patch Changes

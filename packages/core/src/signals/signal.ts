@@ -50,7 +50,13 @@ class SignalImpl<T> implements WritableSignal<T> {
 
     this.value = newValue;
 
-    // Schedule notification via batch system
+    // Synchronously invalidate dependent computed/effects
+    // This ensures computed.get() immediately after set() sees dirty=true
+    for (const subscriber of this.subscribers) {
+      subscriber.invalidate();
+    }
+
+    // Schedule async notification for value subscribers via batch system
     addPendingSignal(this);
     scheduleBatchFlush();
   }
@@ -73,17 +79,13 @@ class SignalImpl<T> implements WritableSignal<T> {
   }
 
   /**
-   * Notify all subscribers that value has changed.
+   * Notify value subscribers that value has changed.
    * Called by the batch system.
+   * Reactive subscribers (computed/effects) are already invalidated synchronously in set().
    * @internal
    */
   _notify(): void {
-    // Notify reactive subscribers (computed/effects)
-    for (const subscriber of this.subscribers) {
-      subscriber.invalidate();
-    }
-
-    // Notify value subscribers
+    // Notify value subscribers (async callbacks)
     for (const fn of this.valueSubscribers) {
       try {
         fn(this.value);
