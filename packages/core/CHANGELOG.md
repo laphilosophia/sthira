@@ -1,5 +1,11 @@
 # @sthirajs/core
 
+## 0.3.1
+
+### Patch Changes
+
+- Fix: Signal primitives exports now correctly included in package distribution
+
 ## 0.3.0
 
 ### Minor Changes
