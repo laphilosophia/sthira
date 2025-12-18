@@ -65,6 +65,39 @@ const store = createStore({
 store.getComputed('total'); // 20
 ```
 
+### Signal Primitives
+
+Fine-grained reactivity with automatic dependency tracking:
+
+```typescript
+import { signal, computed, effect, batch } from '@sthirajs/core';
+
+// Reactive value
+const count = signal(0);
+count.get(); // Read (tracks dependency)
+count.set(5); // Write
+count.update((n) => n + 1); // Update with function
+
+// Derived value (lazy + memoized)
+const double = computed(() => count.get() * 2);
+double.get(); // 12 (computed on access)
+
+// Side effect with auto-tracking
+const dispose = effect(() => {
+  console.log('Count:', count.get());
+  return () => console.log('Cleanup'); // Optional cleanup
+});
+
+// Batch multiple updates
+batch(() => {
+  count.set(1);
+  count.set(2);
+  count.set(3); // Only one notification for all changes
+});
+
+dispose(); // Stop effect
+```
+
 ### FSM Async States
 
 Predictable async state transitions:
@@ -141,8 +174,13 @@ export { AsyncStateMachine, createAsyncState, isDataStale }
 export { SchemaValidator, createSchemaValidator }
 export { TaskScheduler, createPerformanceUtils }
 
+// Signal Primitives
+export { signal, computed, effect, batch }
+export { untracked, isTracking, isBatching, isSignal, isComputed }
+
 // Types
 export type { Store, StoreConfig, AsyncState, AsyncStatus, ... }
+export type { WritableSignal, ReadableSignal, ComputedSignal, ... }
 ```
 
 ## License

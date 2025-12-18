@@ -26,6 +26,32 @@ export { SchemaValidator, createSchemaValidator } from './schema';
 // Scheduler (lazy-loaded if performance enabled)
 export { TaskScheduler, createPerformanceUtils } from './scheduler';
 
+// ============================================================================
+// Signal Primitives - Fine-grained Reactivity
+// ============================================================================
+
+export {
+  batch,
+  computed,
+  effect,
+  isBatching,
+  isComputed,
+  isSignal,
+  isTracking,
+  // Primitives
+  signal,
+  // Utilities
+  untracked,
+} from './signals';
+
+export type {
+  ComputedSignal,
+  EffectDispose,
+  ReadableSignal,
+  Subscriber,
+  WritableSignal,
+} from './signals';
+
 // Types
 export type {
   AsyncState,

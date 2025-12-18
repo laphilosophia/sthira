@@ -24,16 +24,16 @@ This is the philosophy behind Sthira: **enterprise-grade state infrastructure** 
 
 Sthira is a monorepo containing a modular set of packages designed to work together seamlessly.
 
-| Package                   | Purpose                                                      | Size   | Documentation                           |
-| :------------------------ | :----------------------------------------------------------- | :----- | :-------------------------------------- |
-| **`@sthirajs/core`**      | The infrastructure engine. Store creation, actions, plugins. | ~2KB   | [Core Concepts](docs/core-concepts.md)  |
-| **`@sthirajs/react`**     | Official React hooks (`useStore`).                           | ~1KB   | [API Reference](docs/packages/react.md) |
-| **`@sthirajs/persist`**   | Automated storage persistence (Local/Session/IndexedDB).     | ~0.5KB | [Docs](docs/ecosystem/persistence.md)   |
-| **`@sthirajs/cross-tab`** | Instant state synchronization between detailed tabs.         | ~0.3KB | [Docs](docs/ecosystem/sync.md)          |
-| **`@sthirajs/devtools`**  | Redux DevTools integration for time-travel debugging.        | ~0.4KB | [Docs](docs/ecosystem/devtools.md)      |
-| **`@sthirajs/fetch`**     | Managed async data fetching with loading/error states.       | ~0.8KB | [Docs](docs/ecosystem/fetch.md)         |
-| **`@sthirajs/perf`**      | Performance metrics and slow action logging.                 | ~0.3KB | [Docs](docs/ecosystem/perf.md)          |
-| **`@sthirajs/chunked`**   | Virtual pagination for managing massive arrays.              | ~0.5KB | [Docs](docs/ecosystem/chunked.md)       |
+| Package                   | Purpose                                                  | Size   | Documentation                           |
+| :------------------------ | :------------------------------------------------------- | :----- | :-------------------------------------- |
+| **`@sthirajs/core`**      | Signal primitives, store, actions, plugins.              | ~33KB  | [Core Concepts](docs/core-concepts.md)  |
+| **`@sthirajs/react`**     | Official React hooks (`useStore`).                       | ~1KB   | [API Reference](docs/packages/react.md) |
+| **`@sthirajs/persist`**   | Automated storage persistence (Local/Session/IndexedDB). | ~0.5KB | [Docs](docs/ecosystem/persistence.md)   |
+| **`@sthirajs/cross-tab`** | Instant state synchronization between detailed tabs.     | ~0.3KB | [Docs](docs/ecosystem/sync.md)          |
+| **`@sthirajs/devtools`**  | Redux DevTools integration for time-travel debugging.    | ~0.4KB | [Docs](docs/ecosystem/devtools.md)      |
+| **`@sthirajs/fetch`**     | Managed async data fetching with loading/error states.   | ~0.8KB | [Docs](docs/ecosystem/fetch.md)         |
+| **`@sthirajs/perf`**      | Performance metrics and slow action logging.             | ~0.3KB | [Docs](docs/ecosystem/perf.md)          |
+| **`@sthirajs/chunked`**   | Virtual pagination for managing massive arrays.          | ~0.5KB | [Docs](docs/ecosystem/chunked.md)       |
 
 ## 📚 Documentation
 

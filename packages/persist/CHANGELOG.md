@@ -1,5 +1,12 @@
 # @sthirajs/persist
 
+## 2.0.0
+
+### Patch Changes
+
+- Updated dependencies
+  - @sthirajs/core@0.3.0
+
 ## 1.0.0
 
 ### Minor Changes

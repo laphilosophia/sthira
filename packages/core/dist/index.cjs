@@ -65,11 +65,11 @@ var ComputedManager = class {
    * Get a computed value
    */
   get(key) {
-    const computed = this.computedMap.get(key);
-    if (!computed) {
+    const computed2 = this.computedMap.get(key);
+    if (!computed2) {
       return void 0;
     }
-    return computed.get();
+    return computed2.get();
   }
   /**
    * Get all computed values
@@ -85,17 +85,17 @@ var ComputedManager = class {
    * Invalidate all computed values
    */
   invalidateAll() {
-    for (const computed of this.computedMap.values()) {
-      computed.invalidate();
+    for (const computed2 of this.computedMap.values()) {
+      computed2.invalidate();
     }
   }
   /**
    * Invalidate specific computed value
    */
   invalidate(key) {
-    const computed = this.computedMap.get(key);
-    if (computed) {
-      computed.invalidate();
+    const computed2 = this.computedMap.get(key);
+    if (computed2) {
+      computed2.invalidate();
     }
   }
   /**
@@ -1070,6 +1070,334 @@ function isDataStale(dataUpdatedAt, staleTime) {
   return Date.now() - dataUpdatedAt > staleTime;
 }
 
+// src/signals/batch.ts
+var pendingSignals = /* @__PURE__ */ new Set();
+var batchDepth = 0;
+var flushScheduled = false;
+function addPendingSignal(signal2) {
+  pendingSignals.add(signal2);
+}
+function scheduleBatchFlush() {
+  if (flushScheduled || batchDepth > 0) {
+    return;
+  }
+  flushScheduled = true;
+  queueMicrotask(flushBatch);
+}
+function flushBatch() {
+  flushScheduled = false;
+  if (pendingSignals.size === 0) {
+    return;
+  }
+  const signals = pendingSignals;
+  pendingSignals = /* @__PURE__ */ new Set();
+  for (const signal2 of signals) {
+    signal2._notify();
+  }
+}
+function batch(fn) {
+  batchDepth++;
+  try {
+    return fn();
+  } finally {
+    batchDepth--;
+    if (batchDepth === 0 && pendingSignals.size > 0) {
+      flushBatch();
+    }
+  }
+}
+function isBatching() {
+  return batchDepth > 0;
+}
+
+// src/signals/context.ts
+var currentSubscriber = null;
+var subscriberStack = [];
+function startTracking(subscriber) {
+  subscriberStack.push(currentSubscriber);
+  currentSubscriber = subscriber;
+  subscriber.dependencies.clear();
+}
+function endTracking() {
+  currentSubscriber = subscriberStack.pop() ?? null;
+}
+function getCurrentSubscriber() {
+  return currentSubscriber;
+}
+function isTracking() {
+  return currentSubscriber !== null;
+}
+function untracked(fn) {
+  const prev = currentSubscriber;
+  currentSubscriber = null;
+  try {
+    return fn();
+  } finally {
+    currentSubscriber = prev;
+  }
+}
+
+// src/signals/signal.ts
+var SignalImpl = class {
+  value;
+  subscribers = /* @__PURE__ */ new Set();
+  valueSubscribers = /* @__PURE__ */ new Set();
+  constructor(initialValue) {
+    this.value = initialValue;
+  }
+  /**
+   * Get current value.
+   * If called within a reactive context, automatically registers dependency.
+   */
+  get() {
+    const subscriber = getCurrentSubscriber();
+    if (subscriber) {
+      this.subscribers.add(subscriber);
+      subscriber.dependencies.add(this);
+    }
+    return this.value;
+  }
+  /**
+   * Get value without tracking (for debugging/logging)
+   */
+  peek() {
+    return this.value;
+  }
+  /**
+   * Set new value and notify subscribers
+   */
+  set(newValue) {
+    if (Object.is(this.value, newValue)) {
+      return;
+    }
+    this.value = newValue;
+    addPendingSignal(this);
+    scheduleBatchFlush();
+  }
+  /**
+   * Update value using a function
+   */
+  update(fn) {
+    this.set(fn(this.value));
+  }
+  /**
+   * Subscribe to value changes (for external use)
+   */
+  subscribe(fn) {
+    this.valueSubscribers.add(fn);
+    return () => {
+      this.valueSubscribers.delete(fn);
+    };
+  }
+  /**
+   * Notify all subscribers that value has changed.
+   * Called by the batch system.
+   * @internal
+   */
+  _notify() {
+    for (const subscriber of this.subscribers) {
+      subscriber.invalidate();
+    }
+    for (const fn of this.valueSubscribers) {
+      try {
+        fn(this.value);
+      } catch (error) {
+        console.error("[Sthira Signal] Error in subscriber:", error);
+      }
+    }
+  }
+  /**
+   * Remove a subscriber
+   * @internal
+   */
+  _removeSubscriber(subscriber) {
+    this.subscribers.delete(subscriber);
+  }
+};
+function signal(initialValue) {
+  return new SignalImpl(initialValue);
+}
+function isSignal(value) {
+  return value instanceof SignalImpl;
+}
+
+// src/signals/computed.ts
+var ComputedImpl = class {
+  _dirty = true;
+  cachedValue;
+  fn;
+  // Subscriber interface
+  dependencies = /* @__PURE__ */ new Set();
+  // Signals that depend on this computed
+  subscribers = /* @__PURE__ */ new Set();
+  valueSubscribers = /* @__PURE__ */ new Set();
+  constructor(fn) {
+    this.fn = fn;
+  }
+  /**
+   * Check if value needs recomputation
+   */
+  get dirty() {
+    return this._dirty;
+  }
+  /**
+   * Get computed value.
+   * Recomputes if dirty, otherwise returns cached.
+   * Tracks dependency if in reactive context.
+   */
+  get() {
+    const subscriber = getCurrentSubscriber();
+    if (subscriber) {
+      this.subscribers.add(subscriber);
+      subscriber.dependencies.add(this);
+    }
+    if (this._dirty) {
+      startTracking(this);
+      try {
+        this.cachedValue = this.fn();
+        this._dirty = false;
+      } finally {
+        endTracking();
+      }
+    }
+    return this.cachedValue;
+  }
+  /**
+   * Peek value without tracking
+   */
+  peek() {
+    return this._dirty ? this.fn() : this.cachedValue;
+  }
+  /**
+   * Subscribe to value changes
+   */
+  subscribe(fn) {
+    this.valueSubscribers.add(fn);
+    return () => {
+      this.valueSubscribers.delete(fn);
+    };
+  }
+  /**
+   * Subscriber interface - called when a dependency changes
+   */
+  invalidate() {
+    const wasDirty = this._dirty;
+    this._dirty = true;
+    for (const subscriber of this.subscribers) {
+      subscriber.invalidate();
+    }
+    if (!wasDirty) {
+      addPendingSignal(this);
+      scheduleBatchFlush();
+    }
+  }
+  /**
+   * Notify subscribers (called by batch system)
+   * @internal
+   */
+  _notify() {
+    for (const subscriber of this.subscribers) {
+      subscriber.invalidate();
+    }
+    for (const fn of this.valueSubscribers) {
+      try {
+        fn(this.get());
+      } catch (error) {
+        console.error("[Sthira Computed] Error in subscriber:", error);
+      }
+    }
+  }
+  /**
+   * Remove a subscriber
+   * @internal
+   */
+  _removeSubscriber(subscriber) {
+    this.subscribers.delete(subscriber);
+  }
+};
+function computed(fn) {
+  return new ComputedImpl(fn);
+}
+function isComputed(value) {
+  return value instanceof ComputedImpl;
+}
+
+// src/signals/effect.ts
+var EffectImpl = class {
+  fn;
+  cleanup = void 0;
+  disposed = false;
+  // Subscriber interface
+  dependencies = /* @__PURE__ */ new Set();
+  constructor(fn) {
+    this.fn = fn;
+    this.run();
+  }
+  /**
+   * Run the effect function
+   */
+  run() {
+    if (this.disposed) {
+      return;
+    }
+    this.runCleanup();
+    this.clearDependencies();
+    startTracking(this);
+    try {
+      this.cleanup = this.fn();
+    } finally {
+      endTracking();
+    }
+  }
+  /**
+   * Clear dependencies from previous run
+   */
+  clearDependencies() {
+    for (const dep of this.dependencies) {
+      dep._removeSubscriber?.(this);
+    }
+    this.dependencies.clear();
+  }
+  /**
+   * Run cleanup function if any
+   */
+  runCleanup() {
+    if (typeof this.cleanup === "function") {
+      try {
+        this.cleanup();
+      } catch (error) {
+        console.error("[Sthira Effect] Error in cleanup:", error);
+      }
+      this.cleanup = void 0;
+    }
+  }
+  /**
+   * Subscriber interface - called when a dependency changes.
+   * Schedules re-run in next microtask to avoid infinite loops.
+   */
+  invalidate() {
+    if (this.disposed) {
+      return;
+    }
+    queueMicrotask(() => this.run());
+  }
+  /**
+   * Dispose the effect - stop watching and cleanup
+   */
+  dispose() {
+    if (this.disposed) {
+      return;
+    }
+    this.disposed = true;
+    this.runCleanup();
+    this.clearDependencies();
+  }
+};
+function effect(fn) {
+  const effectInstance = new EffectImpl(fn);
+  return () => effectInstance.dispose();
+}
+
 exports.ASYNC_TRANSITIONS = ASYNC_TRANSITIONS;
 exports.AsyncStateMachine = AsyncStateMachine;
 exports.ComputedManager = ComputedManager;
@@ -1078,6 +1406,8 @@ exports.SchemaValidator = SchemaValidator;
 exports.StoreEvents = StoreEvents;
 exports.SubscriptionManager = SubscriptionManager;
 exports.TaskScheduler = TaskScheduler;
+exports.batch = batch;
+exports.computed = computed;
 exports.createAsyncState = createAsyncState;
 exports.createEventBus = createEventBus;
 exports.createPerformanceUtils = createPerformanceUtils;
@@ -1085,9 +1415,16 @@ exports.createReactiveProxy = createReactiveProxy;
 exports.createSchemaValidator = createSchemaValidator;
 exports.createSelector = createSelector;
 exports.createStore = createStore;
+exports.effect = effect;
+exports.isBatching = isBatching;
+exports.isComputed = isComputed;
 exports.isDataStale = isDataStale;
 exports.isProxy = isProxy;
+exports.isSignal = isSignal;
+exports.isTracking = isTracking;
 exports.shallowEqual = shallowEqual;
+exports.signal = signal;
 exports.toRaw = toRaw;
+exports.untracked = untracked;
 //# sourceMappingURL=index.cjs.map
 //# sourceMappingURL=index.cjs.map

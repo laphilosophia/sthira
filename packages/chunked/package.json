@@ -1,6 +1,6 @@
 {
   "name": "@sthirajs/chunked",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Size-aware virtual store chunking for Sthira",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -28,8 +28,8 @@
     "lint": "tsc --noEmit"
   },
   "peerDependencies": {
-    "@sthirajs/core": ">=0.2.0",
-    "@sthirajs/persist": ">=1.0.0"
+    "@sthirajs/core": ">=0.3.0",
+    "@sthirajs/persist": ">=2.0.0"
   },
   "devDependencies": {
     "@sthirajs/core": "workspace:*",

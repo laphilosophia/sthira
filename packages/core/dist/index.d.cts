@@ -630,4 +630,124 @@ declare class TaskScheduler {
  */
 declare function createPerformanceUtils(config: PerformanceConfig | undefined): PerformanceUtils | undefined;
 
-export { ASYNC_TRANSITIONS, type AsyncState, AsyncStateMachine, type AsyncStatus, type ChunkedOptions, type ComputedDefinitions, type ComputedFn, ComputedManager, type ComputedValues, type DataSource, type DataSourceConfig, type DevToolsApi, type DevToolsPluginConfig, type EmitOptions, type ErrorContext, type EventBus, type EventHandler, type EventPriority, type GetState, type Interceptors, InterceptorsManager, type Listener, type PerformanceConfig, type PerformanceOptions, type PerformancePreset, type PerformanceUtils, type PersistApi, type PersistPluginConfig, type Plugin, SchemaValidator, type SetOptions, type SetState, type Store, type StoreConfig, type StoreEvent, StoreEvents, SubscriptionManager, type SyncApi, type SyncPluginConfig, TaskScheduler, type Unsubscribe, type ValidationResult, type WorkerConfig, createAsyncState, createEventBus, createPerformanceUtils, createReactiveProxy, createSchemaValidator, createSelector, createStore, isDataStale, isProxy, shallowEqual, toRaw };
+/**
+ * Subscriber interface for dependency tracking
+ */
+interface Subscriber {
+    /** Called when a dependency changes */
+    invalidate(): void;
+    /** Dependencies this subscriber is tracking */
+    dependencies: Set<ReadableSignal<unknown>>;
+}
+/**
+ * Read-only signal interface
+ */
+interface ReadableSignal<T> {
+    /** Get current value (tracks dependency if in reactive context) */
+    get(): T;
+    /** Subscribe to value changes */
+    subscribe(fn: (value: T) => void): () => void;
+    /** Peek value without tracking */
+    peek(): T;
+}
+/**
+ * Writable signal interface
+ */
+interface WritableSignal<T> extends ReadableSignal<T> {
+    /** Set new value */
+    set(value: T): void;
+    /** Update value using function */
+    update(fn: (current: T) => T): void;
+}
+/**
+ * Computed signal interface (read-only + lazy)
+ */
+interface ComputedSignal<T> extends ReadableSignal<T> {
+    /** Check if value needs recomputation */
+    readonly dirty: boolean;
+}
+/**
+ * Effect dispose function
+ */
+type EffectDispose = () => void;
+
+/**
+ * Create a new signal
+ */
+declare function signal<T>(initialValue: T): WritableSignal<T>;
+/**
+ * Type guard for signal
+ */
+declare function isSignal(value: unknown): value is WritableSignal<unknown>;
+
+/**
+ * Create a computed signal (lazy derived value)
+ *
+ * @example
+ * ```ts
+ * const count = signal(5);
+ * const double = computed(() => count.get() * 2);
+ *
+ * double.get(); // 10 (computed on first access)
+ * double.get(); // 10 (cached)
+ * count.set(10);
+ * double.get(); // 20 (recomputed)
+ * ```
+ */
+declare function computed<T>(fn: () => T): ComputedSignal<T>;
+/**
+ * Type guard for computed
+ */
+declare function isComputed(value: unknown): value is ComputedSignal<unknown>;
+
+/**
+ * Create an effect that runs immediately and re-runs when dependencies change.
+ * Returns a dispose function to stop the effect.
+ *
+ * @example
+ * ```ts
+ * const count = signal(0);
+ *
+ * const dispose = effect(() => {
+ *   console.log('Count:', count.get());
+ *
+ *   // Optional: return cleanup function
+ *   return () => console.log('Cleaning up');
+ * });
+ *
+ * count.set(1); // Logs: "Cleaning up", then "Count: 1"
+ * dispose();    // Stops effect and runs cleanup
+ * ```
+ */
+declare function effect(fn: () => void | (() => void)): EffectDispose;
+
+/**
+ * Execute a function with batched updates.
+ * All signal changes within the function will be
+ * deferred until the function completes.
+ *
+ * @example
+ * ```ts
+ * batch(() => {
+ *   count.set(1);
+ *   count.set(2);
+ *   count.set(3);
+ * }); // Subscribers notified only once with final value
+ * ```
+ */
+declare function batch<T>(fn: () => T): T;
+/**
+ * Check if we're currently in a batch
+ */
+declare function isBatching(): boolean;
+
+/**
+ * Check if we're currently tracking dependencies
+ */
+declare function isTracking(): boolean;
+/**
+ * Run a function without tracking dependencies
+ */
+declare function untracked<T>(fn: () => T): T;
+
+export { ASYNC_TRANSITIONS, type AsyncState, AsyncStateMachine, type AsyncStatus, type ChunkedOptions, type ComputedDefinitions, type ComputedFn, ComputedManager, type ComputedSignal, type ComputedValues, type DataSource, type DataSourceConfig, type DevToolsApi, type DevToolsPluginConfig, type EffectDispose, type EmitOptions, type ErrorContext, type EventBus, type EventHandler, type EventPriority, type GetState, type Interceptors, InterceptorsManager, type Listener, type PerformanceConfig, type PerformanceOptions, type PerformancePreset, type PerformanceUtils, type PersistApi, type PersistPluginConfig, type Plugin, type ReadableSignal, SchemaValidator, type SetOptions, type SetState, type Store, type StoreConfig, type StoreEvent, StoreEvents, type Subscriber, SubscriptionManager, type SyncApi, type SyncPluginConfig, TaskScheduler, type Unsubscribe, type ValidationResult, type WorkerConfig, type WritableSignal, batch, computed, createAsyncState, createEventBus, createPerformanceUtils, createReactiveProxy, createSchemaValidator, createSelector, createStore, effect, isBatching, isComputed, isDataStale, isProxy, isSignal, isTracking, shallowEqual, signal, toRaw, untracked };
