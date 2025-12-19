@@ -61,8 +61,9 @@ function createLazyPersistPlugin<T extends object>(
     version: '1.0.0',
     onInit: async (store: Store<T, object>) => {
       try {
-        // @ts-expect-error - Optional dependency
-        const { createPersistPlugin } = await import(/* @vite-ignore */ '@sthirajs/persist');
+        // eslint-disable-next-line @typescript-eslint/no-implied-eval
+        const dynamicImport = new Function('m', 'return import(m)');
+        const { createPersistPlugin } = await dynamicImport('@sthirajs/persist');
         const pluginInstance = createPersistPlugin({
           key: config.key,
           storage: config.storage,
@@ -108,8 +109,9 @@ function createLazySyncPlugin<T extends object>(
     version: '1.0.0',
     onInit: async (store: Store<T, object>) => {
       try {
-        // @ts-expect-error - Optional dependency
-        const { createSyncPlugin } = await import(/* @vite-ignore */ '@sthirajs/cross-tab');
+        // eslint-disable-next-line @typescript-eslint/no-implied-eval
+        const dynamicImport = new Function('m', 'return import(m)');
+        const { createSyncPlugin } = await dynamicImport('@sthirajs/cross-tab');
         const pluginInstance = createSyncPlugin({
           channel: config.channel,
           onConflict: config.onConflict,
@@ -155,8 +157,9 @@ function createLazyDevToolsPlugin<T extends object>(
     version: '1.0.0',
     onInit: async (store: Store<T, object>) => {
       try {
-        // @ts-expect-error - Optional dependency
-        const { createDevToolsPlugin } = await import(/* @vite-ignore */ '@sthirajs/devtools');
+        // eslint-disable-next-line @typescript-eslint/no-implied-eval
+        const dynamicImport = new Function('m', 'return import(m)');
+        const { createDevToolsPlugin } = await dynamicImport('@sthirajs/devtools');
         const pluginInstance = createDevToolsPlugin({
           name: config.name ?? storeName,
           maxAge: config.maxAge,

@@ -1,5 +1,11 @@
 # @sthirajs/cross-tab
 
+## 2.0.1
+
+### Patch Changes
+
+- Fix: Cross-tab sync now correctly triggers UI updates in receiving tabs by removing `silent: true` and using an internal guard flag.
+
 ## 2.0.0
 
 ### Patch Changes

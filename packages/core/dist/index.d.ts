@@ -1,3 +1,4 @@
+import * as zod from 'zod';
 import { ZodType, ZodError } from 'zod';
 
 /**
@@ -304,9 +305,69 @@ type StoreReturn<TState extends object, TActions extends object, TConfig extends
     devtools: DevToolsApi;
 } : object);
 /**
- * Create a new store with v2 plugin architecture
+ * Config type for curried createStore that allows action inference
  */
-declare function createStore<TState extends object, TActions extends object = object, TConfig extends StoreConfig<TState, TActions> = StoreConfig<TState, TActions>>(config: TConfig): StoreReturn<TState, TActions, TConfig>;
+interface StoreConfigForInference<TState extends object> {
+    name: string;
+    schema?: zod.ZodType<TState>;
+    state: TState | (() => TState);
+    computed?: ComputedDefinitions<TState>;
+    actions?: (set: SetState<TState>, get: GetState<TState>) => object;
+    interceptors?: Interceptors<TState>;
+    performance?: PerformanceConfig;
+    plugins?: Plugin<TState>[];
+    persist?: boolean | PersistPluginConfig;
+    sync?: boolean | string | SyncPluginConfig;
+    devtools?: boolean | DevToolsPluginConfig;
+}
+/**
+ * Extract actions type from config
+ */
+type InferActionsFromConfig<TConfig, TState extends object> = TConfig extends {
+    actions: (set: SetState<TState>, get: GetState<TState>) => infer A;
+} ? A extends object ? A : object : object;
+/**
+ * Curried createStore function type
+ */
+type CreateStore = {
+    <TState extends object>(): <TConfig extends StoreConfigForInference<TState>, TActions extends object = InferActionsFromConfig<TConfig, TState>>(config: TConfig & {
+        actions?: (set: SetState<TState>, get: GetState<TState>) => TActions;
+    }) => StoreReturn<TState, TActions, StoreConfig<TState, TActions>>;
+    <TState extends object, TActions extends object = object>(config: StoreConfig<TState, TActions>): StoreReturn<TState, TActions, StoreConfig<TState, TActions>>;
+};
+/**
+ * Create a new store with v2 plugin architecture
+ *
+ * Supports two patterns:
+ *
+ * @example Curried form (recommended) - Actions are automatically inferred
+ * ```typescript
+ * interface CounterState { count: number }
+ *
+ * const store = createStore<CounterState>()({
+ *   name: 'counter',
+ *   state: { count: 0 },
+ *   actions: (set) => ({
+ *     increment: () => set((s) => ({ count: s.count + 1 })),
+ *     decrement: () => set((s) => ({ count: s.count - 1 })),
+ *   }),
+ * });
+ *
+ * store.increment(); // ✅ Correctly typed!
+ * ```
+ *
+ * @example Direct form - Both State and Actions are explicit
+ * ```typescript
+ * const store = createStore<MyState, MyActions>({
+ *   name: 'counter',
+ *   state: { count: 0 },
+ *   actions: (set) => ({
+ *     increment: () => set((s) => ({ count: s.count + 1 })),
+ *   }),
+ * });
+ * ```
+ */
+declare const createStore: CreateStore;
 /**
  * Create a selector function with memoization
  */

@@ -1,6 +1,6 @@
 {
   "name": "@sthirajs/cross-tab",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Cross-tab state synchronization for Sthira",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -28,7 +28,7 @@
     "lint": "tsc --noEmit"
   },
   "peerDependencies": {
-    "@sthirajs/core": ">=0.3.4"
+    "@sthirajs/core": ">=0.3.6"
   },
   "devDependencies": {
     "@sthirajs/core": "workspace:*",

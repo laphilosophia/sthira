@@ -60,8 +60,10 @@ export async function loadMsgpack(): Promise<void> {
   if (msgpackModule) return;
 
   try {
-    // Dynamic import with type assertion
-    const mod = await import('@msgpack/msgpack' as string);
+    // Dynamic import hidden from Vite's static analysis
+    // eslint-disable-next-line @typescript-eslint/no-implied-eval
+    const dynamicImport = new Function('m', 'return import(m)');
+    const mod = await dynamicImport('@msgpack/msgpack');
     msgpackModule = {
       encode: mod.encode,
       decode: mod.decode,

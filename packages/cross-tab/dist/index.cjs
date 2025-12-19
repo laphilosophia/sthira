@@ -102,6 +102,7 @@ function createSyncPlugin(config) {
   let debounceTimer = null;
   let unsubscribeStore = null;
   let unsubscribeChannel = null;
+  let isReceivingMessage = false;
   function resolveConflict(local, remote, timestamp) {
     switch (onConflict) {
       case "first-write-wins":
@@ -121,7 +122,12 @@ function createSyncPlugin(config) {
       case "state_update":
         if (message.state && message.version !== void 0 && message.version > stateVersion) {
           const resolved = resolveConflict(store.getState(), message.state, message.timestamp);
-          store.setState(resolved, { silent: true });
+          isReceivingMessage = true;
+          try {
+            store.setState(resolved);
+          } finally {
+            isReceivingMessage = false;
+          }
           stateVersion = message.version;
           lastSyncAt = Date.now();
         }
@@ -132,7 +138,12 @@ function createSyncPlugin(config) {
       case "state_response":
         if (message.state && message.version !== void 0) {
           if (stateVersion === 0 || message.version > stateVersion) {
-            store.setState(message.state, { silent: true });
+            isReceivingMessage = true;
+            try {
+              store.setState(message.state);
+            } finally {
+              isReceivingMessage = false;
+            }
             stateVersion = message.version;
             lastSyncAt = Date.now();
           }
@@ -153,7 +164,7 @@ function createSyncPlugin(config) {
     adapter.postMessage(message);
   }
   function scheduleBroadcast() {
-    if (isPaused) return;
+    if (isPaused || isReceivingMessage) return;
     if (debounceTimer) {
       clearTimeout(debounceTimer);
     }

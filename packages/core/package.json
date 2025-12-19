@@ -1,6 +1,6 @@
 {
   "name": "@sthirajs/core",
-  "version": "0.3.4",
+  "version": "0.3.6",
   "description": "Core state engine for sthira",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -28,7 +28,7 @@
     "lint": "tsc --noEmit"
   },
   "peerDependencies": {
-    "zod": "^3.0.0"
+    "zod": "^3.0.0 || ^4.0.0"
   },
   "peerDependenciesMeta": {
     "zod": {

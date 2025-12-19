@@ -303,7 +303,8 @@ var msgpackSerializer = {
 async function loadMsgpack() {
   if (msgpackModule) return;
   try {
-    const mod = await import('@msgpack/msgpack');
+    const dynamicImport = new Function("m", "return import(m)");
+    const mod = await dynamicImport("@msgpack/msgpack");
     msgpackModule = {
       encode: mod.encode,
       decode: mod.decode

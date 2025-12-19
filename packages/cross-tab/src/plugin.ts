@@ -81,6 +81,7 @@ export function createSyncPlugin<T extends object>(
   let debounceTimer: ReturnType<typeof setTimeout> | null = null;
   let unsubscribeStore: (() => void) | null = null;
   let unsubscribeChannel: (() => void) | null = null;
+  let isReceivingMessage = false; // Guard to prevent re-broadcast when receiving remote state
 
   /**
    * Resolve conflict between local and remote state
@@ -109,7 +110,12 @@ export function createSyncPlugin<T extends object>(
       case 'state_update':
         if (message.state && message.version !== undefined && message.version > stateVersion) {
           const resolved = resolveConflict(store.getState(), message.state, message.timestamp);
-          store.setState(resolved as Partial<T>, { silent: true });
+          isReceivingMessage = true;
+          try {
+            store.setState(resolved as Partial<T>);
+          } finally {
+            isReceivingMessage = false;
+          }
           stateVersion = message.version;
           lastSyncAt = Date.now();
         }
@@ -122,7 +128,12 @@ export function createSyncPlugin<T extends object>(
       case 'state_response':
         if (message.state && message.version !== undefined) {
           if (stateVersion === 0 || message.version > stateVersion) {
-            store.setState(message.state as Partial<T>, { silent: true });
+            isReceivingMessage = true;
+            try {
+              store.setState(message.state as Partial<T>);
+            } finally {
+              isReceivingMessage = false;
+            }
             stateVersion = message.version;
             lastSyncAt = Date.now();
           }
@@ -153,7 +164,7 @@ export function createSyncPlugin<T extends object>(
    * Schedule debounced broadcast
    */
   function scheduleBroadcast(): void {
-    if (isPaused) return;
+    if (isPaused || isReceivingMessage) return;
 
     if (debounceTimer) {
       clearTimeout(debounceTimer);

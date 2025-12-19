@@ -1,5 +1,17 @@
 # @sthirajs/core
 
+## 0.3.6
+
+### Patch Changes
+
+- Fix Vite static analysis by using truly dynamic imports via Function constructor for optional dependencies.
+
+## 0.3.5
+
+### Patch Changes
+
+- Support zod v4 in peer dependencies alongside v3.
+
 ## 0.3.4
 
 ### Patch Changes

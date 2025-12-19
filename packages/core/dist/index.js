@@ -281,10 +281,8 @@ function createLazyPersistPlugin(config) {
     version: "1.0.0",
     onInit: async (store) => {
       try {
-        const { createPersistPlugin } = await import(
-          /* @vite-ignore */
-          '@sthirajs/persist'
-        );
+        const dynamicImport = new Function("m", "return import(m)");
+        const { createPersistPlugin } = await dynamicImport("@sthirajs/persist");
         const pluginInstance = createPersistPlugin({
           key: config.key,
           storage: config.storage,
@@ -324,10 +322,8 @@ function createLazySyncPlugin(config) {
     version: "1.0.0",
     onInit: async (store) => {
       try {
-        const { createSyncPlugin } = await import(
-          /* @vite-ignore */
-          '@sthirajs/cross-tab'
-        );
+        const dynamicImport = new Function("m", "return import(m)");
+        const { createSyncPlugin } = await dynamicImport("@sthirajs/cross-tab");
         const pluginInstance = createSyncPlugin({
           channel: config.channel,
           onConflict: config.onConflict,
@@ -366,10 +362,8 @@ function createLazyDevToolsPlugin(config, storeName) {
     version: "1.0.0",
     onInit: async (store) => {
       try {
-        const { createDevToolsPlugin } = await import(
-          /* @vite-ignore */
-          '@sthirajs/devtools'
-        );
+        const dynamicImport = new Function("m", "return import(m)");
+        const { createDevToolsPlugin } = await dynamicImport("@sthirajs/devtools");
         const pluginInstance = createDevToolsPlugin({
           name: config.name ?? storeName,
           maxAge: config.maxAge
@@ -772,7 +766,15 @@ function createSchemaValidator(schema) {
 }
 
 // src/store.ts
-function createStore(config) {
+var createStore = ((configOrNothing) => {
+  if (configOrNothing === void 0) {
+    return (config) => createStoreImpl(
+      config
+    );
+  }
+  return createStoreImpl(configOrNothing);
+});
+function createStoreImpl(config) {
   const {
     name,
     schema,
