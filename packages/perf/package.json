@@ -28,7 +28,7 @@
     "lint": "tsc --noEmit"
   },
   "peerDependencies": {
-    "@sthirajs/core": ">=0.3.2"
+    "@sthirajs/core": ">=0.3.3"
   },
   "devDependencies": {
     "@sthirajs/core": "workspace:*",

@@ -1,5 +1,11 @@
 # @sthirajs/core
 
+## 0.3.3
+
+### Patch Changes
+
+- fix: make zod an optional peer dependency
+
 ## 0.3.2
 
 ### Patch Changes
