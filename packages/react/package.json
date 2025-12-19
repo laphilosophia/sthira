@@ -29,7 +29,7 @@
   },
   "peerDependencies": {
     "react": ">=18.0.0",
-    "@sthirajs/core": ">=0.3.3"
+    "@sthirajs/core": ">=0.3.4"
   },
   "devDependencies": {
     "@sthirajs/core": "workspace:*",

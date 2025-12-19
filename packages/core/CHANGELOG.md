@@ -1,5 +1,11 @@
 # @sthirajs/core
 
+## 0.3.4
+
+### Patch Changes
+
+- Fix Vite pre-bundling issue with optional plugin dependencies. Dynamic imports now use @vite-ignore comments to prevent resolution errors when @sthirajs/persist, @sthirajs/cross-tab, or @sthirajs/devtools are not installed.
+
 ## 0.3.3
 
 ### Patch Changes

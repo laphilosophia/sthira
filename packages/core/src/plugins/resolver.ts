@@ -2,8 +2,6 @@
 // @sthirajs/core - Plugin Resolver
 // ============================================================================
 
- 
-
 import type {
   DevToolsApi,
   DevToolsPluginConfig,
@@ -64,7 +62,7 @@ function createLazyPersistPlugin<T extends object>(
     onInit: async (store: Store<T, object>) => {
       try {
         // @ts-expect-error - Optional dependency
-        const { createPersistPlugin } = await import('@sthirajs/persist');
+        const { createPersistPlugin } = await import(/* @vite-ignore */ '@sthirajs/persist');
         const pluginInstance = createPersistPlugin({
           key: config.key,
           storage: config.storage,
@@ -111,7 +109,7 @@ function createLazySyncPlugin<T extends object>(
     onInit: async (store: Store<T, object>) => {
       try {
         // @ts-expect-error - Optional dependency
-        const { createSyncPlugin } = await import('@sthirajs/cross-tab');
+        const { createSyncPlugin } = await import(/* @vite-ignore */ '@sthirajs/cross-tab');
         const pluginInstance = createSyncPlugin({
           channel: config.channel,
           onConflict: config.onConflict,
@@ -158,7 +156,7 @@ function createLazyDevToolsPlugin<T extends object>(
     onInit: async (store: Store<T, object>) => {
       try {
         // @ts-expect-error - Optional dependency
-        const { createDevToolsPlugin } = await import('@sthirajs/devtools');
+        const { createDevToolsPlugin } = await import(/* @vite-ignore */ '@sthirajs/devtools');
         const pluginInstance = createDevToolsPlugin({
           name: config.name ?? storeName,
           maxAge: config.maxAge,
