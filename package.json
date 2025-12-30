@@ -1,0 +1,37 @@
+{
+  "name": "sthira",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Deterministic execution engine kernel for frontend applications",
+  "type": "module",
+  "scripts": {
+    "build": "pnpm -r build",
+    "dev": "pnpm -r --parallel dev",
+    "test": "pnpm -r test",
+    "test:coverage": "pnpm -r test:coverage",
+    "lint": "eslint packages --ext .ts,.tsx",
+    "lint:fix": "eslint packages --ext .ts,.tsx --fix",
+    "typecheck": "pnpm -r typecheck",
+    "format": "prettier --write \"packages/**/*.{ts,tsx,json,md}\"",
+    "format:check": "prettier --check \"packages/**/*.{ts,tsx,json,md}\"",
+    "clean": "pnpm -r clean",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.0.0",
+    "@commitlint/config-conventional": "^19.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^9.0.0",
+    "eslint-config-prettier": "^9.0.0",
+    "husky": "^9.0.0",
+    "prettier": "^3.0.0",
+    "typescript": "^5.7.0",
+    "vitest": "^2.0.0"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@9.15.0"
+}

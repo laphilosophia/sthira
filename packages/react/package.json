@@ -1,0 +1,47 @@
+{
+  "name": "@sthira/react",
+  "version": "0.1.0",
+  "description": "React adapter for Sthira execution engine",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "clean": "rimraf dist"
+  },
+  "keywords": [
+    "sthira",
+    "react",
+    "hooks",
+    "execution",
+    "state"
+  ],
+  "author": "",
+  "license": "MIT",
+  "peerDependencies": {
+    "react": ">=18.0.0"
+  },
+  "dependencies": {
+    "@sthira/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "react": "^18.2.0",
+    "typescript": "^5.3.3",
+    "vitest": "^1.1.0"
+  }
+}
