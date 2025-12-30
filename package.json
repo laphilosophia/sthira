@@ -1,6 +1,6 @@
 {
   "name": "sthira",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "description": "Deterministic execution engine kernel for frontend applications",
   "type": "module",
