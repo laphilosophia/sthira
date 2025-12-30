@@ -89,7 +89,9 @@ export class AuthorityNotInitializedError extends SthiraError {
  */
 export class AuthorityAlreadyExistsError extends SthiraError {
   constructor() {
-    super('Authority already exists. Only one Authority per runtime is allowed.')
+    super(
+      'Authority already exists. Only one Authority per runtime is allowed.'
+    )
     this.name = 'AuthorityAlreadyExistsError'
   }
 }

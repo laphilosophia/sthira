@@ -45,7 +45,9 @@ export function createAuthority(config: AuthorityConfig = {}): Authority {
  *
  * @see {@link docs/architecture-foundation.md#scope}
  */
-export function createScope(authority: Authority): (config: ScopeConfig) => Scope {
+export function createScope(
+  authority: Authority
+): (config: ScopeConfig) => Scope {
   return (config: ScopeConfig) => {
     const scope = authority.createScope(config)
     return scope
@@ -78,10 +80,8 @@ export function createScope(authority: Authority): (config: ScopeConfig) => Scop
 export function createTask(scope: Scope): TaskFactory {
   return {
     effect: <T>(fn: () => T | Promise<T>) => scope.effect(fn),
-    run: <T>(
-      fn: (ctx: TaskContext) => Promise<T>,
-      options?: TaskRunOptions
-    ) => scope.run(fn, options),
+    run: <T>(fn: (ctx: TaskContext) => Promise<T>, options?: TaskRunOptions) =>
+      scope.run(fn, options),
   }
 }
 
@@ -107,4 +107,3 @@ export interface TaskFactory {
 export type { AuthorityConfig } from '../core/Authority'
 export type { ScopeConfig, ScopeEngineConfig } from '../scope/Scope'
 export type { TaskContext, TaskRunOptions } from '../task/Task'
-

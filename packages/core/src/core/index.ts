@@ -1,2 +1,5 @@
-export { Authority, type AuthorityConfig, type AuthorityEngineConfig } from './Authority';
-
+export {
+  Authority,
+  type AuthorityConfig,
+  type AuthorityEngineConfig,
+} from './Authority'

@@ -137,11 +137,7 @@ export function ScopeProvider({
     }
   }, [scope, authority, id])
 
-  return (
-    <ScopeContext.Provider value={scope}>
-      {children}
-    </ScopeContext.Provider>
-  )
+  return <ScopeContext.Provider value={scope}>{children}</ScopeContext.Provider>
 }
 
 /**
@@ -265,8 +261,13 @@ export function useRun<T>(
   const state = useSyncExternalStore(subscribe, getSnapshot, getSnapshot)
 
   const notify = (): void => {
-    stateRef.current = { ...stateRef.current, version: stateRef.current.version + 1 }
-    listenersRef.current.forEach((l) => { l(); })
+    stateRef.current = {
+      ...stateRef.current,
+      version: stateRef.current.version + 1,
+    }
+    listenersRef.current.forEach((l) => {
+      l()
+    })
   }
 
   const execute = async (): Promise<T> => {
@@ -344,7 +345,9 @@ export function useBroadcast(
  */
 export function useBroadcaster(): (channel: string, data: unknown) => void {
   const authority = useAuthority()
-  return (channel, data) => { authority.broadcast(channel, data); }
+  return (channel, data) => {
+    authority.broadcast(channel, data)
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -358,6 +361,5 @@ export type {
   ScopeConfig,
   TaskContext,
   TaskFactory,
-  TaskRunOptions
+  TaskRunOptions,
 }
-

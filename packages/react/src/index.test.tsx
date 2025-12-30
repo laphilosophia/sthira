@@ -11,7 +11,11 @@ describe('@sthira/react', () => {
     it('provides authority context to children', () => {
       const TestComponent = () => {
         const authority = useAuthority()
-        return <div data-testid="authority">{authority ? 'has-authority' : 'no-authority'}</div>
+        return (
+          <div data-testid="authority">
+            {authority ? 'has-authority' : 'no-authority'}
+          </div>
+        )
       }
 
       const { getByTestId } = render(

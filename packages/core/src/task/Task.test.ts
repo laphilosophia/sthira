@@ -255,21 +255,23 @@ describe('Task', () => {
     it('should terminate workers on abort', async () => {
       let workerTerminated = false
 
-      await task.run(async (ctx) => {
-        ctx.spawnWorker(async (signal) => {
-          await new Promise<void>((resolve) => {
-            signal.addEventListener('abort', () => {
-              workerTerminated = true
-              resolve()
+      await task
+        .run(async (ctx) => {
+          ctx.spawnWorker(async (signal) => {
+            await new Promise<void>((resolve) => {
+              signal.addEventListener('abort', () => {
+                workerTerminated = true
+                resolve()
+              })
             })
           })
+
+          // Abort mid-execution
+          task.abort()
+
+          return 'result'
         })
-
-        // Abort mid-execution
-        task.abort()
-
-        return 'result'
-      }).catch(() => { })
+        .catch(() => {})
 
       expect(workerTerminated).toBe(true)
     })
@@ -290,7 +292,7 @@ describe('Task', () => {
   describe('spawnWorker (via run)', () => {
     it('should spawn worker during execution', async () => {
       await task.run(async (ctx) => {
-        const handle = ctx.spawnWorker(async () => { })
+        const handle = ctx.spawnWorker(async () => {})
 
         expect(handle.id).toBeDefined()
         expect(typeof handle.terminate).toBe('function')
@@ -301,7 +303,7 @@ describe('Task', () => {
 
     it('should increment worker count', async () => {
       await task.run(async (ctx) => {
-        ctx.spawnWorker(async () => { })
+        ctx.spawnWorker(async () => {})
 
         expect(task.workerCount).toBe(1)
 
@@ -313,7 +315,7 @@ describe('Task', () => {
   describe('addHandler (via run)', () => {
     it('should add handler during execution', async () => {
       await task.run(async (ctx) => {
-        const handle = ctx.addHandler(async () => { })
+        const handle = ctx.addHandler(async () => {})
 
         expect(handle.id).toBeDefined()
         expect(typeof handle.execute).toBe('function')
@@ -325,7 +327,7 @@ describe('Task', () => {
 
     it('should increment handler count', async () => {
       await task.run(async (ctx) => {
-        ctx.addHandler(async () => { })
+        ctx.addHandler(async () => {})
 
         expect(task.handlerCount).toBe(1)
 

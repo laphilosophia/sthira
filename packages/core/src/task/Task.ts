@@ -1,6 +1,13 @@
 import { StreamBuffer } from '../engine/StreamBuffer'
 import { WorkerPool } from '../engine/WorkerPool'
-import type { HandlerID, Ref, ScopeID, StreamID, TaskStatus, WorkerID } from '../types'
+import type {
+  HandlerID,
+  Ref,
+  ScopeID,
+  StreamID,
+  TaskStatus,
+  WorkerID,
+} from '../types'
 import { Handler } from './Handler'
 import { Stream } from './Stream'
 import { Worker } from './Worker'
@@ -286,14 +293,18 @@ export class Task<T = unknown> {
       }
 
       if (typeof requestIdleCallback !== 'undefined') {
-        requestIdleCallback(() => { execute(); })
+        requestIdleCallback(() => {
+          execute()
+        })
       } else {
         setTimeout(execute, 0)
       }
     })
   }
 
-  private _spawnWorker(fn: (signal: AbortSignal) => Promise<void>): WorkerHandle {
+  private _spawnWorker(
+    fn: (signal: AbortSignal) => Promise<void>
+  ): WorkerHandle {
     if (!this.isActive) {
       throw new Error('Cannot spawn worker: task is not active')
     }
@@ -307,7 +318,9 @@ export class Task<T = unknown> {
 
     return {
       id: worker.id,
-      terminate: () => { worker.terminate(); },
+      terminate: () => {
+        worker.terminate()
+      },
     }
   }
 
@@ -323,7 +336,9 @@ export class Task<T = unknown> {
     return {
       id: handler.id,
       execute: () => handler.execute(),
-      cancel: () => { handler.cancel(); },
+      cancel: () => {
+        handler.cancel()
+      },
     }
   }
 
@@ -338,9 +353,13 @@ export class Task<T = unknown> {
 
     return {
       id: stream.id,
-      emit: (value) => { stream.emit(value); },
+      emit: (value) => {
+        stream.emit(value)
+      },
       subscribe: (fn) => stream.subscribe(fn),
-      abort: () => { stream.abort(); },
+      abort: () => {
+        stream.abort()
+      },
     }
   }
 }
@@ -356,7 +375,9 @@ export interface TaskContext {
   readonly ref: Ref
   readonly signal: AbortSignal
   readonly emit: ((value: unknown) => boolean) | undefined
-  readonly spawnWorker: (fn: (signal: AbortSignal) => Promise<void>) => WorkerHandle
+  readonly spawnWorker: (
+    fn: (signal: AbortSignal) => Promise<void>
+  ) => WorkerHandle
   readonly addHandler: (fn: () => Promise<void>) => HandlerHandle
   readonly createStream: <S>() => StreamHandle<S>
 }

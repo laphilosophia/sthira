@@ -106,7 +106,7 @@ export class Stream<T = unknown> {
   subscribe(fn: StreamSubscriber<T>): () => void {
     if (this._status !== 'open') {
       // eslint-disable-next-line @typescript-eslint/no-empty-function -- Intentional no-op unsubscribe for closed streams
-      return () => { }
+      return () => {}
     }
 
     this._subscribers.add(fn)

@@ -155,10 +155,7 @@ describe('Scope', () => {
 
     it('should use worker pool when provided', async () => {
       const pool = new WorkerPool({ defaultWorkers: 1, maxWorkers: 2 })
-      const scopeWithPool = new Scope(
-        { id: 'scope', name: 'Scope' },
-        pool
-      )
+      const scopeWithPool = new Scope({ id: 'scope', name: 'Scope' }, pool)
       scopeWithPool.mount()
 
       const result = await scopeWithPool.run(async () => 'pooled')

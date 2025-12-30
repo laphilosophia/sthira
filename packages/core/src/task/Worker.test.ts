@@ -61,7 +61,7 @@ describe('Worker', () => {
     })
 
     it('should transition to terminated on success', async () => {
-      await worker.start(async () => { })
+      await worker.start(async () => {})
 
       expect(worker.status).toBe('terminated')
     })
@@ -77,7 +77,7 @@ describe('Worker', () => {
     })
 
     it('should not be active after termination', async () => {
-      await worker.start(async () => { })
+      await worker.start(async () => {})
 
       expect(worker.isActive).toBe(false)
     })
@@ -108,9 +108,9 @@ describe('Worker', () => {
     })
 
     it('should throw if started when not idle', async () => {
-      await worker.start(async () => { })
+      await worker.start(async () => {})
 
-      await expect(worker.start(async () => { })).rejects.toThrow(
+      await expect(worker.start(async () => {})).rejects.toThrow(
         'Cannot start worker: status is terminated'
       )
     })
@@ -165,7 +165,7 @@ describe('Worker', () => {
     })
 
     it('should not affect already terminated worker', async () => {
-      await worker.start(async () => { })
+      await worker.start(async () => {})
 
       expect(worker.status).toBe('terminated')
 

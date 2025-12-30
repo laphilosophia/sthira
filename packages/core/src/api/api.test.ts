@@ -19,7 +19,7 @@ describe('Public API', () => {
 
     it('should create Authority with custom config', () => {
       const authority = createAuthority({
-        engine: { defaultWorkers: 2, maxWorkers: 8 }
+        engine: { defaultWorkers: 2, maxWorkers: 8 },
       })
 
       expect(authority.workerPoolSize).toBe(2)
@@ -48,7 +48,7 @@ describe('Public API', () => {
 
       const scope = scopeFactory({
         id: 'test',
-        name: 'Test Scope'
+        name: 'Test Scope',
       })
 
       expect(scope.id).toBe('test')
@@ -67,7 +67,7 @@ describe('Public API', () => {
       authority = createAuthority()
       const scope = createScope(authority)({
         id: 'scope',
-        name: 'Scope'
+        name: 'Scope',
       })
       scope.mount()
 
@@ -81,7 +81,7 @@ describe('Public API', () => {
       authority = createAuthority()
       const scope = createScope(authority)({
         id: 'scope',
-        name: 'Scope'
+        name: 'Scope',
       })
       scope.mount()
       const task = createTask(scope)
@@ -95,7 +95,7 @@ describe('Public API', () => {
       authority = createAuthority()
       const scope = createScope(authority)({
         id: 'scope',
-        name: 'Scope'
+        name: 'Scope',
       })
       scope.mount()
       const task = createTask(scope)
@@ -110,13 +110,13 @@ describe('Public API', () => {
     it('should work end-to-end', async () => {
       // Setup
       const authority = createAuthority({
-        engine: { defaultWorkers: 1, maxWorkers: 4 }
+        engine: { defaultWorkers: 1, maxWorkers: 4 },
       })
 
       const dashboard = createScope(authority)({
         id: 'dashboard',
         name: 'Dashboard',
-        engine: { workers: 2 }
+        engine: { workers: 2 },
       })
       dashboard.mount()
 

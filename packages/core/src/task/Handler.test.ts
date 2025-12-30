@@ -51,9 +51,9 @@ describe('Handler', () => {
     it('should throw if function already set', () => {
       handler.setFunction(vi.fn())
 
-      expect(() => { handler.setFunction(vi.fn()); }).toThrow(
-        'Handler function already set'
-      )
+      expect(() => {
+        handler.setFunction(vi.fn())
+      }).toThrow('Handler function already set')
     })
   })
 
@@ -81,7 +81,7 @@ describe('Handler', () => {
     })
 
     it('should transition to completed on success', async () => {
-      handler.setFunction(async () => { })
+      handler.setFunction(async () => {})
 
       await handler.execute()
 
@@ -119,7 +119,7 @@ describe('Handler', () => {
     })
 
     it('should throw if already executed', async () => {
-      handler.setFunction(async () => { })
+      handler.setFunction(async () => {})
       await handler.execute()
 
       await expect(handler.execute()).rejects.toThrow(
@@ -128,7 +128,7 @@ describe('Handler', () => {
     })
 
     it('should not be pending after execution', async () => {
-      handler.setFunction(async () => { })
+      handler.setFunction(async () => {})
       await handler.execute()
 
       expect(handler.isPending).toBe(false)
@@ -138,14 +138,14 @@ describe('Handler', () => {
   describe('cancel', () => {
     // Spec: algorithm.md §7 - Disposal cancels handlers
     it('should cancel pending handler', () => {
-      handler.setFunction(async () => { })
+      handler.setFunction(async () => {})
       handler.cancel()
 
       expect(handler.status).toBe('cancelled')
     })
 
     it('should prevent execution of cancelled handler', async () => {
-      handler.setFunction(async () => { })
+      handler.setFunction(async () => {})
       handler.cancel()
 
       await expect(handler.execute()).rejects.toThrow(
@@ -154,7 +154,7 @@ describe('Handler', () => {
     })
 
     it('should be idempotent', () => {
-      handler.setFunction(async () => { })
+      handler.setFunction(async () => {})
       handler.cancel()
       handler.cancel()
       handler.cancel()
@@ -163,7 +163,7 @@ describe('Handler', () => {
     })
 
     it('should not affect completed handler', async () => {
-      handler.setFunction(async () => { })
+      handler.setFunction(async () => {})
       await handler.execute()
 
       handler.cancel()

@@ -52,17 +52,18 @@ export class Authority {
 
     const poolConfig: WorkerPoolConfig = {
       defaultWorkers: engineConfig.defaultWorkers ?? 1,
-      maxWorkers: engineConfig.maxWorkers ?? (
-        typeof navigator !== 'undefined'
-          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Browser polyfill fallback
-          ? navigator.hardwareConcurrency ?? 4
-          : 4
-      ),
+      maxWorkers:
+        engineConfig.maxWorkers ??
+        (typeof navigator !== 'undefined'
+          ? // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Browser polyfill fallback
+            (navigator.hardwareConcurrency ?? 4)
+          : 4),
     }
 
     if (engineConfig.idleTimeout !== undefined) {
       // eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- Adding optional property
-      (poolConfig as { idleTimeout?: number }).idleTimeout = engineConfig.idleTimeout
+      ;(poolConfig as { idleTimeout?: number }).idleTimeout =
+        engineConfig.idleTimeout
     }
 
     this._workerPool = new WorkerPool(poolConfig)

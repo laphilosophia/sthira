@@ -202,7 +202,10 @@ export class WorkerPool {
     return undefined
   }
 
-  private _dispatchWork(worker: PooledWorker, work: PendingWork<unknown>): void {
+  private _dispatchWork(
+    worker: PooledWorker,
+    work: PendingWork<unknown>
+  ): void {
     worker.state = 'busy'
     worker.currentWorkId = work.id
 

@@ -5,12 +5,7 @@ import type { Ref, RequestID, ScopeID } from './ids'
  *
  * @see {@link docs/execution-semantics.md}
  */
-export type TaskStatus =
-  | 'pending'
-  | 'running'
-  | 'success'
-  | 'error'
-  | 'aborted'
+export type TaskStatus = 'pending' | 'running' | 'success' | 'error' | 'aborted'
 
 /**
  * Task outcome classification.

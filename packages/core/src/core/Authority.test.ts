@@ -29,7 +29,7 @@ describe('Authority', () => {
 
     it('should create worker pool with custom config', () => {
       const customAuthority = new Authority({
-        engine: { defaultWorkers: 4, maxWorkers: 8 }
+        engine: { defaultWorkers: 4, maxWorkers: 8 },
       })
 
       expect(customAuthority.workerPoolSize).toBe(4)
@@ -45,7 +45,7 @@ describe('Authority', () => {
     it('should create scope', () => {
       const scope = authority.createScope({
         id: 'test-scope',
-        name: 'Test Scope'
+        name: 'Test Scope',
       })
 
       expect(scope).toBeDefined()
@@ -100,7 +100,7 @@ describe('Authority', () => {
       authority.createScope({
         id: 'heavy',
         name: 'Heavy',
-        engine: { workers: 4 }
+        engine: { workers: 4 },
       })
 
       expect(authority.workerPoolSize).toBe(4)

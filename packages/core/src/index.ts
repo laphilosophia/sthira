@@ -11,7 +11,12 @@
 export * from './types'
 
 // Scope
-export { Scope, ScopeFSM, type ScopeConfig, type ScopeEngineConfig } from './scope'
+export {
+  Scope,
+  ScopeFSM,
+  type ScopeConfig,
+  type ScopeEngineConfig,
+} from './scope'
 
 // Task Execution Units
 export {
@@ -22,20 +27,26 @@ export {
   Worker,
   type HandlerStatus,
   type StreamStatus,
-  type StreamSubscriber, type TaskContext, type TaskOutcome,
-  type TaskRunOptions, type WorkerStatus
+  type StreamSubscriber,
+  type TaskContext,
+  type TaskOutcome,
+  type TaskRunOptions,
+  type WorkerStatus,
 } from './task'
 
 // Engine
 export {
-  StreamBuffer, WorkerPool, type StreamBufferConfig, type WorkerPoolConfig
+  StreamBuffer,
+  WorkerPool,
+  type StreamBufferConfig,
+  type WorkerPoolConfig,
 } from './engine'
 
 // Core
 export {
   Authority,
   type AuthorityConfig,
-  type AuthorityEngineConfig
+  type AuthorityEngineConfig,
 } from './core'
 
 // Public API
@@ -43,6 +54,5 @@ export {
   createAuthority,
   createScope,
   createTask,
-  type TaskFactory
+  type TaskFactory,
 } from './api'
-

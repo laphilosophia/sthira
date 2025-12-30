@@ -10,7 +10,12 @@ const generateHandlerId = (): HandlerID => {
 /**
  * Handler execution status.
  */
-export type HandlerStatus = 'pending' | 'running' | 'completed' | 'failed' | 'cancelled'
+export type HandlerStatus =
+  | 'pending'
+  | 'running'
+  | 'completed'
+  | 'failed'
+  | 'cancelled'
 
 /**
  * Handler - Method participating in task execution.
