@@ -61,13 +61,13 @@ describe('WorkerPool', () => {
     it('should queue work when all workers busy', async () => {
       // Start 3 long-running tasks (pool has 2 workers)
       const task1 = pool.execute(
-        () => new Promise((r) => setTimeout(() => r(1), 50))
+        () => new Promise((r) => setTimeout(() => { r(1); }, 50))
       )
       const task2 = pool.execute(
-        () => new Promise((r) => setTimeout(() => r(2), 50))
+        () => new Promise((r) => setTimeout(() => { r(2); }, 50))
       )
       const task3 = pool.execute(
-        () => new Promise((r) => setTimeout(() => r(3), 50))
+        () => new Promise((r) => setTimeout(() => { r(3); }, 50))
       )
 
       // Should queue the third
@@ -148,10 +148,10 @@ describe('WorkerPool', () => {
     it('should reject queued work', async () => {
       // Fill workers
       const task1 = pool.execute(
-        () => new Promise((r) => setTimeout(() => r(1), 100))
+        () => new Promise((r) => setTimeout(() => { r(1); }, 100))
       )
       const task2 = pool.execute(
-        () => new Promise((r) => setTimeout(() => r(2), 100))
+        () => new Promise((r) => setTimeout(() => { r(2); }, 100))
       )
       // Queue third
       const task3 = pool.execute(() => 3)

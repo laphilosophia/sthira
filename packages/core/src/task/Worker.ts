@@ -89,6 +89,7 @@ export class Worker {
       await fn(this._abortController.signal)
 
       // Only mark success if not already terminated
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Runtime guard for async termination
       if (this._status === 'running') {
         this._status = 'terminated'
       }

@@ -44,7 +44,7 @@ interface PooledWorker {
  */
 export class WorkerPool {
   private readonly _config: Required<WorkerPoolConfig>
-  private readonly _workers: Map<string, PooledWorker> = new Map()
+  private readonly _workers = new Map<string, PooledWorker>()
   private readonly _queue: PendingWork<unknown>[] = []
   private _disposed = false
   private _workCounter = 0
@@ -123,6 +123,7 @@ export class WorkerPool {
       const work: PendingWork<T> = {
         id: workId,
         fn,
+        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- Generic type coercion
         resolve: resolve as (value: unknown) => void,
         reject,
       }
@@ -130,9 +131,11 @@ export class WorkerPool {
       // Try to find an idle worker
       const idleWorker = this._findIdleWorker()
       if (idleWorker) {
+        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- Generic type coercion
         this._dispatchWork(idleWorker, work as PendingWork<unknown>)
       } else {
         // Queue the work
+        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- Generic type coercion
         this._queue.push(work as PendingWork<unknown>)
       }
     })

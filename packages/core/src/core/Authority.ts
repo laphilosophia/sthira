@@ -54,12 +54,14 @@ export class Authority {
       defaultWorkers: engineConfig.defaultWorkers ?? 1,
       maxWorkers: engineConfig.maxWorkers ?? (
         typeof navigator !== 'undefined'
+          // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Browser polyfill fallback
           ? navigator.hardwareConcurrency ?? 4
           : 4
       ),
     }
 
     if (engineConfig.idleTimeout !== undefined) {
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- Adding optional property
       (poolConfig as { idleTimeout?: number }).idleTimeout = engineConfig.idleTimeout
     }
 
@@ -183,6 +185,8 @@ export class Authority {
       this._listeners.set(channel, new Set())
     }
 
+    // Safe to use non-null assertion since we just checked/created the channel
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this._listeners.get(channel)!.add(listener)
 
     return () => {

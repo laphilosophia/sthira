@@ -51,7 +51,7 @@ describe('Handler', () => {
     it('should throw if function already set', () => {
       handler.setFunction(vi.fn())
 
-      expect(() => handler.setFunction(vi.fn())).toThrow(
+      expect(() => { handler.setFunction(vi.fn()); }).toThrow(
         'Handler function already set'
       )
     })

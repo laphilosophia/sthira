@@ -35,7 +35,11 @@ export default tseslint.config(
       // Require explicit return types on public APIs
       '@typescript-eslint/explicit-function-return-type': [
         'error',
-        { allowExpressions: true },
+        {
+          allowExpressions: true,
+          allowHigherOrderFunctions: true,
+          allowTypedFunctionExpressions: true,
+        },
       ],
 
       // Naming conventions
@@ -48,7 +52,7 @@ export default tseslint.config(
         {
           selector: 'variable',
           modifiers: ['const'],
-          format: ['camelCase', 'UPPER_CASE'],
+          format: ['camelCase', 'UPPER_CASE', 'PascalCase'],
         },
         {
           selector: 'memberLike',
@@ -69,14 +73,35 @@ export default tseslint.config(
 
       // No unused expressions
       '@typescript-eslint/no-unused-expressions': 'error',
+
+      // Allow template literal expressions with numbers (common pattern)
+      '@typescript-eslint/restrict-template-expressions': [
+        'error',
+        { allowNumber: true },
+      ],
+
+      // Allow arrow functions returning void
+      '@typescript-eslint/no-confusing-void-expression': [
+        'error',
+        { ignoreArrowShorthand: true },
+      ],
+
     },
   },
   {
-    // Test files can use type assertions
-    files: ['**/*.test.ts'],
+    // Test files can use type assertions and have relaxed rules
+    files: ['**/*.test.ts', '**/*.test.tsx'],
     rules: {
       '@typescript-eslint/consistent-type-assertions': 'off',
       '@typescript-eslint/no-non-null-assertion': 'off',
+      '@typescript-eslint/require-await': 'off',
+      '@typescript-eslint/no-empty-function': 'off',
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      '@typescript-eslint/naming-convention': 'off',
+      '@typescript-eslint/no-unnecessary-condition': 'off',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-floating-promises': 'off',
+      '@typescript-eslint/no-unused-vars': 'off',
       'no-console': 'off',
     },
   },

@@ -219,12 +219,14 @@ export class Task<T = unknown> {
         result = await fn(ctx)
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Runtime guard for async abort
       if (this._controller.signal.aborted) {
         this._status = 'aborted'
         this._outcome = 'aborted'
         throw new Error('Task was aborted')
       }
 
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- Generic result type requires cast
       this._result = result as unknown as T
       this._status = 'success'
       this._outcome = 'success'
@@ -279,12 +281,12 @@ export class Task<T = unknown> {
 
   private _runDeferred<R>(fn: () => Promise<R>): Promise<R> {
     return new Promise((resolve, reject) => {
-      const execute = () => {
+      const execute = (): void => {
         fn().then(resolve).catch(reject)
       }
 
       if (typeof requestIdleCallback !== 'undefined') {
-        requestIdleCallback(() => execute())
+        requestIdleCallback(() => { execute(); })
       } else {
         setTimeout(execute, 0)
       }
@@ -305,7 +307,7 @@ export class Task<T = unknown> {
 
     return {
       id: worker.id,
-      terminate: () => worker.terminate(),
+      terminate: () => { worker.terminate(); },
     }
   }
 
@@ -321,7 +323,7 @@ export class Task<T = unknown> {
     return {
       id: handler.id,
       execute: () => handler.execute(),
-      cancel: () => handler.cancel(),
+      cancel: () => { handler.cancel(); },
     }
   }
 
@@ -331,13 +333,14 @@ export class Task<T = unknown> {
     }
 
     const stream = new Stream<S>(this.ref)
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- Stream generic type requires cast
     this._streams.set(stream.id, stream as unknown as Stream)
 
     return {
       id: stream.id,
-      emit: (value) => stream.emit(value),
+      emit: (value) => { stream.emit(value); },
       subscribe: (fn) => stream.subscribe(fn),
-      abort: () => stream.abort(),
+      abort: () => { stream.abort(); },
     }
   }
 }

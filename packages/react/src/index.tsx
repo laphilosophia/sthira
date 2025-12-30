@@ -1,23 +1,24 @@
 import {
-    Authority,
-    Scope,
-    createAuthority,
-    createScope,
-    createTask,
-    type AuthorityConfig,
-    type ScopeConfig,
-    type TaskContext,
-    type TaskFactory,
-    type TaskRunOptions,
+  Authority,
+  Scope,
+  createAuthority,
+  createScope,
+  createTask,
+  type AuthorityConfig,
+  type ScopeConfig,
+  type TaskContext,
+  type TaskFactory,
+  type TaskRunOptions,
 } from '@sthira/core'
 import {
-    createContext,
-    useContext,
-    useEffect,
-    useMemo,
-    useRef,
-    useSyncExternalStore,
-    type ReactNode,
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useSyncExternalStore,
+  type ReactElement,
+  type ReactNode,
 } from 'react'
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -48,12 +49,10 @@ export function AuthorityProvider({
 }: {
   children: ReactNode
   config?: AuthorityConfig
-}) {
+}): ReactElement {
   const authorityRef = useRef<Authority | null>(null)
 
-  if (!authorityRef.current) {
-    authorityRef.current = createAuthority(config)
-  }
+  authorityRef.current ??= createAuthority(config)
 
   useEffect(() => {
     return () => {
@@ -118,13 +117,13 @@ export function ScopeProvider({
   name: string
   /** Worker count override (optional) */
   workers?: number
-}) {
+}): ReactElement {
   const authority = useAuthority()
 
   const scope = useMemo(() => {
     const config: ScopeConfig = { id, name }
     if (workers !== undefined) {
-      (config as { engine?: { workers: number } }).engine = { workers }
+      Object.assign(config, { engine: { workers } })
     }
     const s = createScope(authority)(config)
     s.mount()
@@ -261,13 +260,13 @@ export function useRun<T>(
     return () => listenersRef.current.delete(listener)
   }
 
-  const getSnapshot = () => stateRef.current
+  const getSnapshot = (): typeof stateRef.current => stateRef.current
 
   const state = useSyncExternalStore(subscribe, getSnapshot, getSnapshot)
 
-  const notify = () => {
+  const notify = (): void => {
     stateRef.current = { ...stateRef.current, version: stateRef.current.version + 1 }
-    listenersRef.current.forEach((l) => l())
+    listenersRef.current.forEach((l) => { l(); })
   }
 
   const execute = async (): Promise<T> => {
@@ -345,7 +344,7 @@ export function useBroadcast(
  */
 export function useBroadcaster(): (channel: string, data: unknown) => void {
   const authority = useAuthority()
-  return (channel, data) => authority.broadcast(channel, data)
+  return (channel, data) => { authority.broadcast(channel, data); }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -353,12 +352,12 @@ export function useBroadcaster(): (channel: string, data: unknown) => void {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export type {
-    Authority,
-    AuthorityConfig,
-    Scope,
-    ScopeConfig,
-    TaskContext,
-    TaskFactory,
-    TaskRunOptions
+  Authority,
+  AuthorityConfig,
+  Scope,
+  ScopeConfig,
+  TaskContext,
+  TaskFactory,
+  TaskRunOptions
 }
 

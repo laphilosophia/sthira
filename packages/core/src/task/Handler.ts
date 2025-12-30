@@ -105,6 +105,7 @@ export class Handler {
       await this._fn()
 
       // Check if cancelled during execution
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Runtime guard for async cancellation
       if (this._cancelled) {
         this._status = 'cancelled'
         return
@@ -112,6 +113,7 @@ export class Handler {
 
       this._status = 'completed'
     } catch (err) {
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition -- Runtime guard for async cancellation
       if (this._cancelled) {
         this._status = 'cancelled'
         return
