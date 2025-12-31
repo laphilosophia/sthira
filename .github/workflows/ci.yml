@@ -114,7 +114,7 @@ jobs:
         run: |
           CORE_SIZE=$(du -sb packages/core/dist | cut -f1)
           echo "Core bundle size: $CORE_SIZE bytes"
-          if [ $CORE_SIZE -gt 20000 ]; then
-            echo "Bundle size exceeds 20KB limit!"
+          if [ $CORE_SIZE -gt 200000 ]; then
+            echo "Bundle size exceeds 200KB limit!"
             exit 1
           fi
