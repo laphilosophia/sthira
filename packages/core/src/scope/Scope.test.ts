@@ -142,7 +142,7 @@ describe('Scope', () => {
     it('should throw if scope disposed', () => {
       scope.dispose()
 
-      expect(() => scope.run(async () => await 'result')).rejects.toThrow(
+      expect(() => scope.run(async () => 'result')).rejects.toThrow(
         'scope "Test Scope" is disposed'
       )
     })
